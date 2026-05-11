@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-4 py-12 grid gap-10 sm:grid-cols-4">
 
         <div className="sm:col-span-1">
-          <Image src="/logo.jpg" alt="Logo" width={70} height={70} className="object-contain mb-3 opacity-90" />
+          <Image src="/logo.png" alt="Logo" width={70} height={70} className="object-contain mb-3 opacity-90" />
           <p className="text-sm text-gray-400 leading-relaxed">
             Pielęgnujemy język polski, kulturę i tradycję w naszej społeczności.
           </p>

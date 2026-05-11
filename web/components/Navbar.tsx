@@ -100,7 +100,7 @@ export default function Navbar() {
       <div className="bg-cream border-b border-gray-200 py-4 px-4">
         <div className="max-w-6xl mx-auto flex items-center gap-5">
           <Link href="/">
-            <Image src="/logo.jpg" alt="Polska Szkoła Logo" width={90} height={90} className="object-contain" />
+            <Image src="/logo.png" alt="Polska Szkoła Logo" width={90} height={90} className="object-contain" />
           </Link>
           <div>
             <Link href="/">
