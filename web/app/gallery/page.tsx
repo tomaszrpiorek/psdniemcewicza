@@ -1,0 +1,60 @@
+import {client, urlFor} from '@/lib/sanity'
+import Image from 'next/image'
+
+export const revalidate = 30
+
+async function getGallery() {
+  return client.fetch(`*[_type == "galleryImage"] | order(takenAt desc) {
+    _id, image, caption, category, takenAt
+  }`)
+}
+
+const categoryLabel: Record<string, string> = {
+  events: 'Wydarzenia',
+  classes: 'Lekcje',
+  sports: 'Sport',
+  other: 'Inne',
+}
+
+export default async function GalleryPage() {
+  const images = await getGallery()
+
+  return (
+    <main>
+      <div className="bg-navy text-white py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2">Szkoła w Obiektywie</p>
+          <h1 className="text-3xl font-bold">Galeria Zdjęć</h1>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        {images.length === 0 && <p className="text-gray-400 text-sm">Brak zdjęć w galerii.</p>}
+        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+          {images.map((item: any) => (
+            <div key={item._id} className="group rounded-xl overflow-hidden shadow-sm border border-gray-100 bg-white hover:border-gold transition-colors hover:shadow-md">
+              <div className="relative aspect-square">
+                <Image
+                  src={urlFor(item.image).width(500).height(500).fit('crop').url()}
+                  alt={item.caption || ''}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              {(item.caption || item.category) && (
+                <div className="p-3">
+                  {item.category && (
+                    <span className="text-xs bg-navy text-gold px-2 py-0.5 rounded font-medium">
+                      {categoryLabel[item.category] ?? item.category}
+                    </span>
+                  )}
+                  {item.caption && <p className="text-xs text-gray-500 mt-1">{item.caption}</p>}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
+  )
+}
