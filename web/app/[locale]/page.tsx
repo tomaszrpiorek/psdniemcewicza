@@ -3,7 +3,6 @@ import {PortableText} from 'next-sanity'
 import Link from 'next/link'
 import Image from 'next/image'
 import {getTranslations} from 'next-intl/server'
-import {p} from '@/lib/navigation'
 
 export const revalidate = 30
 
@@ -42,10 +41,10 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
           </h2>
           <p className="text-gray-300 text-lg mb-8 max-w-xl mx-auto">{t('description')}</p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href={p(locale, '/about')} className="bg-gold text-navy font-bold px-6 py-3 rounded hover:bg-gold-light transition-colors text-sm">
+            <Link href={'/' + locale + '/about'} className="bg-gold text-navy font-bold px-6 py-3 rounded hover:bg-gold-light transition-colors text-sm">
               {t('learnMore')}
             </Link>
-            <Link href={p(locale, '/contact')} className="border border-gold text-gold font-bold px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors text-sm">
+            <Link href={'/' + locale + '/contact'} className="border border-gold text-gold font-bold px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors text-sm">
               {t('contactBtn')}
             </Link>
           </div>
@@ -74,14 +73,14 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
           <div>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('announcementsTitle')}</h2>
-              <Link href={p(locale, '/announcements')} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
+              <Link href={'/' + locale + '/announcements'} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
             </div>
             {announcements.length === 0 ? (
               <p className="text-gray-400 text-sm">{t('noAnnouncements')}</p>
             ) : (
               <div className="space-y-4">
                 {announcements.map((a: any) => (
-                  <article key={a._id} className={`bg-white border-l-4 ${a.pinned ? 'border-gold' : 'border-navy-light'} rounded-r-lg shadow-sm p-5`}>
+                  <article key={a._id} className={'bg-white border-l-4 ' + (a.pinned ? 'border-gold' : 'border-navy-light') + ' rounded-r-lg shadow-sm p-5'}>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex items-center gap-2">
                         {a.pinned && <span className="text-xs bg-gold text-navy font-bold px-2 py-0.5 rounded">{t('pinned')}</span>}
@@ -102,7 +101,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
             <div>
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('galleryTitle')}</h2>
-                <Link href={p(locale, '/gallery')} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
+                <Link href={'/' + locale + '/gallery'} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {gallery.map((item: any) => (
@@ -145,11 +144,11 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
             <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1 mb-5">{t('quickLinks')}</h2>
             <div className="space-y-2">
               {[
-                {href: p(locale, '/homework/klasa-1'), label: t('link_homework')},
-                {href: p(locale, '/documents'),        label: t('link_documents')},
-                {href: p(locale, '/staff'),            label: t('link_staff')},
-                {href: p(locale, '/gallery'),          label: t('link_gallery')},
-                {href: p(locale, '/contact'),          label: t('link_contact')},
+                {href: '/' + locale + '/homework/klasa-1', label: t('link_homework')},
+                {href: '/' + locale + '/documents',        label: t('link_documents')},
+                {href: '/' + locale + '/staff',            label: t('link_staff')},
+                {href: '/' + locale + '/gallery',          label: t('link_gallery')},
+                {href: '/' + locale + '/contact',          label: t('link_contact')},
               ].map((l) => (
                 <Link key={l.href} href={l.href} className="flex items-center justify-between bg-white border border-gray-100 rounded px-4 py-3 text-sm text-navy font-medium hover:border-gold hover:text-gold transition-colors shadow-sm">
                   {l.label}<span className="text-gray-300">›</span>
@@ -164,7 +163,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl font-bold text-white mb-3">{t('ctaTitle')}</h2>
           <p className="text-gray-300 mb-6">{t('ctaDesc')}</p>
-          <Link href={p(locale, '/contact')} className="bg-gold text-navy font-bold px-8 py-3 rounded hover:bg-gold-light transition-colors inline-block">
+          <Link href={'/' + locale + '/contact'} className="bg-gold text-navy font-bold px-8 py-3 rounded hover:bg-gold-light transition-colors inline-block">
             {t('ctaBtn')}
           </Link>
         </div>

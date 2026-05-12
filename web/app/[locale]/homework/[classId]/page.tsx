@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import {getTranslations} from 'next-intl/server'
-import {p} from '@/lib/navigation'
 
 const classData = {
   'przedszkole': {labelKey: 'preschool', teacher: 'Pani Kowalska'},
@@ -21,7 +20,7 @@ export default async function HomeworkPage({params}: {params: Promise<{locale: s
     return (
       <main className="max-w-4xl mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-navy mb-4">{t('notFound')}</h1>
-        <Link href={p(locale, '/')} className="text-gold hover:underline">{t('backHome')}</Link>
+        <Link href={'/' + locale} className="text-gold hover:underline">{t('backHome')}</Link>
       </main>
     )
   }
@@ -40,7 +39,7 @@ export default async function HomeworkPage({params}: {params: Promise<{locale: s
           {Object.entries(classData).map(([id, c]) => (
             <Link
               key={id}
-              href={p(locale, `/homework/${id}`)}
+              href={'/' + locale + '/homework/' + id}
               className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${
                 id === classId ? 'bg-navy text-white border-navy' : 'border-gray-200 text-navy hover:border-gold hover:text-gold bg-white'
               }`}
