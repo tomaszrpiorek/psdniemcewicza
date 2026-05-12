@@ -104,8 +104,8 @@ export default function Navbar() {
           </Link>
           <div>
             <Link href="/">
-              <h1 className="text-2xl sm:text-3xl font-bold text-navy leading-tight">Polska Szkoła</h1>
-              <p className="text-sm text-gray-500 mt-0.5">im. Adama Mickiewicza</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-navy leading-tight">Polska Szkoła Dokształcająca</h1>
+              <p className="text-sm text-gray-500 mt-0.5">im. Juliana Ursyna Niemcewicza — Plainfield, NJ</p>
             </Link>
           </div>
         </div>

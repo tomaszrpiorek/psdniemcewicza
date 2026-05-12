@@ -35,8 +35,8 @@ export default async function Home() {
         <div className="max-w-3xl mx-auto">
           <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-3">Witamy w naszej szkole</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
-            Polska Szkoła<br />
-            <span className="text-gold">im. Adama Mickiewicza</span>
+            Polska Szkoła Dokształcająca<br />
+            <span className="text-gold">im. Juliana Ursyna Niemcewicza</span>
           </h2>
           <p className="text-gray-300 text-lg mb-8 max-w-xl mx-auto">
             Pielęgnujemy język polski, historię i kulturę — dla kolejnych pokoleń.

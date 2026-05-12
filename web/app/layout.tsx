@@ -7,8 +7,8 @@ import Footer from '@/components/Footer'
 const inter = Inter({subsets: ['latin', 'latin-ext']})
 
 export const metadata: Metadata = {
-  title: 'Polska Szkoła im. Adama Mickiewicza',
-  description: 'Polska szkoła — język, kultura i tradycja dla kolejnych pokoleń.',
+  title: 'PSD im. Juliana Ursyna Niemcewicza — Plainfield, NJ',
+  description: 'Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, New Jersey.',
 }
 
 export default function RootLayout({children}: {children: React.ReactNode}) {

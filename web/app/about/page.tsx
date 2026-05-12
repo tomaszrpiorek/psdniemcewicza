@@ -15,8 +15,8 @@ export default function AboutPage() {
           <div>
             <h2 className="text-2xl font-bold text-navy mb-4 border-b-2 border-gold pb-1 inline-block">Nasza Misja</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              Polska Szkoła im. Adama Mickiewicza jest szkołą społeczną poświęconą nauczaniu języka polskiego,
-              literatury, historii i kultury wśród dzieci wychowujących się poza Polską.
+              Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, New Jersey jest szkołą społeczną
+              poświęconą nauczaniu języka polskiego, literatury, historii i kultury wśród dzieci wychowujących się poza Polską.
             </p>
             <p className="text-gray-600 leading-relaxed">
               Wierzymy, że język jest fundamentem tożsamości. Nasi nauczyciele z pasją

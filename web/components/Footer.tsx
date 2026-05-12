@@ -53,7 +53,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-navy-light text-center py-4 text-xs text-gray-500">
-        © {new Date().getFullYear()} Polska Szkoła im. Adama Mickiewicza. Wszelkie prawa zastrzeżone.
+        © {new Date().getFullYear()} Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, NJ. Wszelkie prawa zastrzeżone.
       </div>
     </footer>
   )
