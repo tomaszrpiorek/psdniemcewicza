@@ -2,8 +2,8 @@ import {client, urlFor} from '@/lib/sanity'
 import {PortableText} from 'next-sanity'
 import Link from 'next/link'
 import Image from 'next/image'
-import {useTranslations} from 'next-intl'
 import {getTranslations} from 'next-intl/server'
+import {p} from '@/lib/navigation'
 
 export const revalidate = 30
 
@@ -29,12 +29,10 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
   const [announcements, events, gallery] = await Promise.all([
     getAnnouncements(), getEvents(), getGalleryPreview(),
   ])
-
   const dateLocale = locale === 'pl' ? 'pl-PL' : 'en-US'
 
   return (
     <>
-      {/* Hero */}
       <section className="bg-navy py-14 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-3">{t('welcome')}</p>
@@ -44,17 +42,16 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
           </h2>
           <p className="text-gray-300 text-lg mb-8 max-w-xl mx-auto">{t('description')}</p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href={`/${locale}/about`} className="bg-gold text-navy font-bold px-6 py-3 rounded hover:bg-gold-light transition-colors text-sm">
+            <Link href={p(locale, '/about')} className="bg-gold text-navy font-bold px-6 py-3 rounded hover:bg-gold-light transition-colors text-sm">
               {t('learnMore')}
             </Link>
-            <Link href={`/${locale}/contact`} className="border border-gold text-gold font-bold px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors text-sm">
+            <Link href={p(locale, '/contact')} className="border border-gold text-gold font-bold px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors text-sm">
               {t('contactBtn')}
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Info bar */}
       <div className="bg-navy-dark text-gray-300 py-4 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm">
           {[
@@ -72,15 +69,12 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
         </div>
       </div>
 
-      {/* Main content */}
       <div className="max-w-6xl mx-auto px-4 py-12 grid lg:grid-cols-3 gap-10">
-
-        {/* Announcements + Gallery */}
         <div className="lg:col-span-2 space-y-8">
           <div>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('announcementsTitle')}</h2>
-              <Link href={`/${locale}/announcements`} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
+              <Link href={p(locale, '/announcements')} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
             </div>
             {announcements.length === 0 ? (
               <p className="text-gray-400 text-sm">{t('noAnnouncements')}</p>
@@ -97,11 +91,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
                         {new Date(a.publishedAt).toLocaleDateString(dateLocale, {day: 'numeric', month: 'long', year: 'numeric'})}
                       </time>
                     </div>
-                    {a.body && (
-                      <div className="prose prose-sm max-w-none text-gray-700">
-                        <PortableText value={a.body} />
-                      </div>
-                    )}
+                    {a.body && <div className="prose prose-sm max-w-none text-gray-700"><PortableText value={a.body} /></div>}
                   </article>
                 ))}
               </div>
@@ -112,17 +102,12 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
             <div>
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('galleryTitle')}</h2>
-                <Link href={`/${locale}/gallery`} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
+                <Link href={p(locale, '/gallery')} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {gallery.map((item: any) => (
                   <div key={item._id} className="relative aspect-square rounded overflow-hidden group">
-                    <Image
-                      src={urlFor(item.image).width(300).height(300).fit('crop').url()}
-                      alt={item.caption || ''}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <Image src={urlFor(item.image).width(300).height(300).fit('crop').url()} alt={item.caption || ''} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                   </div>
                 ))}
               </div>
@@ -130,7 +115,6 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
           )}
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-8">
           <div>
             <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1 mb-5">{t('calendarTitle')}</h2>
@@ -161,11 +145,11 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
             <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1 mb-5">{t('quickLinks')}</h2>
             <div className="space-y-2">
               {[
-                {href: `/${locale}/homework/klasa-1`, label: t('link_homework')},
-                {href: `/${locale}/documents`, label: t('link_documents')},
-                {href: `/${locale}/staff`, label: t('link_staff')},
-                {href: `/${locale}/gallery`, label: t('link_gallery')},
-                {href: `/${locale}/contact`, label: t('link_contact')},
+                {href: p(locale, '/homework/klasa-1'), label: t('link_homework')},
+                {href: p(locale, '/documents'),        label: t('link_documents')},
+                {href: p(locale, '/staff'),            label: t('link_staff')},
+                {href: p(locale, '/gallery'),          label: t('link_gallery')},
+                {href: p(locale, '/contact'),          label: t('link_contact')},
               ].map((l) => (
                 <Link key={l.href} href={l.href} className="flex items-center justify-between bg-white border border-gray-100 rounded px-4 py-3 text-sm text-navy font-medium hover:border-gold hover:text-gold transition-colors shadow-sm">
                   {l.label}<span className="text-gray-300">›</span>
@@ -176,12 +160,11 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
         </div>
       </div>
 
-      {/* CTA */}
       <div className="bg-navy py-12 px-4 text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl font-bold text-white mb-3">{t('ctaTitle')}</h2>
           <p className="text-gray-300 mb-6">{t('ctaDesc')}</p>
-          <Link href={`/${locale}/contact`} className="bg-gold text-navy font-bold px-8 py-3 rounded hover:bg-gold-light transition-colors inline-block">
+          <Link href={p(locale, '/contact')} className="bg-gold text-navy font-bold px-8 py-3 rounded hover:bg-gold-light transition-colors inline-block">
             {t('ctaBtn')}
           </Link>
         </div>

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import {useLocale, useTranslations} from 'next-intl'
+import {p} from '@/lib/navigation'
 
 export default function Footer() {
   const locale = useLocale()
@@ -21,10 +22,10 @@ export default function Footer() {
           <h3 className="text-gold font-bold mb-3 text-xs uppercase tracking-widest">{t('school')}</h3>
           <ul className="space-y-2 text-sm">
             {[
-              {href: `/${locale}/about`, label: tNav('about')},
-              {href: `/${locale}/staff`, label: tNav('staff')},
-              {href: `/${locale}/gallery`, label: tNav('gallery')},
-              {href: `/${locale}/documents`, label: tNav('documents')},
+              {href: p(locale, '/about'),     label: tNav('about')},
+              {href: p(locale, '/staff'),     label: tNav('staff')},
+              {href: p(locale, '/gallery'),   label: tNav('gallery')},
+              {href: p(locale, '/documents'), label: tNav('documents')},
             ].map((l) => (
               <li key={l.href}><Link href={l.href} className="hover:text-gold transition-colors">{l.label}</Link></li>
             ))}
@@ -35,10 +36,10 @@ export default function Footer() {
           <h3 className="text-gold font-bold mb-3 text-xs uppercase tracking-widest">{t('info')}</h3>
           <ul className="space-y-2 text-sm">
             {[
-              {href: `/${locale}/announcements`, label: tNav('announcements')},
-              {href: `/${locale}/calendar`, label: tNav('calendar')},
-              {href: `/${locale}/homework/klasa-1`, label: tNav('homework')},
-              {href: `/${locale}/contact`, label: tNav('contact')},
+              {href: p(locale, '/announcements'),    label: tNav('announcements')},
+              {href: p(locale, '/calendar'),         label: tNav('calendar')},
+              {href: p(locale, '/homework/klasa-1'), label: tNav('homework')},
+              {href: p(locale, '/contact'),          label: tNav('contact')},
             ].map((l) => (
               <li key={l.href}><Link href={l.href} className="hover:text-gold transition-colors">{l.label}</Link></li>
             ))}

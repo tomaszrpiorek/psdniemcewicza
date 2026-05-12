@@ -5,6 +5,7 @@ import Image from 'next/image'
 import {useState, useRef} from 'react'
 import {useLocale, useTranslations} from 'next-intl'
 import {usePathname, useRouter} from 'next/navigation'
+import {p} from '@/lib/navigation'
 
 type Child = {label: string; href: string}
 type NavItem = {label: string; href?: string; children?: Child[]}
@@ -16,36 +17,38 @@ export default function Navbar() {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const otherLocale = locale === 'pl' ? 'en' : 'pl'
   const switchLocale = () => {
-    const newPath = pathname.replace(`/${locale}`, `/${otherLocale}`)
-    router.push(newPath)
+    if (locale === 'pl') {
+      router.push(`/en${pathname}`)
+    } else {
+      router.push(pathname.replace(/^\/en/, '') || '/')
+    }
   }
 
   const navItems: NavItem[] = [
     {
       label: t('school'),
       children: [
-        {label: t('about'), href: `/${locale}/about`},
-        {label: t('staff'), href: `/${locale}/staff`},
-        {label: t('gallery'), href: `/${locale}/gallery`},
-        {label: t('documents'), href: `/${locale}/documents`},
+        {label: t('about'),     href: p(locale, '/about')},
+        {label: t('staff'),     href: p(locale, '/staff')},
+        {label: t('gallery'),   href: p(locale, '/gallery')},
+        {label: t('documents'), href: p(locale, '/documents')},
       ],
     },
-    {label: t('announcements'), href: `/${locale}/announcements`},
+    {label: t('announcements'), href: p(locale, '/announcements')},
     {
       label: t('homework'),
       children: [
-        {label: t('preschool'), href: `/${locale}/homework/przedszkole`},
-        {label: t('class1'), href: `/${locale}/homework/klasa-1`},
-        {label: t('class2'), href: `/${locale}/homework/klasa-2`},
-        {label: t('class3'), href: `/${locale}/homework/klasa-3`},
-        {label: t('class4'), href: `/${locale}/homework/klasa-4`},
-        {label: t('class5'), href: `/${locale}/homework/klasa-5`},
+        {label: t('preschool'), href: p(locale, '/homework/przedszkole')},
+        {label: t('class1'),    href: p(locale, '/homework/klasa-1')},
+        {label: t('class2'),    href: p(locale, '/homework/klasa-2')},
+        {label: t('class3'),    href: p(locale, '/homework/klasa-3')},
+        {label: t('class4'),    href: p(locale, '/homework/klasa-4')},
+        {label: t('class5'),    href: p(locale, '/homework/klasa-5')},
       ],
     },
-    {label: t('calendar'), href: `/${locale}/calendar`},
-    {label: t('contact'), href: `/${locale}/contact`},
+    {label: t('calendar'), href: p(locale, '/calendar')},
+    {label: t('contact'),  href: p(locale, '/contact')},
   ]
 
   return (
@@ -61,11 +64,11 @@ export default function Navbar() {
       {/* Logo + school name */}
       <div className="bg-cream border-b border-gray-200 py-4 px-4">
         <div className="max-w-6xl mx-auto flex items-center gap-5">
-          <Link href={`/${locale}`}>
+          <Link href={p(locale, '/')}>
             <Image src="/logo.png" alt="PSD Niemcewicza Logo" width={90} height={90} className="object-contain" />
           </Link>
           <div>
-            <Link href={`/${locale}`}>
+            <Link href={p(locale, '/')}>
               <h1 className="text-xl sm:text-2xl font-bold text-navy leading-tight">Polska Szkoła Dokształcająca</h1>
               <p className="text-sm text-gray-500 mt-0.5">im. Juliana Ursyna Niemcewicza — Plainfield, NJ</p>
             </Link>
@@ -76,8 +79,6 @@ export default function Navbar() {
       {/* Nav bar */}
       <nav className="bg-navy sticky top-0 z-50 shadow-md">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center">
             {navItems.map((item) =>
               item.children ? (
@@ -90,20 +91,15 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Right side: language switch + login */}
           <div className="hidden md:flex items-center gap-2 my-1.5">
-            <button
-              onClick={switchLocale}
-              className="flex items-center gap-1.5 border border-white/30 text-white text-xs font-bold px-3 py-2 rounded hover:bg-white/10 transition-colors"
-            >
+            <button onClick={switchLocale} className="flex items-center gap-1.5 border border-white/30 text-white text-xs font-bold px-3 py-2 rounded hover:bg-white/10 transition-colors">
               {locale === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL'}
             </button>
-            <Link href={`/${locale}/admin`} className="bg-gold text-navy-dark text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
+            <Link href={p(locale, '/admin')} className="bg-gold text-navy-dark text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
               🔐 {t('login')}
             </Link>
           </div>
 
-          {/* Mobile toggle */}
           <button className="md:hidden text-white p-3" onClick={() => setMobileOpen(!mobileOpen)}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {mobileOpen
@@ -113,7 +109,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile menu */}
         {mobileOpen && (
           <div className="md:hidden bg-navy-dark border-t border-navy-light px-4 py-3 space-y-1">
             {navItems.map((item) =>
@@ -136,7 +131,7 @@ export default function Navbar() {
               <button onClick={() => { switchLocale(); setMobileOpen(false) }} className="text-xs border border-white/30 text-white px-3 py-1.5 rounded">
                 {locale === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL'}
               </button>
-              <Link href={`/${locale}/admin`} onClick={() => setMobileOpen(false)} className="text-gold font-bold text-sm">
+              <Link href={p(locale, '/admin')} onClick={() => setMobileOpen(false)} className="text-gold font-bold text-sm">
                 🔐 {t('login')}
               </Link>
             </div>
