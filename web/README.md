@@ -1,68 +1,36 @@
-# Website — PSD Niemcewicza
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-The public-facing Next.js website for Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza.
+## Getting Started
 
-## Setup
+First, run the development server:
 
 ```bash
-npm install
 npm run dev
-# Opens at http://localhost:3000
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## Requirements
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-- Node.js v22+
-- No API keys needed — content is fetched from public Sanity dataset
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Pages
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-| Route | Description |
-|-------|-------------|
-| `/` | Homepage — hero, announcements, events, gallery preview |
-| `/about` | About the school, mission, class structure |
-| `/announcements` | All school announcements |
-| `/staff` | Teacher profiles |
-| `/gallery` | Photo gallery |
-| `/calendar` | Upcoming and past events |
-| `/homework/[classId]` | Homework by class (e.g. `/homework/klasa-1`) |
-| `/documents` | School documents |
-| `/contact` | Contact form and school info |
-| `/admin` | Teacher login (Firebase — coming soon) |
+## Learn More
 
-## Sanity connection
+To learn more about Next.js, take a look at the following resources:
 
-Content is fetched from Sanity in `lib/sanity.ts`:
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-```ts
-export const client = createClient({
-  projectId: '7cwqf31k',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
-  useCdn: true,
-})
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-No `.env` file is needed — the project ID is public and the dataset is set to public read access.
+## Deploy on Vercel
 
-## Revalidation
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Each page has `export const revalidate = 30` — content refreshes every 30 seconds after a teacher publishes something in Sanity Studio.
-
-## Tech stack
-
-| Tool | Purpose |
-|------|---------|
-| Next.js 16 (App Router) | Framework |
-| Tailwind CSS v4 | Styling |
-| Sanity / next-sanity | Content fetching |
-| @sanity/image-url | Image optimization |
-| Vercel | Hosting |
-
-## Deployment
-
-Connect this folder to a new Vercel project. No environment variables required for the current setup.
-
-```bash
-npm run build   # verify build passes before pushing
-```
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
