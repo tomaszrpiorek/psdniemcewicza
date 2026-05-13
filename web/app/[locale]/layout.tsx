@@ -7,6 +7,7 @@ import {NextIntlClientProvider} from 'next-intl'
 import {getMessages, getTranslations} from 'next-intl/server'
 import {routing} from '@/i18n/routing'
 import {notFound} from 'next/navigation'
+import {AuthProvider} from '@/contexts/AuthContext'
 
 const inter = Inter({subsets: ['latin', 'latin-ext']})
 
@@ -38,9 +39,11 @@ export default async function LocaleLayout({
     <html lang={locale} className={inter.className}>
       <body className="min-h-screen flex flex-col bg-cream">
         <NextIntlClientProvider messages={messages}>
-          <Navbar />
-          <div className="flex-1">{children}</div>
-          <Footer />
+          <AuthProvider>
+            <Navbar />
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

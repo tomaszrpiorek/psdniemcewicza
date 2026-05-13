@@ -88,7 +88,7 @@ export default function Navbar() {
             <button onClick={switchLocale} className="flex items-center gap-1.5 border border-white/30 text-white text-xs font-bold px-3 py-2 rounded hover:bg-white/10 transition-colors">
               {locale === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL'}
             </button>
-            <Link href={`/${locale}/admin`} className="bg-gold text-navy-dark text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
+            <Link href={'/' + locale + '/login'} className="bg-gold text-navy-dark text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
               🔐 {t('login')}
             </Link>
           </div>
@@ -124,7 +124,7 @@ export default function Navbar() {
               <button onClick={() => { switchLocale(); setMobileOpen(false) }} className="text-xs border border-white/30 text-white px-3 py-1.5 rounded">
                 {locale === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL'}
               </button>
-              <Link href={`/${locale}/admin`} onClick={() => setMobileOpen(false)} className="text-gold font-bold text-sm">
+              <Link href={'/' + locale + '/login'} onClick={() => setMobileOpen(false)} className="text-gold font-bold text-sm">
                 🔐 {t('login')}
               </Link>
             </div>
