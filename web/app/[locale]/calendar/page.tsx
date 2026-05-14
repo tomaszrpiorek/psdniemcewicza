@@ -3,6 +3,9 @@ import {getTranslations} from 'next-intl/server'
 
 export const revalidate = 30
 
+const OUTLOOK_EMBED_URL =
+  'https://outlook.live.com/owa/calendar/04dd2d3e-5a5b-4d67-8fa9-d5bf7a92243d/6b6fac68-93a7-44c3-971c-5425177918fd/cid-6947EF54401D8904/index.html'
+
 async function getEvents() {
   return client.fetch(`*[_type == "event"] | order(date asc) { _id, title, date, location }`)
 }
@@ -14,17 +17,32 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
   const dateLocale = locale === 'pl' ? 'pl-PL' : 'en-US'
 
   const upcoming = events.filter((e: any) => new Date(e.date) >= new Date())
-  const past = events.filter((e: any) => new Date(e.date) < new Date()).reverse()
+  const past     = events.filter((e: any) => new Date(e.date) <  new Date()).reverse()
 
   return (
     <main>
       <div className="bg-navy text-white py-12 px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
           <h1 className="text-3xl font-bold">{t('title')}</h1>
         </div>
       </div>
-      <div className="max-w-4xl mx-auto px-4 py-10 space-y-10">
+
+      {/* Outlook Calendar embed */}
+      <div className="max-w-5xl mx-auto px-4 pt-10">
+        <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100">
+          <iframe
+            src={OUTLOOK_EMBED_URL}
+            width="100%"
+            height="600"
+            style={{border: 0}}
+            title="Kalendarz szkolny"
+          />
+        </div>
+      </div>
+
+      {/* Upcoming events list from Sanity */}
+      <div className="max-w-5xl mx-auto px-4 py-10 space-y-10">
         <section>
           <h2 className="text-xl font-bold text-navy border-b-2 border-gold pb-1 mb-5">{t('upcoming')}</h2>
           {upcoming.length === 0 && <p className="text-gray-400 text-sm">{t('noUpcoming')}</p>}
@@ -47,6 +65,7 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
             })}
           </div>
         </section>
+
         {past.length > 0 && (
           <section>
             <h2 className="text-xl font-bold text-gray-400 border-b-2 border-gray-200 pb-1 mb-5">{t('past')}</h2>
