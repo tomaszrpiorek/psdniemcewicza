@@ -7,6 +7,7 @@ import {useAuth} from '@/contexts/AuthContext'
 import {useRouter} from 'next/navigation'
 import {useLocale} from 'next-intl'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const {user, role, loading} = useAuth()
@@ -90,6 +91,13 @@ export default function LoginPage() {
           >
             {submitting ? 'Logowanie…' : 'Zaloguj się'}
           </button>
+
+          <p className="text-center text-sm text-gray-500">
+            Nie masz konta?{' '}
+            <Link href={'/' + locale + '/register'} className="text-gold font-semibold hover:underline">
+              Zarejestruj się
+            </Link>
+          </p>
         </form>
       </div>
     </main>

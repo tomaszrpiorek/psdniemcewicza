@@ -1,5 +1,4 @@
 import type {Metadata} from 'next'
-import {Inter} from 'next/font/google'
 import '../globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -8,8 +7,6 @@ import {getMessages, getTranslations} from 'next-intl/server'
 import {routing} from '@/i18n/routing'
 import {notFound} from 'next/navigation'
 import {AuthProvider} from '@/contexts/AuthContext'
-
-const inter = Inter({subsets: ['latin', 'latin-ext']})
 
 export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
   const {locale} = await params
@@ -36,16 +33,12 @@ export default async function LocaleLayout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className={inter.className}>
-      <body className="min-h-screen flex flex-col bg-cream">
-        <NextIntlClientProvider messages={messages}>
-          <AuthProvider>
-            <Navbar />
-            <div className="flex-1">{children}</div>
-            <Footer />
-          </AuthProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider messages={messages}>
+      <AuthProvider>
+        <Navbar />
+        <div className="flex-1">{children}</div>
+        <Footer />
+      </AuthProvider>
+    </NextIntlClientProvider>
   )
 }
