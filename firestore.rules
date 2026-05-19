@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+
+    function isTeacher() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.superAdmin == true;
+    }
+
+    match /users/{uid} {
+      allow read:   if isSignedIn() && (request.auth.uid == uid || isTeacher());
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow update: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if isSuperAdmin();
+    }
+
+    match /grades/{gradeId} {
+      allow read:  if isSignedIn();
+      allow write: if isSuperAdmin();
+    }
+
+    match /parents/{parentId} {
+      allow read:   if isSignedIn() && (request.auth.uid == parentId || isTeacher());
+      allow create: if isSignedIn() && request.auth.uid == parentId;
+      allow update: if isSignedIn() && (request.auth.uid == parentId || isTeacher());
+      allow delete: if isSuperAdmin();
+    }
+
+    match /children/{childId} {
+      allow read:   if isTeacher() ||
+                       (isSignedIn() && resource.data.parentId == request.auth.uid);
+      allow create: if isTeacher() ||
+                       (isSignedIn() && request.resource.data.parentId == request.auth.uid);
+      allow update: if isTeacher() ||
+                       (isSignedIn() && resource.data.parentId == request.auth.uid);
+      allow delete: if isSuperAdmin() ||
+                       (isSignedIn() && resource.data.parentId == request.auth.uid);
+    }
+
+    match /enrollments/{enrollmentId} {
+      allow create: if isSignedIn();
+      allow read:   if isTeacher() || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isTeacher();
+    }
+
+    match /medicalForms/{docId} {
+      allow create: if isSignedIn();
+      allow read:   if isTeacher() || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isTeacher();
+    }
+  }
+}

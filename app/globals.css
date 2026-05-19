@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-navy:       #1a3a5c;
+  --color-navy-dark:  #112844;
+  --color-navy-light: #2a5298;
+  --color-gold:       #c9a227;
+  --color-gold-light: #f0d060;
+  --color-cream:      #f8f6f1;
+}
+
+body {
+  background: #f8f6f1;
+  color: #1f1f1f;
+  font-family: Georgia, 'Times New Roman', serif;
+}
