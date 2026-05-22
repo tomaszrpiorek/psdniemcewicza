@@ -33,7 +33,9 @@ export default function DashboardPage() {
   const [showAdd, setShowAdd]     = useState(false)
 
   useEffect(() => {
-    if (!loading && !user) router.replace('/' + locale + '/login')
+    if (loading) return
+    if (!user) { router.replace('/' + locale + '/login'); return }
+    if (!user.emailVerified) { router.replace('/' + locale + '/verify-email'); return }
   }, [user, loading, router, locale])
 
   useEffect(() => {

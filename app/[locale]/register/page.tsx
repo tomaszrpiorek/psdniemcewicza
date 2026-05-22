@@ -1,7 +1,7 @@
 'use client'
 
 import {useState, useEffect} from 'react'
-import {createUserWithEmailAndPassword} from 'firebase/auth'
+import {createUserWithEmailAndPassword, sendEmailVerification} from 'firebase/auth'
 import {doc, setDoc, serverTimestamp} from 'firebase/firestore'
 import {auth, db} from '@/lib/firebase'
 import {useAuth} from '@/contexts/AuthContext'
@@ -55,7 +55,8 @@ export default function RegisterPage() {
         address:   form.address.trim(),
         createdAt: serverTimestamp(),
       })
-      router.replace('/' + locale + '/dashboard')
+      await sendEmailVerification(newUser)
+      router.replace('/' + locale + '/verify-email')
     } catch (err: any) {
       setError(err.code === 'auth/email-already-in-use' ? t('errorEmailInUse') : t('errorGeneric'))
       setSubmitting(false)
