@@ -117,27 +117,17 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
         <div className="space-y-8">
           <div>
             <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1 mb-5">{t('calendarTitle')}</h2>
-            {events.length === 0 ? (
-              <p className="text-gray-400 text-sm">{t('noEvents')}</p>
-            ) : (
-              <div className="space-y-3">
-                {events.map((e: any) => {
-                  const d = new Date(e.date)
-                  return (
-                    <div key={e._id} className="bg-white rounded-lg shadow-sm border border-gray-100 flex gap-3 overflow-hidden">
-                      <div className="bg-navy text-white text-center px-3 py-3 min-w-[52px] flex flex-col justify-center">
-                        <p className="text-gold text-xs font-bold uppercase">{d.toLocaleDateString(dateLocale, {month: 'short'})}</p>
-                        <p className="text-2xl font-bold leading-none">{d.getDate()}</p>
-                      </div>
-                      <div className="py-3 pr-3">
-                        <p className="font-bold text-navy text-sm">{e.title}</p>
-                        {e.location && <p className="text-xs text-gray-500 mt-0.5">📍 {e.location}</p>}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+            <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100">
+              <iframe
+                src="https://calendar.google.com/calendar/embed?src=psdniemcewicza%40gmail.com&ctz=America%2FNew_York"
+                width="100%"
+                height="400"
+                style={{border: 0}}
+                frameBorder={0}
+                scrolling="no"
+                title="Kalendarz szkolny"
+              />
+            </div>
           </div>
 
           <div>
