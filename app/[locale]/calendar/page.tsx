@@ -3,8 +3,7 @@ import {getTranslations} from 'next-intl/server'
 
 export const revalidate = 30
 
-const OUTLOOK_EMBED_URL =
-  'https://outlook.live.com/owa/calendar/04dd2d3e-5a5b-4d67-8fa9-d5bf7a92243d/6b6fac68-93a7-44c3-971c-5425177918fd/cid-6947EF54401D8904/index.html'
+const GOOGLE_CALENDAR_SRC = 'https://calendar.google.com/calendar/embed?src=psdniemcewicza%40gmail.com&ctz=America%2FNew_York'
 
 async function getEvents() {
   return client.fetch(`*[_type == "event"] | order(date asc) { _id, title, date, location }`)
@@ -32,10 +31,12 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
       <div className="max-w-5xl mx-auto px-4 pt-10">
         <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100">
           <iframe
-            src={OUTLOOK_EMBED_URL}
+            src={GOOGLE_CALENDAR_SRC}
             width="100%"
             height="600"
             style={{border: 0}}
+            frameBorder={0}
+            scrolling="no"
             title="Kalendarz szkolny"
           />
         </div>
