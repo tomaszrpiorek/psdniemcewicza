@@ -6,6 +6,7 @@ import {useState, useRef} from 'react'
 import {useLocale, useTranslations} from 'next-intl'
 import {usePathname, useRouter} from 'next/navigation'
 import {useAuth} from '@/contexts/AuthContext'
+import {ENROLLMENT_OPEN} from '@/lib/features'
 
 type Child = {label: string; href: string}
 type NavItem = {label: string; href?: string; children?: Child[]}
@@ -53,7 +54,7 @@ export default function Navbar() {
     <header>
       <div className="bg-navy-dark text-gray-300 text-xs py-1.5 px-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <span>📧 info@psdniemcewicz.org &nbsp;|&nbsp; 📞 (000) 000-0000</span>
+          <span>📧 psdniemcewicza@gmail.com &nbsp;|&nbsp; 📞 (732) 266-4310</span>
           <span>{t('topbarHours')}</span>
         </div>
       </div>
@@ -94,9 +95,11 @@ export default function Navbar() {
               <>
                 {role === 'parent' && (
                   <>
-                    <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy-dark text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
-                      ✏️ {t('enroll')}
-                    </Link>
+                    {ENROLLMENT_OPEN && (
+                      <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy-dark text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
+                        ✏️ {t('enroll')}
+                      </Link>
+                    )}
                     <Link href={'/' + locale + '/medical'} className="border border-white/30 text-white text-xs font-bold px-4 py-2 rounded hover:bg-white/10 transition-colors">
                       🏥 {t('medicalForm')}
                     </Link>
@@ -148,9 +151,11 @@ export default function Navbar() {
                 <>
                   {role === 'parent' && (
                     <>
-                      <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="text-gold font-bold text-sm">
-                        ✏️ {t('enroll')}
-                      </Link>
+                      {ENROLLMENT_OPEN && (
+                        <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="text-gold font-bold text-sm">
+                          ✏️ {t('enroll')}
+                        </Link>
+                      )}
                       <Link href={'/' + locale + '/medical'} onClick={() => setMobileOpen(false)} className="text-white font-bold text-sm">
                         🏥 {t('medicalForm')}
                       </Link>

@@ -3,6 +3,7 @@ import {PortableText} from 'next-sanity'
 import Link from 'next/link'
 import Image from 'next/image'
 import {getTranslations} from 'next-intl/server'
+import {ENROLLMENT_OPEN} from '@/lib/features'
 
 export const revalidate = 30
 
@@ -19,7 +20,9 @@ async function getEvents() {
 }
 
 async function getGalleryPreview() {
-  return client.fetch(`*[_type == "galleryImage"][0...6] { _id, image, caption }`)
+  return client.fetch(`*[_type == "galleryAlbum"] | order(date desc)[0...3] {
+    _id, title, "slug": slug.current, coverImage, "firstPhoto": photos[defined(asset)][0]
+  }`)
 }
 
 export default async function Home({params}: {params: Promise<{locale: string}>}) {
@@ -55,9 +58,9 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
         <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm">
           {[
             {icon: '📅', label: t('schedule'), value: t('scheduleVal')},
-            {icon: '📍', label: t('address'), value: '123 School Street'},
-            {icon: '📧', label: t('email'), value: 'info@psdniemcewicz.org'},
-            {icon: '📞', label: t('phone'), value: '(000) 000-0000'},
+            {icon: '📍', label: t('address'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
+            {icon: '📧', label: t('email'), value: 'psdniemcewicza@gmail.com'},
+            {icon: '📞', label: t('phone'), value: '(732) 266-4310'},
           ].map((item) => (
             <div key={item.label}>
               <span className="text-lg">{item.icon}</span>
@@ -103,12 +106,20 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
                 <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('galleryTitle')}</h2>
                 <Link href={'/' + locale + '/gallery'} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {gallery.map((item: any) => (
-                  <div key={item._id} className="relative aspect-square rounded overflow-hidden group">
-                    <Image src={urlFor(item.image).width(300).height(300).fit('crop').url()} alt={item.caption || ''} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                  </div>
-                ))}
+              <div className="grid grid-cols-3 gap-3">
+                {gallery.map((album: any) => {
+                  const cover = album.coverImage || album.firstPhoto
+                  return (
+                    <Link key={album._id} href={`/${locale}/gallery/${album.slug}`} className="group">
+                      <div className="relative aspect-square rounded overflow-hidden bg-cream">
+                        {cover && (
+                          <Image src={urlFor(cover).width(300).height(300).fit('crop').url()} alt={album.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        )}
+                      </div>
+                      <p className="text-xs font-semibold text-navy mt-1.5 leading-snug group-hover:text-gold transition-colors">{album.title}</p>
+                    </Link>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -149,15 +160,17 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
         </div>
       </div>
 
-      <div className="bg-navy py-12 px-4 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-3">{t('ctaTitle')}</h2>
-          <p className="text-gray-300 mb-6">{t('ctaDesc')}</p>
-          <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy font-bold px-8 py-3 rounded hover:bg-gold-light transition-colors inline-block">
-            {t('ctaBtn')}
-          </Link>
+      {ENROLLMENT_OPEN && (
+        <div className="bg-navy py-12 px-4 text-center">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-white mb-3">{t('ctaTitle')}</h2>
+            <p className="text-gray-300 mb-6">{t('ctaDesc')}</p>
+            <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy font-bold px-8 py-3 rounded hover:bg-gold-light transition-colors inline-block">
+              {t('ctaBtn')}
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

@@ -10,6 +10,7 @@ import {
 import {db} from '@/lib/firebase'
 import {useAuth} from '@/contexts/AuthContext'
 import Link from 'next/link'
+import {ENROLLMENT_OPEN} from '@/lib/features'
 
 type Grade          = {id: string; name: string; level: number}
 type Child          = {id: string; firstName: string; lastName: string; gradeId: string}
@@ -257,9 +258,11 @@ function FormStatus({label, status, pdfUrl, submitHref, t, type}: {
         <p className={`font-semibold ${style.text}`}>{statusLabel()}</p>
       </div>
       {!status ? (
-        <Link href={submitHref} className="ml-2 text-navy font-bold hover:text-gold transition-colors shrink-0">
-          {t('submitNow')}
-        </Link>
+        (type !== 'enroll' || ENROLLMENT_OPEN) && (
+          <Link href={submitHref} className="ml-2 text-navy font-bold hover:text-gold transition-colors shrink-0">
+            {t('submitNow')}
+          </Link>
+        )
       ) : pdfUrl ? (
         <a href={pdfUrl} target="_blank" rel="noopener noreferrer"
           className={`ml-2 font-bold hover:underline shrink-0 ${style.text}`}>

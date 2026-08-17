@@ -48,9 +48,9 @@ export default function Footer() {
         <div>
           <h3 className="text-gold font-bold mb-3 text-xs uppercase tracking-widest">{t('contact')}</h3>
           <ul className="space-y-2 text-sm text-gray-400">
-            <li>📧 info@psdniemcewicz.org</li>
-            <li>📞 (000) 000-0000</li>
-            <li>📍 123 School Street, Plainfield, NJ</li>
+            <li>📧 psdniemcewicza@gmail.com</li>
+            <li>📞 (732) 266-4310</li>
+            <li>📍 365 Emerson Avenue, Plainfield, NJ 07062</li>
             <li className="pt-1">🕐 {t('hours')}</li>
           </ul>
         </div>

@@ -24,7 +24,7 @@
     "medicalForm": "Zgoda medyczna",
     "myAccount": "Moje konto",
     "adminPanel": "Panel admina",
-    "topbarHours": "Zajęcia: Soboty 9:00 – 13:00"
+    "topbarHours": "Zajęcia: Poniedziałki 17:30 – 20:00"
   },
   "Home": {
     "welcome": "Witamy w naszej szkole",
@@ -34,7 +34,7 @@
     "learnMore": "O Naszej Szkole",
     "contactBtn": "Kontakt",
     "schedule": "Zajęcia",
-    "scheduleVal": "Soboty 9:00–13:00",
+    "scheduleVal": "Poniedziałki 17:30–20:00",
     "address": "Adres",
     "email": "Email",
     "phone": "Telefon",
@@ -89,11 +89,13 @@
   "Gallery": {
     "tag": "Szkoła w Obiektywie",
     "title": "Galeria Zdjęć",
-    "empty": "Brak zdjęć w galerii.",
+    "empty": "Brak albumów w galerii.",
     "events": "Wydarzenia",
     "classes": "Lekcje",
     "sports": "Sport",
-    "other": "Inne"
+    "other": "Inne",
+    "back": "← Wszystkie albumy",
+    "notFound": "Album nie znaleziony"
   },
   "Calendar": {
     "tag": "Szkoła",
@@ -108,10 +110,11 @@
     "title": "Kontakt z Nami",
     "infoTitle": "Dane Szkoły",
     "emailLabel": "Email",
-    "phoneLabel": "Telefon",
-    "addressLabel": "Adres",
+    "phoneLabel": "Telefon Dyrektorki",
+    "addressLabel": "Adres szkoły",
+    "addressMailLabel": "Adres korespondencyjny",
     "hoursLabel": "Zajęcia",
-    "hoursVal": "Soboty 9:00 – 13:00",
+    "hoursVal": "Poniedziałki 17:30 – 20:00",
     "enrollTitle": "Zapisy do szkoły",
     "enrollDesc": "Przyjmujemy zapisy przez cały rok. Skontaktuj się z nami aby umówić spotkanie wstępne i poznać wymagania dla danego poziomu.",
     "formTitle": "Wyślij wiadomość",
@@ -120,7 +123,10 @@
     "emailFormLabel": "Email",
     "messageLabel": "Wiadomość",
     "messagePlaceholder": "Chciałbym dowiedzieć się więcej o zapisach...",
-    "sendBtn": "Wyślij Wiadomość"
+    "sendBtn": "Wyślij Wiadomość",
+    "sending": "Wysyłanie…",
+    "sendSuccess": "Wiadomość została wysłana. Odpowiemy najszybciej jak to możliwe.",
+    "sendError": "Nie udało się wysłać wiadomości. Spróbuj ponownie lub napisz bezpośrednio na nasz email."
   },
   "Documents": {
     "tag": "Szkoła",
@@ -133,6 +139,8 @@
     "cat3": "Informacje ogólne",
     "doc_registration": "Formularz Rejestracji Ucznia 2026/2027",
     "doc_medical": "Zgoda medyczna i zwolnienie rodzicielskie 2026/2027",
+    "doc_id_student": "Wniosek o legitymację dla ucznia",
+    "doc_id_teacher": "Wniosek o legitymację dla nauczyciela",
     "doc3": "Regulamin szkoły",
     "doc4": "Program nauczania — Klasa 1-2",
     "doc5": "Program nauczania — Klasa 3-4",
@@ -339,7 +347,7 @@
     "school": "Nasza Szkoła",
     "info": "Informacje",
     "contact": "Kontakt",
-    "hours": "Sob. 9:00 – 13:00",
+    "hours": "Pon. 17:30 – 20:00",
     "copyright": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, NJ. Wszelkie prawa zastrzeżone."
   }
 }

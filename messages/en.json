@@ -24,7 +24,7 @@
     "medicalForm": "Medical Form",
     "myAccount": "My Account",
     "adminPanel": "Admin Panel",
-    "topbarHours": "Classes: Saturdays 9:00 AM – 1:00 PM"
+    "topbarHours": "Classes: Mondays 5:30 – 8:00 PM"
   },
   "Home": {
     "welcome": "Welcome to our school",
@@ -34,7 +34,7 @@
     "learnMore": "About Our School",
     "contactBtn": "Contact Us",
     "schedule": "Classes",
-    "scheduleVal": "Saturdays 9:00 AM–1:00 PM",
+    "scheduleVal": "Mondays 5:30–8:00 PM",
     "address": "Address",
     "email": "Email",
     "phone": "Phone",
@@ -89,11 +89,13 @@
   "Gallery": {
     "tag": "School Life",
     "title": "Photo Gallery",
-    "empty": "No photos in the gallery yet.",
+    "empty": "No albums in the gallery yet.",
     "events": "Events",
     "classes": "Classes",
     "sports": "Sports",
-    "other": "Other"
+    "other": "Other",
+    "back": "← All albums",
+    "notFound": "Album not found"
   },
   "Calendar": {
     "tag": "School",
@@ -108,10 +110,11 @@
     "title": "Contact Us",
     "infoTitle": "School Information",
     "emailLabel": "Email",
-    "phoneLabel": "Phone",
-    "addressLabel": "Address",
+    "phoneLabel": "Director's Phone",
+    "addressLabel": "School Address",
+    "addressMailLabel": "Mailing Address",
     "hoursLabel": "Classes",
-    "hoursVal": "Saturdays 9:00 AM – 1:00 PM",
+    "hoursVal": "Mondays 5:30 – 8:00 PM",
     "enrollTitle": "School enrollment",
     "enrollDesc": "We accept enrollment year-round. Contact us to arrange an introductory meeting and learn about requirements for each level.",
     "formTitle": "Send us a message",
@@ -120,7 +123,10 @@
     "emailFormLabel": "Email",
     "messageLabel": "Message",
     "messagePlaceholder": "I would like to know more about enrollment...",
-    "sendBtn": "Send Message"
+    "sendBtn": "Send Message",
+    "sending": "Sending…",
+    "sendSuccess": "Your message has been sent. We'll get back to you as soon as possible.",
+    "sendError": "We couldn't send your message. Please try again or email us directly."
   },
   "Documents": {
     "tag": "School",
@@ -133,6 +139,8 @@
     "cat3": "General Information",
     "doc_registration": "Student Registration Form 2026/2027",
     "doc_medical": "Medical & Parental Release Form 2026/2027",
+    "doc_id_student": "Student School ID Card Request",
+    "doc_id_teacher": "Teacher School ID Card Request",
     "doc3": "School rules & regulations",
     "doc4": "Curriculum — Class 1-2",
     "doc5": "Curriculum — Class 3-4",
@@ -339,7 +347,7 @@
     "school": "Our School",
     "info": "Information",
     "contact": "Contact",
-    "hours": "Sat. 9:00 AM – 1:00 PM",
+    "hours": "Mon. 5:30 – 8:00 PM",
     "copyright": "Polish Supplementary School named after Julian Ursyn Niemcewicz in Plainfield, NJ. All rights reserved."
   }
 }

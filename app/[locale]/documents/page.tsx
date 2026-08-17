@@ -13,6 +13,8 @@ export default async function DocumentsPage({params}: {params: Promise<{locale: 
       items: [
         {label: t('doc_registration'),   href: '/documents/formularz-rejestracji-2026-2027.docx',    ext: 'DOCX'},
         {label: t('doc_medical'),        href: '/documents/medical-parental-release-2026-2027.docx', ext: 'DOCX'},
+        {label: t('doc_id_student'),     href: '/documents/wniosek-legitymacja-uczen.pdf',           ext: 'PDF'},
+        {label: t('doc_id_teacher'),     href: '/documents/wniosek-legitymacja-nauczyciel.pdf',      ext: 'PDF'},
         {label: t('doc3')},
       ],
     },

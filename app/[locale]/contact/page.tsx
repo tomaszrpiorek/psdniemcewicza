@@ -1,4 +1,5 @@
 import {getTranslations} from 'next-intl/server'
+import ContactForm from '@/components/ContactForm'
 
 export default async function ContactPage({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params
@@ -18,9 +19,10 @@ export default async function ContactPage({params}: {params: Promise<{locale: st
             <h2 className="text-xl font-bold text-navy border-b-2 border-gold pb-1 mb-5 inline-block">{t('infoTitle')}</h2>
             <ul className="space-y-5">
               {[
-                {icon: '📧', label: t('emailLabel'), value: 'info@psdniemcewicz.org', href: 'mailto:info@psdniemcewicz.org'},
-                {icon: '📞', label: t('phoneLabel'), value: '(000) 000-0000', href: 'tel:0000000000'},
-                {icon: '📍', label: t('addressLabel'), value: '123 School Street, Plainfield, NJ'},
+                {icon: '📧', label: t('emailLabel'), value: 'psdniemcewicza@gmail.com', href: 'mailto:psdniemcewicza@gmail.com'},
+                {icon: '📞', label: t('phoneLabel'), value: '(732) 266-4310', href: 'tel:+17322664310'},
+                {icon: '📍', label: t('addressLabel'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
+                {icon: '✉️', label: t('addressMailLabel'), value: '1232 George Street, Plainfield, NJ 07062'},
                 {icon: '🕐', label: t('hoursLabel'), value: t('hoursVal')},
               ].map((item) => (
                 <li key={item.label} className="flex items-start gap-3">
@@ -44,21 +46,7 @@ export default async function ContactPage({params}: {params: Promise<{locale: st
         </div>
         <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
           <h2 className="text-xl font-bold text-navy mb-6">{t('formTitle')}</h2>
-          <form className="space-y-4" action="mailto:info@psdniemcewicz.org" method="get" encType="text/plain">
-            <div>
-              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">{t('nameLabel')}</label>
-              <input type="text" name="name" className="w-full border border-gray-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold" placeholder={t('namePlaceholder')} />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">{t('emailFormLabel')}</label>
-              <input type="email" name="email" className="w-full border border-gray-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold" placeholder="email@example.com" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">{t('messageLabel')}</label>
-              <textarea name="body" rows={5} className="w-full border border-gray-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold resize-none" placeholder={t('messagePlaceholder')} />
-            </div>
-            <button type="submit" className="w-full bg-navy text-white font-bold py-3 rounded hover:bg-navy-dark transition-colors">{t('sendBtn')}</button>
-          </form>
+          <ContactForm />
         </div>
       </div>
     </main>
