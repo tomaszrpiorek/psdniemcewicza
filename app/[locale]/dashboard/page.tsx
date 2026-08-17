@@ -179,14 +179,16 @@ export default function DashboardPage() {
 
                   {/* Form statuses */}
                   <div className="border-t border-gray-100 pt-3 flex flex-wrap gap-3">
-                    <FormStatus
-                      label={t('enrollLabel')}
-                      status={enroll ? enroll.status : null}
-                      pdfUrl={enroll?.pdfUrl}
-                      submitHref={'/' + locale + '/enroll'}
-                      t={t}
-                      type="enroll"
-                    />
+                    {ENROLLMENT_OPEN && (
+                      <FormStatus
+                        label={t('enrollLabel')}
+                        status={enroll ? enroll.status : null}
+                        pdfUrl={enroll?.pdfUrl}
+                        submitHref={'/' + locale + '/enroll'}
+                        t={t}
+                        type="enroll"
+                      />
+                    )}
                     <FormStatus
                       label={t('medicalLabel')}
                       status={medical ? 'submitted' : null}

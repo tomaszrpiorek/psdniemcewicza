@@ -37,14 +37,10 @@ export default function Navbar() {
     {label: t('announcements'), href: `/${locale}/announcements`},
     {
       label: t('homework'),
-      children: [
-        {label: t('preschool'), href: `/${locale}/homework/przedszkole`},
-        {label: t('class1'),    href: `/${locale}/homework/klasa-1`},
-        {label: t('class2'),    href: `/${locale}/homework/klasa-2`},
-        {label: t('class3'),    href: `/${locale}/homework/klasa-3`},
-        {label: t('class4'),    href: `/${locale}/homework/klasa-4`},
-        {label: t('class5'),    href: `/${locale}/homework/klasa-5`},
-      ],
+      children: Array.from({length: 12}, (_, i) => i + 1).map((n) => ({
+        label: t(('class' + n) as 'class1'),
+        href: `/${locale}/homework/klasa-${n}`,
+      })),
     },
     {label: t('calendar'), href: `/${locale}/calendar`},
     {label: t('contact'),  href: `/${locale}/contact`},

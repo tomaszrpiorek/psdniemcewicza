@@ -1,0 +1,13 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "homework",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "gradeId", "order": "ASCENDING"},
+        {"fieldPath": "weekOf", "order": "DESCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

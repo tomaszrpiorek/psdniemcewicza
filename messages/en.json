@@ -16,7 +16,14 @@
     "class2": "Class 2",
     "class3": "Class 3",
     "class4": "Class 4",
-    "class5": "Class 5 — Advanced",
+    "class5": "Class 5",
+    "class6": "Class 6",
+    "class7": "Class 7",
+    "class8": "Class 8",
+    "class9": "Class 9",
+    "class10": "Class 10",
+    "class11": "Class 11",
+    "class12": "Class 12",
     "calendar": "Calendar",
     "contact": "Contact",
     "login": "Login",
@@ -154,7 +161,10 @@
     "notFound": "Class not found",
     "backHome": "Back to home",
     "emptyTitle": "Homework coming soon",
-    "emptyDesc": "The teacher has not posted homework for this class yet. Check back soon."
+    "emptyDesc": "The teacher has not posted homework for this class yet. Check back soon.",
+    "dueDate": "Due date",
+    "attachment": "Attachment",
+    "latest": "Latest"
   },
   "Enroll": {
     "selectChildTitle": "Select a child to enroll",

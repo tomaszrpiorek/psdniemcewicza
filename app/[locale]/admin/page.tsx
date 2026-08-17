@@ -5,13 +5,18 @@ import {useRouter} from 'next/navigation'
 import {useLocale} from 'next-intl'
 import {
   collection, query, where, onSnapshot, orderBy,
-  addDoc, deleteDoc, doc, setDoc, getDocs, serverTimestamp, writeBatch,
+  addDoc, deleteDoc, doc, setDoc, updateDoc, getDocs, serverTimestamp, writeBatch,
 } from 'firebase/firestore'
-import {db} from '@/lib/firebase'
+import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
+import {db, storage} from '@/lib/firebase'
 import {useAuth} from '@/contexts/AuthContext'
 
 type Grade = {id: string; name: string; level: number; teacherName?: string}
 type Child = {id: string; firstName: string; lastName: string; gradeId: string; parentId: string}
+type Homework = {
+  id: string; gradeId: string; title: string; weekOf?: string
+  description?: string; attachmentUrl?: string; attachmentName?: string
+}
 type Parent = {id: string; firstName: string; lastName: string; phone: string; email: string; uid?: string}
 type Enrollment = {
   id: string; firstName: string; lastName: string; email: string
@@ -31,6 +36,13 @@ type MedicalForm = {
   doctorName?: string; doctorPhone?: string
   insuranceProvider?: string; insurancePolicyNumber?: string
   consentEmergencyTreatment?: boolean; consentPhotos?: boolean; consentFieldTrips?: boolean
+}
+
+function nextMonday(): string {
+  const d = new Date()
+  const daysUntilMonday = ((8 - d.getDay()) % 7) || 7
+  d.setDate(d.getDate() + daysUntilMonday)
+  return d.toISOString().slice(0, 10)
 }
 
 const GRADE_DEFAULTS = [
@@ -61,7 +73,10 @@ export default function AdminPage() {
   const [selected, setSelected]       = useState<Set<string>>(new Set())
   const [showAddChild, setShowAddChild] = useState(false)
   const [seeding, setSeeding]         = useState(false)
-  const [tab, setTab]                 = useState<'students' | 'parents'>('students')
+  const [tab, setTab]                 = useState<'students' | 'parents' | 'homework'>('students')
+  const [homework, setHomework]         = useState<Homework[]>([])
+  const [showAddHomework, setShowAddHomework] = useState(false)
+  const [editingHomework, setEditingHomework] = useState<Homework | null>(null)
   const [enrollments, setEnrollments]   = useState<Enrollment[]>([])
   const [medicalForms, setMedicalForms] = useState<MedicalForm[]>([])
   const [mainTab, setMainTab]           = useState<'classes' | 'enrollments' | 'medical'>('classes')
@@ -125,6 +140,21 @@ export default function AdminPage() {
       setParents(map)
     })
   }, [activeGrade, user])
+
+  // Load homework for active grade
+  useEffect(() => {
+    if (!activeGrade || !user) return
+    setHomework([])
+    const q = query(collection(db, 'homework'), where('gradeId', '==', activeGrade.id), orderBy('weekOf', 'desc'))
+    return onSnapshot(q, snap => {
+      setHomework(snap.docs.map(d => ({id: d.id, ...(d.data() as Omit<Homework, 'id'>)})))
+    })
+  }, [activeGrade, user])
+
+  async function handleDeleteHomework(id: string) {
+    if (!confirm('Usunąć zadanie?')) return
+    await deleteDoc(doc(db, 'homework', id))
+  }
 
   async function seedGrades() {
     if (!confirm('Inicjalizuj klasy Przedszkole – Klasa 12?')) return
@@ -444,7 +474,7 @@ export default function AdminPage() {
               <>
                 {/* Tabs */}
                 <div className="flex gap-1 mb-6 border-b border-gray-200">
-                  {(['students', 'parents'] as const).map(t => (
+                  {(['students', 'parents', 'homework'] as const).map(t => (
                     <button
                       key={t}
                       onClick={() => setTab(t)}
@@ -452,7 +482,7 @@ export default function AdminPage() {
                         tab === t ? 'border-gold text-navy' : 'border-transparent text-gray-400 hover:text-navy'
                       }`}
                     >
-                      {t === 'students' ? `Uczniowie (${children.length})` : 'Rodzice'}
+                      {t === 'students' ? `Uczniowie (${children.length})` : t === 'parents' ? 'Rodzice' : `Zadania (${homework.length})`}
                     </button>
                   ))}
                 </div>
@@ -585,11 +615,92 @@ export default function AdminPage() {
                     )}
                   </div>
                 )}
+
+                {tab === 'homework' && (
+                  <>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="ml-auto">
+                        <button
+                          onClick={() => setShowAddHomework(true)}
+                          className="bg-gold text-navy text-sm font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors"
+                        >
+                          + Dodaj zadanie
+                        </button>
+                      </div>
+                    </div>
+
+                    {homework.length === 0 ? (
+                      <div className="bg-white rounded-lg border border-gray-100 p-10 text-center text-gray-400 text-sm">
+                        Brak zadań dla tej klasy.
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {homework.map((hw, i) => (
+                          <div key={hw.id} className={`bg-white rounded-lg shadow-sm p-5 ${
+                            i === 0 ? 'border-2 border-gold' : 'border border-gray-100'
+                          }`}>
+                            <div className="flex items-start justify-between gap-4 flex-wrap">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  {hw.weekOf && (
+                                    <p className="text-xs font-bold text-gold uppercase tracking-wider">
+                                      Termin oddania: {new Date(hw.weekOf).toLocaleDateString('pl-PL', {day: 'numeric', month: 'long', year: 'numeric'})}
+                                    </p>
+                                  )}
+                                  {i === 0 && (
+                                    <span className="text-xs bg-gold text-navy font-bold px-2 py-0.5 rounded-full">
+                                      Najnowsze
+                                    </span>
+                                  )}
+                                </div>
+                                <h3 className="font-bold text-navy">{hw.title}</h3>
+                              </div>
+                              <div className="flex items-center gap-3 shrink-0">
+                                {hw.attachmentUrl && (
+                                  <a href={hw.attachmentUrl} target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 bg-gray-700 text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-gray-800 transition-colors">
+                                    📎 Załącznik
+                                  </a>
+                                )}
+                                <button onClick={() => setEditingHomework(hw)} className="text-xs text-gold font-semibold hover:underline">
+                                  Edytuj
+                                </button>
+                                <button onClick={() => handleDeleteHomework(hw.id)} className="text-xs text-red-400 hover:text-red-600 transition-colors">
+                                  Usuń
+                                </button>
+                              </div>
+                            </div>
+                            {hw.description && (
+                              <p className="text-sm text-gray-600 mt-3 whitespace-pre-line">{hw.description}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </>
             )}
           </>
         )}
       </main>
+
+      {showAddHomework && activeGrade && (
+        <AddHomeworkModal
+          gradeId={activeGrade.id}
+          gradeName={activeGrade.name}
+          onClose={() => setShowAddHomework(false)}
+        />
+      )}
+
+      {editingHomework && activeGrade && (
+        <AddHomeworkModal
+          gradeId={activeGrade.id}
+          gradeName={activeGrade.name}
+          existing={editingHomework}
+          onClose={() => setEditingHomework(null)}
+        />
+      )}
 
       {showAddChild && activeGrade && (
         <AddChildModal
@@ -709,6 +820,103 @@ function AddChildModal({gradeId, gradeName, onClose}: {gradeId: string; gradeNam
                   placeholder="jan@email.com" />
               </div>
             </div>
+          </div>
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose}
+              className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
+              Anuluj
+            </button>
+            <button type="submit" disabled={saving}
+              className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
+              {saving ? 'Zapisywanie…' : 'Zapisz'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function AddHomeworkModal({gradeId, gradeName, existing, onClose}: {
+  gradeId: string; gradeName: string; existing?: Homework; onClose: () => void
+}) {
+  const [title, setTitle]           = useState(existing?.title ?? '')
+  const [weekOf, setWeekOf]         = useState(existing?.weekOf ?? nextMonday())
+  const [description, setDescription] = useState(existing?.description ?? '')
+  const [file, setFile]             = useState<File | null>(null)
+  const [saving, setSaving]         = useState(false)
+  const [error, setError]           = useState('')
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    if (!title.trim() || !weekOf) {
+      setError('Wypełnij wymagane pola.')
+      return
+    }
+    setSaving(true)
+    try {
+      let attachmentUrl = existing?.attachmentUrl
+      let attachmentName = existing?.attachmentName
+      if (file) {
+        const storageRef = ref(storage, `homework/${gradeId}/${Date.now()}_${file.name}`)
+        await uploadBytes(storageRef, file)
+        attachmentUrl = await getDownloadURL(storageRef)
+        attachmentName = file.name
+      }
+      const data = {
+        gradeId,
+        title: title.trim(),
+        weekOf,
+        description: description.trim(),
+        ...(attachmentUrl ? {attachmentUrl, attachmentName} : {}),
+      }
+      if (existing) {
+        await updateDoc(doc(db, 'homework', existing.id), data)
+      } else {
+        await addDoc(collection(db, 'homework'), {...data, createdAt: serverTimestamp()})
+      }
+      onClose()
+    } catch {
+      setError('Błąd zapisu. Spróbuj ponownie.')
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 className="font-bold text-navy">{existing ? 'Edytuj zadanie' : 'Dodaj zadanie'} — {gradeName}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        </div>
+        <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Tytuł *</label>
+            <input value={title} onChange={e => setTitle(e.target.value)}
+              className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold"
+              placeholder="np. Ćwiczenia gramatyczne" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Termin oddania *</label>
+            <input type="date" value={weekOf} onChange={e => setWeekOf(e.target.value)}
+              className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Opis</label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={4}
+              className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold resize-none"
+              placeholder="Opis zadania…" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Załącznik (opcjonalnie)</label>
+            {existing?.attachmentName && !file && (
+              <p className="text-xs text-gray-400 mb-1">Obecny: {existing.attachmentName} (wybierz nowy plik, aby zastąpić)</p>
+            )}
+            <input type="file" onChange={e => setFile(e.target.files?.[0] ?? null)}
+              className="w-full text-sm text-gray-600" />
           </div>
 
           {error && <p className="text-red-600 text-sm">{error}</p>}

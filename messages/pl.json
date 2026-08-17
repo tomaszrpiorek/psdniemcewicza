@@ -16,7 +16,14 @@
     "class2": "Klasa 2",
     "class3": "Klasa 3",
     "class4": "Klasa 4",
-    "class5": "Klasa 5 — Zaawansowana",
+    "class5": "Klasa 5",
+    "class6": "Klasa 6",
+    "class7": "Klasa 7",
+    "class8": "Klasa 8",
+    "class9": "Klasa 9",
+    "class10": "Klasa 10",
+    "class11": "Klasa 11",
+    "class12": "Klasa 12",
     "calendar": "Kalendarz",
     "contact": "Kontakt",
     "login": "Logowanie",
@@ -154,7 +161,10 @@
     "notFound": "Klasa nie znaleziona",
     "backHome": "Powrót do strony głównej",
     "emptyTitle": "Zadania będą dostępne wkrótce",
-    "emptyDesc": "Nauczyciel nie dodał jeszcze zadań dla tej klasy. Sprawdź ponownie wkrótce."
+    "emptyDesc": "Nauczyciel nie dodał jeszcze zadań dla tej klasy. Sprawdź ponownie wkrótce.",
+    "dueDate": "Termin oddania",
+    "attachment": "Załącznik",
+    "latest": "Najnowsze"
   },
   "Enroll": {
     "selectChildTitle": "Wybierz dziecko do zapisania",

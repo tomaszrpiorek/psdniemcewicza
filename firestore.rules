@@ -22,8 +22,13 @@ service cloud.firestore {
     }
 
     match /grades/{gradeId} {
-      allow read:  if isSignedIn();
+      allow read:  if true;
       allow write: if isSuperAdmin();
+    }
+
+    match /homework/{homeworkId} {
+      allow read:                       if true;
+      allow create, update, delete:     if isTeacher();
     }
 
     match /parents/{parentId} {
