@@ -1,6 +1,8 @@
 'use client'
 
 import {useState, useEffect} from 'react'
+import {useForm, Controller} from 'react-hook-form'
+import {z} from 'zod'
 import {useTranslations, useLocale} from 'next-intl'
 import {useRouter} from 'next/navigation'
 import {collection, doc, setDoc, getDoc, query, where, onSnapshot, serverTimestamp} from 'firebase/firestore'
@@ -8,26 +10,19 @@ import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import {db, storage} from '@/lib/firebase'
 import {useAuth} from '@/contexts/AuthContext'
 import Link from 'next/link'
-
-type Form = {
-  firstName: string; lastName: string; dateOfBirth: string
-  placeOfBirth: string; ageOct1: string; address: string; cityZip: string
-  motherName: string; motherPhone: string; fatherName: string; fatherPhone: string
-  emergencyPhone: string; email: string; englishGrade: string; polishGrade: string
-  specialNeeds: string; parishMember: string; catechism: string
-}
+import {zodResolver} from '@/lib/zodResolver'
+import {requiredCityZip, requiredEmail, requiredName, requiredString, optionalName, optionalPhone} from '@/lib/validation'
+import TextField from '@/components/form/TextField'
+import TextAreaField from '@/components/form/TextAreaField'
+import Select from '@/components/form/Select'
+import RadioPills from '@/components/form/RadioPills'
+import Checkbox from '@/components/form/Checkbox'
+import FormError from '@/components/form/FormError'
 
 type MyChild = {id: string; firstName: string; lastName: string}
 type ParentProfile = {firstName: string; lastName: string; email: string; phone: string; address?: string}
 
-const EMPTY: Form = {
-  firstName: '', lastName: '', dateOfBirth: '', placeOfBirth: '', ageOct1: '',
-  address: '', cityZip: '', motherName: '', motherPhone: '', fatherName: '',
-  fatherPhone: '', emergencyPhone: '', email: '', englishGrade: '', polishGrade: '',
-  specialNeeds: '', parishMember: '', catechism: '',
-}
-
-const GRADES = ['Przedszkole','1','2','3','4','5','6','7','8','9','10','11','12']
+const GRADES = ['Przedszkole', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
 // --- Sub-components outside the page to prevent focus loss ---
 
@@ -39,47 +34,9 @@ function SectionHeader({label}: {label: string}) {
   )
 }
 
-function Field({label, value, onChange, required = false, placeholder = '', type = 'text'}: {
-  label: string; value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  required?: boolean; placeholder?: string; type?: string
-}) {
-  return (
-    <div>
-      <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
-        {label}{required && <span className="text-gold ml-1">*</span>}
-      </label>
-      <input
-        type={type} value={value} onChange={onChange} placeholder={placeholder}
-        className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold"
-      />
-    </div>
-  )
-}
-
-function YesNo({label, value, onChange, yesLabel, noLabel}: {
-  label: string; value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  yesLabel: string; noLabel: string
-}) {
-  return (
-    <div>
-      <p className="text-xs font-bold text-navy uppercase tracking-wider mb-2">{label}</p>
-      <div className="flex gap-4">
-        {[{val: 'yes', text: yesLabel}, {val: 'no', text: noLabel}].map(({val, text}) => (
-          <label key={val} className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" value={val} checked={value === val} onChange={onChange} className="accent-navy" />
-            <span className="text-sm text-navy">{text}</span>
-          </label>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 // --- PDF generation ---
 
-async function generateAndUploadPDF(form: Form, signature: string, enrollmentId: string): Promise<string> {
+async function generateAndUploadPDF(form: FormValues, signature: string, enrollmentId: string): Promise<string> {
   const {default: jsPDF} = await import('jspdf')
   const pdf = new jsPDF()
   const pageW = pdf.internal.pageSize.getWidth()
@@ -148,10 +105,46 @@ async function generateAndUploadPDF(form: Form, signature: string, enrollmentId:
   return getDownloadURL(storageRef)
 }
 
+// --- Schema ---
+
+function buildSchema(t: ReturnType<typeof useTranslations>, v: ReturnType<typeof useTranslations>) {
+  return z.object({
+    firstName: requiredName(v('required'), v('invalidName')),
+    lastName: requiredName(v('required'), v('invalidName')),
+    dateOfBirth: requiredString(v('required')),
+    placeOfBirth: requiredString(v('required')),
+    ageOct1: requiredString(v('required')),
+    address: requiredString(v('required'), 5, v('tooShort')),
+    cityZip: requiredCityZip(v('required'), v('invalidZip')),
+    motherName: optionalName(v('invalidName')),
+    motherPhone: optionalPhone(v('invalidPhone')),
+    fatherName: optionalName(v('invalidName')),
+    fatherPhone: optionalPhone(v('invalidPhone')),
+    emergencyPhone: optionalPhone(v('invalidPhone')),
+    email: requiredEmail(v('required'), v('invalidEmail')),
+    englishGrade: requiredString(v('required')),
+    polishGrade: requiredString(v('required')),
+    specialNeeds: z.string().trim().optional().default(''),
+    parishMember: z.string().trim().optional().default(''),
+    catechism: z.string().trim().optional().default(''),
+    consent: z.boolean().refine((val) => val, {message: t('errorConsent')}),
+    signature: requiredString(t('errorSignature')),
+  })
+}
+type FormValues = z.infer<ReturnType<typeof buildSchema>>
+
+const EMPTY: FormValues = {
+  firstName: '', lastName: '', dateOfBirth: '', placeOfBirth: '', ageOct1: '',
+  address: '', cityZip: '', motherName: '', motherPhone: '', fatherName: '',
+  fatherPhone: '', emergencyPhone: '', email: '', englishGrade: '', polishGrade: '',
+  specialNeeds: '', parishMember: '', catechism: '', consent: false, signature: '',
+}
+
 // --- Page ---
 
 export default function EnrollPage() {
   const t = useTranslations('Enroll')
+  const v = useTranslations('Validation')
   const locale = useLocale()
   const router = useRouter()
   const {user, role, loading} = useAuth()
@@ -160,14 +153,14 @@ export default function EnrollPage() {
   const [childrenLoading, setChildrenLoading] = useState(true)
   const [selectedChild, setSelectedChild] = useState<MyChild | null>(null)
   const [parentProfile, setParentProfile] = useState<ParentProfile | null>(null)
-
-  const [form, setForm]             = useState<Form>(EMPTY)
-  const [signature, setSignature]   = useState('')
-  const [consent, setConsent]       = useState(false)
-  const [submitting, setSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState('')
-  const [error, setError]           = useState('')
-  const [success, setSuccess]       = useState(false)
+  const [success, setSuccess] = useState(false)
+
+  const schema = buildSchema(t, v)
+  const {
+    register, handleSubmit, control, setValue, setError,
+    formState: {errors, isSubmitting},
+  } = useForm<FormValues>({resolver: zodResolver(schema), defaultValues: EMPTY})
 
   // Auth guard
   useEffect(() => {
@@ -204,53 +197,29 @@ export default function EnrollPage() {
 
   if (loading || !user) return null
 
-  function setField(field: keyof Form) {
-    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-      setForm(prev => ({...prev, [field]: e.target.value}))
-  }
-
   function handleSelectChild(child: MyChild) {
     setSelectedChild(child)
-    setForm(prev => ({
-      ...prev,
-      firstName: child.firstName,
-      lastName:  child.lastName,
-      // Pre-fill parent contact info from profile
-      email:          parentProfile?.email   || prev.email,
-      emergencyPhone: parentProfile?.phone   || prev.emergencyPhone,
-      address:        parentProfile?.address || prev.address,
-    }))
+    setValue('firstName', child.firstName)
+    setValue('lastName', child.lastName)
+    if (parentProfile?.email) setValue('email', parentProfile.email)
+    if (parentProfile?.phone) setValue('emergencyPhone', parentProfile.phone)
+    if (parentProfile?.address) setValue('address', parentProfile.address)
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-
-    // Parents must select a child from their profile
+  async function onSubmit(data: FormValues) {
     if (role === 'parent' && !selectedChild) {
-      setError(t('errorSelectChild'))
+      setError('root', {message: t('errorSelectChild')})
       return
     }
-
-    const required: (keyof Form)[] = [
-      'firstName','lastName','dateOfBirth','placeOfBirth','ageOct1',
-      'address','cityZip','email','englishGrade','polishGrade',
-    ]
-    if (required.some(f => !form[f].trim())) { setError(t('errorRequired')); return }
-    if (!consent)           { setError(t('errorConsent'));    return }
-    if (!signature.trim())  { setError(t('errorSignature'));  return }
-
-    setSubmitting(true)
     try {
       const enrollRef = doc(collection(db, 'enrollments'))
       setSubmitStatus('Generowanie PDF…')
-      const pdfUrl = await generateAndUploadPDF(form, signature.trim(), enrollRef.id)
+      const pdfUrl = await generateAndUploadPDF(data, data.signature, enrollRef.id)
       setSubmitStatus('Zapisywanie…')
       await setDoc(enrollRef, {
-        ...form,
-        parishMember: form.parishMember === 'yes',
-        catechism:    form.catechism    === 'yes',
-        signature:    signature.trim(),
+        ...data,
+        parishMember: data.parishMember === 'yes',
+        catechism:    data.catechism    === 'yes',
         uid:          user!.uid,
         childId:      selectedChild?.id ?? null,
         pdfUrl,
@@ -261,8 +230,7 @@ export default function EnrollPage() {
       setSuccess(true)
     } catch (err) {
       console.error(err)
-      setError(t('errorSubmit'))
-      setSubmitting(false)
+      setError('root', {message: t('errorSubmit')})
       setSubmitStatus('')
     }
   }
@@ -341,79 +309,74 @@ export default function EnrollPage() {
             {t('selectChildPrompt')}
           </div>
         ) : (role === 'parent' && myChildren.length === 0) ? null : (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
 
               <SectionHeader label={t('sectionStudent')} />
               <div className="grid sm:grid-cols-2 gap-4">
-                <Field label={t('firstName')}    value={form.firstName}    onChange={setField('firstName')}    required />
-                <Field label={t('lastName')}     value={form.lastName}     onChange={setField('lastName')}     required />
-                <Field label={t('dateOfBirth')}  value={form.dateOfBirth}  onChange={setField('dateOfBirth')}  required placeholder={t('dateOfBirthPlaceholder')} />
-                <Field label={t('placeOfBirth')} value={form.placeOfBirth} onChange={setField('placeOfBirth')} required />
-                <Field label={t('ageOct1')}      value={form.ageOct1}      onChange={setField('ageOct1')}      required />
+                <TextField label={t('firstName')} required error={errors.firstName?.message} {...register('firstName')} />
+                <TextField label={t('lastName')} required error={errors.lastName?.message} {...register('lastName')} />
+                <TextField type="date" label={t('dateOfBirth')} required error={errors.dateOfBirth?.message} {...register('dateOfBirth')} />
+                <TextField label={t('placeOfBirth')} required error={errors.placeOfBirth?.message} {...register('placeOfBirth')} />
+                <TextField label={t('ageOct1')} required error={errors.ageOct1?.message} {...register('ageOct1')} />
               </div>
 
               <SectionHeader label={t('sectionAddress')} />
               <div className="grid sm:grid-cols-2 gap-4">
-                <Field label={t('address')} value={form.address} onChange={setField('address')} required />
-                <Field label={t('cityZip')} value={form.cityZip} onChange={setField('cityZip')} required />
+                <TextField label={t('address')} required error={errors.address?.message} {...register('address')} />
+                <TextField label={t('cityZip')} required error={errors.cityZip?.message} {...register('cityZip')} />
               </div>
 
               <SectionHeader label={t('sectionParents')} />
               <div className="grid sm:grid-cols-2 gap-4">
-                <Field label={t('motherName')}     value={form.motherName}     onChange={setField('motherName')}     />
-                <Field label={t('motherPhone')}    value={form.motherPhone}    onChange={setField('motherPhone')}    type="tel" />
-                <Field label={t('fatherName')}     value={form.fatherName}     onChange={setField('fatherName')}     />
-                <Field label={t('fatherPhone')}    value={form.fatherPhone}    onChange={setField('fatherPhone')}    type="tel" />
-                <Field label={t('emergencyPhone')} value={form.emergencyPhone} onChange={setField('emergencyPhone')} type="tel" />
-                <Field label={t('email')}          value={form.email}          onChange={setField('email')}          required type="email" />
+                <TextField label={t('motherName')} error={errors.motherName?.message} {...register('motherName')} />
+                <TextField type="tel" label={t('motherPhone')} error={errors.motherPhone?.message} {...register('motherPhone')} />
+                <TextField label={t('fatherName')} error={errors.fatherName?.message} {...register('fatherName')} />
+                <TextField type="tel" label={t('fatherPhone')} error={errors.fatherPhone?.message} {...register('fatherPhone')} />
+                <TextField type="tel" label={t('emergencyPhone')} error={errors.emergencyPhone?.message} {...register('emergencyPhone')} />
+                <TextField type="email" label={t('email')} required error={errors.email?.message} {...register('email')} />
               </div>
 
               <SectionHeader label={t('sectionSchool')} />
               <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
-                    {t('englishGrade')}<span className="text-gold ml-1">*</span>
-                  </label>
-                  <select value={form.englishGrade} onChange={setField('englishGrade')}
-                    className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold bg-white">
-                    <option value="">—</option>
-                    {GRADES.map(g => <option key={g} value={g}>{g === 'Przedszkole' ? g : `Grade ${g}`}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
-                    {t('polishGrade')}<span className="text-gold ml-1">*</span>
-                  </label>
-                  <select value={form.polishGrade} onChange={setField('polishGrade')}
-                    className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold bg-white">
-                    <option value="">—</option>
-                    {GRADES.map(g => <option key={g} value={g}>{g === 'Przedszkole' ? g : `Klasa ${g}`}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
-                  {t('specialNeeds')}
-                </label>
-                <textarea
-                  value={form.specialNeeds} onChange={setField('specialNeeds')}
-                  rows={3} placeholder={t('specialNeedsPlaceholder')}
-                  className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold resize-none"
+                <Controller
+                  control={control}
+                  name="englishGrade"
+                  render={({field}) => (
+                    <Select
+                      label={t('englishGrade')} required
+                      value={field.value} onChange={field.onChange} onBlur={field.onBlur}
+                      error={errors.englishGrade?.message}
+                      options={GRADES.map(g => ({value: g, label: g === 'Przedszkole' ? g : `Grade ${g}`}))}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="polishGrade"
+                  render={({field}) => (
+                    <Select
+                      label={t('polishGrade')} required
+                      value={field.value} onChange={field.onChange} onBlur={field.onBlur}
+                      error={errors.polishGrade?.message}
+                      options={GRADES.map(g => ({value: g, label: g === 'Przedszkole' ? g : `Klasa ${g}`}))}
+                    />
+                  )}
                 />
               </div>
+              <TextAreaField
+                label={t('specialNeeds')} rows={3} placeholder={t('specialNeedsPlaceholder')}
+                error={errors.specialNeeds?.message} {...register('specialNeeds')}
+              />
 
               <SectionHeader label={t('sectionParish')} />
               <div className="space-y-4">
-                <YesNo label={t('parishMember')} value={form.parishMember} onChange={setField('parishMember')} yesLabel={t('yes')} noLabel={t('no')} />
-                <YesNo label={t('catechism')}    value={form.catechism}    onChange={setField('catechism')}    yesLabel={t('yes')} noLabel={t('no')} />
+                <RadioPills label={t('parishMember')} name="parishMember" register={register} yesLabel={t('yes')} noLabel={t('no')} />
+                <RadioPills label={t('catechism')} name="catechism" register={register} yesLabel={t('yes')} noLabel={t('no')} />
               </div>
 
               <SectionHeader label={t('sectionConsent')} />
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="accent-navy mt-0.5 shrink-0" />
-                <span className="text-sm text-gray-600">{t('consentText')}</span>
-              </label>
+              <Checkbox label={t('consentText')} error={errors.consent?.message} {...register('consent')} />
 
               <SectionHeader label={t('sectionSignature')} />
               <div>
@@ -421,21 +384,20 @@ export default function EnrollPage() {
                   {t('signatureLabel')}<span className="text-gold ml-1">*</span>
                 </label>
                 <input
-                  type="text" value={signature} onChange={e => setSignature(e.target.value)}
-                  placeholder={t('signaturePlaceholder')}
+                  type="text" placeholder={t('signaturePlaceholder')}
                   className="w-full border-2 border-gray-300 rounded px-3 py-3 text-base italic focus:outline-none focus:border-navy"
                   style={{fontFamily: 'Georgia, serif'}}
+                  {...register('signature')}
                 />
+                {errors.signature && <p className="text-red-500 text-xs mt-1">{errors.signature.message}</p>}
                 <p className="text-xs text-gray-400 mt-2">{t('signatureHint')}</p>
               </div>
 
-              {error && (
-                <p className="mt-4 text-red-600 text-sm bg-red-50 border border-red-100 rounded px-4 py-3">{error}</p>
-              )}
+              <FormError message={errors.root?.message} />
 
-              <button type="submit" disabled={submitting}
+              <button type="submit" disabled={isSubmitting}
                 className="mt-8 w-full bg-navy text-white font-bold py-3 rounded hover:bg-navy-dark transition-colors disabled:opacity-60 text-sm">
-                {submitting ? (submitStatus || t('submitting')) : t('submitBtn')}
+                {isSubmitting ? (submitStatus || t('submitting')) : t('submitBtn')}
               </button>
             </div>
           </form>

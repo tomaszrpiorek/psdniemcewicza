@@ -81,6 +81,7 @@
     "patronName": "Julian Ursyn Niemcewicz",
     "patronDates": "1758–1841",
     "patronBio": "Julian Ursyn Niemcewicz był polskim poetą, dramaturgiem i mężem stanu, adiutantem Tadeusza Kościuszki. Wiele lat spędził na emigracji w Stanach Zjednoczonych, w tym w New Jersey — dlatego jego imię łączy historię Polski z historią Polonii w naszym stanie.",
+    "patronPortraitCredit": "Henryk Piątkowski, 1899 · Album pisarzy polskich",
     "valuesTitle": "Czego Uczymy",
     "val1Title": "Język Polski",
     "val1Desc": "Czytanie, pisanie i mówienie po polsku na wszystkich poziomach zaawansowania.",
@@ -95,7 +96,10 @@
     "classPreschoolLevel": "Przedszkole",
     "classPreschoolDesc": "Dla dzieci od 3. roku życia — wprowadzenie do alfabetu, podstawowe słownictwo i piosenki.",
     "classGradesLevel": "Klasa 1 – Klasa 12",
-    "classGradesDesc": "Pełny program języka polskiego, historii i kultury, aż do przygotowania do egzaminów językowych."
+    "classGradesDesc": "Pełny program języka polskiego, historii i kultury, aż do przygotowania do egzaminów językowych.",
+    "lifeTitle": "Życie Szkoły",
+    "lifeDesc": "Wycieczki, wydarzenia i uroczystości — zobacz, czym żyje nasza szkolna społeczność.",
+    "lifeCta": "Zobacz pełną galerię"
   },
   "Announcements": {
     "tag": "Aktualności",
@@ -307,7 +311,19 @@
     "submitting": "Logowanie…",
     "error": "Nieprawidłowy email lub hasło.",
     "noAccount": "Nie masz konta?",
-    "registerLink": "Zarejestruj się"
+    "registerLink": "Zarejestruj się",
+    "forgotPasswordLink": "Nie pamiętasz hasła?"
+  },
+  "ForgotPassword": {
+    "title": "Resetuj Hasło",
+    "subtitle": "Polska Szkoła Dokształcająca",
+    "emailLabel": "Email",
+    "emailPlaceholder": "adres@email.com",
+    "submitBtn": "Wyślij link resetujący",
+    "submitting": "Wysyłanie…",
+    "success": "Jeśli konto o tym adresie istnieje, wysłaliśmy link do zresetowania hasła. Sprawdź skrzynkę odbiorczą (i folder spam).",
+    "error": "Coś poszło nie tak. Spróbuj ponownie.",
+    "backToLogin": "Powrót do logowania"
   },
   "Register": {
     "title": "Rejestracja rodzica",
@@ -374,5 +390,15 @@
     "contact": "Kontakt",
     "hours": "Pon. 17:30 – 20:00",
     "copyright": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, NJ. Wszelkie prawa zastrzeżone."
+  },
+  "Validation": {
+    "required": "To pole jest wymagane.",
+    "tooShort": "To pole jest za krótkie.",
+    "invalidEmail": "Podaj prawidłowy adres email.",
+    "invalidPhone": "Podaj prawidłowy numer telefonu.",
+    "invalidZip": "Podaj prawidłowy kod pocztowy (np. 07062).",
+    "invalidName": "Podaj prawidłowe imię lub nazwisko (tylko litery).",
+    "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków.",
+    "passwordMismatch": "Hasła nie są zgodne."
   }
 }

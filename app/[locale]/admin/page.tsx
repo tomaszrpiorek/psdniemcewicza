@@ -3,6 +3,8 @@
 import {useState, useEffect} from 'react'
 import {useRouter} from 'next/navigation'
 import {useLocale} from 'next-intl'
+import {useForm, Controller} from 'react-hook-form'
+import {z} from 'zod'
 import {
   collection, query, where, onSnapshot, orderBy,
   addDoc, deleteDoc, doc, setDoc, updateDoc, getDocs, serverTimestamp, writeBatch,
@@ -10,6 +12,12 @@ import {
 import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import {db, storage} from '@/lib/firebase'
 import {useAuth} from '@/contexts/AuthContext'
+import {zodResolver} from '@/lib/zodResolver'
+import {requiredName, requiredPhone, requiredString, optionalName} from '@/lib/validation'
+import TextField from '@/components/form/TextField'
+import TextAreaField from '@/components/form/TextAreaField'
+import Select from '@/components/form/Select'
+import FormError from '@/components/form/FormError'
 
 type Grade = {id: string; name: string; level: number; teacherName?: string}
 type Child = {id: string; firstName: string; lastName: string; gradeId: string; parentId: string}
@@ -45,6 +53,10 @@ function nextMonday(): string {
   return d.toISOString().slice(0, 10)
 }
 
+function uniqueFileName(name: string): string {
+  return `${Date.now()}_${name}`
+}
+
 const GRADE_DEFAULTS = [
   {level: 0,  name: 'Przedszkole'},
   {level: 1,  name: 'Klasa 1'},
@@ -77,6 +89,7 @@ export default function AdminPage() {
   const [homework, setHomework]         = useState<Homework[]>([])
   const [showAddHomework, setShowAddHomework] = useState(false)
   const [editingHomework, setEditingHomework] = useState<Homework | null>(null)
+  const [showBroadcast, setShowBroadcast] = useState(false)
   const [enrollments, setEnrollments]   = useState<Enrollment[]>([])
   const [medicalForms, setMedicalForms] = useState<MedicalForm[]>([])
   const [mainTab, setMainTab]           = useState<'classes' | 'enrollments' | 'medical'>('classes')
@@ -235,7 +248,7 @@ export default function AdminPage() {
         </button>
         <button
           onClick={() => setMainTab('medical')}
-          className={`w-full text-left px-3 py-2 rounded text-sm font-bold mb-3 transition-colors flex items-center justify-between ${mainTab === 'medical' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+          className={`w-full text-left px-3 py-2 rounded text-sm font-bold transition-colors flex items-center justify-between ${mainTab === 'medical' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
         >
           <span>Zgody med.</span>
           {medicalForms.length > 0 && (
@@ -243,6 +256,12 @@ export default function AdminPage() {
               {medicalForms.length}
             </span>
           )}
+        </button>
+        <button
+          onClick={() => setShowBroadcast(true)}
+          className="w-full text-left px-3 py-2 rounded text-sm font-bold mb-3 text-gray-400 hover:text-white transition-colors"
+        >
+          ✉️ Wyślij wiadomość
         </button>
         <div className={mainTab === 'classes' ? '' : 'opacity-30 pointer-events-none transition-opacity'}>
           <p className="text-gold text-xs font-bold uppercase tracking-widest px-3 mb-3">Klasy</p>
@@ -702,6 +721,15 @@ export default function AdminPage() {
         />
       )}
 
+      {showBroadcast && (
+        <BroadcastModal
+          grades={grades}
+          teacherUid={user.uid}
+          defaultGradeId={activeGrade?.id}
+          onClose={() => setShowBroadcast(false)}
+        />
+      )}
+
       {showAddChild && activeGrade && (
         <AddChildModal
           gradeId={activeGrade.id}
@@ -723,44 +751,49 @@ function InfoRow({label, val}: {label: string; val?: string | null}) {
   )
 }
 
-function AddChildModal({gradeId, gradeName, onClose}: {gradeId: string; gradeName: string; onClose: () => void}) {
-  const [childFirst, setChildFirst] = useState('')
-  const [childLast, setChildLast]   = useState('')
-  const [parentFirst, setParentFirst] = useState('')
-  const [parentLast, setParentLast]   = useState('')
-  const [phone, setPhone]             = useState('')
-  const [email, setEmail]             = useState('')
-  const [saving, setSaving]           = useState(false)
-  const [error, setError]             = useState('')
+const addChildSchema = z.object({
+  childFirst: requiredName('Wypełnij wymagane pola.', 'Podaj prawidłowe imię lub nazwisko (tylko litery).'),
+  childLast: requiredName('Wypełnij wymagane pola.', 'Podaj prawidłowe imię lub nazwisko (tylko litery).'),
+  parentFirst: requiredName('Wypełnij wymagane pola.', 'Podaj prawidłowe imię lub nazwisko (tylko litery).'),
+  parentLast: optionalName('Podaj prawidłowe imię lub nazwisko (tylko litery).'),
+  phone: requiredPhone('Wypełnij wymagane pola.', 'Podaj prawidłowy numer telefonu.'),
+  email: z.string().trim().optional().default('').refine(
+    (v) => !v || z.email().safeParse(v).success,
+    'Podaj prawidłowy adres email.'
+  ),
+})
+type AddChildValues = z.infer<typeof addChildSchema>
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    if (!childFirst.trim() || !childLast.trim() || !parentFirst.trim() || !phone.trim()) {
-      setError('Wypełnij wymagane pola.')
-      return
-    }
-    setSaving(true)
+function AddChildModal({gradeId, gradeName, onClose}: {gradeId: string; gradeName: string; onClose: () => void}) {
+  const {
+    register, handleSubmit, setError,
+    formState: {errors, isSubmitting},
+  } = useForm<AddChildValues>({
+    resolver: zodResolver(addChildSchema),
+    defaultValues: {childFirst: '', childLast: '', parentFirst: '', parentLast: '', phone: '', email: ''},
+  })
+
+  async function onSubmit(data: AddChildValues) {
     try {
       const parentRef = doc(collection(db, 'parents'))
       await setDoc(parentRef, {
-        firstName: parentFirst.trim(),
-        lastName:  parentLast.trim(),
-        phone:     phone.trim(),
-        email:     email.trim(),
+        firstName: data.parentFirst,
+        lastName:  data.parentLast,
+        phone:     data.phone,
+        email:     data.email,
         uid:       null,
         createdAt: serverTimestamp(),
       })
       await addDoc(collection(db, 'children'), {
-        firstName: childFirst.trim(),
-        lastName:  childLast.trim(),
+        firstName: data.childFirst,
+        lastName:  data.childLast,
         gradeId,
         parentId:  parentRef.id,
         createdAt: serverTimestamp(),
       })
       onClose()
     } catch {
-      setError('Błąd zapisu. Spróbuj ponownie.')
-      setSaving(false)
+      setError('root', {message: 'Błąd zapisu. Spróbuj ponownie.'})
     }
   }
 
@@ -771,67 +804,37 @@ function AddChildModal({gradeId, gradeName, onClose}: {gradeId: string; gradeNam
           <h3 className="font-bold text-navy">Dodaj ucznia — {gradeName}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
         </div>
-        <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
           <div>
             <p className="text-xs font-bold text-gold uppercase tracking-wider mb-2">Uczeń</p>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Imię *</label>
-                <input value={childFirst} onChange={e => setChildFirst(e.target.value)}
-                  className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold"
-                  placeholder="Maria" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Nazwisko *</label>
-                <input value={childLast} onChange={e => setChildLast(e.target.value)}
-                  className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold"
-                  placeholder="Kowalska" />
-              </div>
+              <TextField label="Imię *" placeholder="Maria" error={errors.childFirst?.message} {...register('childFirst')} />
+              <TextField label="Nazwisko *" placeholder="Kowalska" error={errors.childLast?.message} {...register('childLast')} />
             </div>
           </div>
 
           <div>
             <p className="text-xs font-bold text-gold uppercase tracking-wider mb-2">Rodzic / Opiekun</p>
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Imię *</label>
-                <input value={parentFirst} onChange={e => setParentFirst(e.target.value)}
-                  className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold"
-                  placeholder="Jan" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Nazwisko</label>
-                <input value={parentLast} onChange={e => setParentLast(e.target.value)}
-                  className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold"
-                  placeholder="Kowalski" />
-              </div>
+              <TextField label="Imię *" placeholder="Jan" error={errors.parentFirst?.message} {...register('parentFirst')} />
+              <TextField label="Nazwisko" placeholder="Kowalski" error={errors.parentLast?.message} {...register('parentLast')} />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Telefon *</label>
-                <input value={phone} onChange={e => setPhone(e.target.value)}
-                  className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold"
-                  placeholder="+1 (732) 000-0000" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Email</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                  className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold"
-                  placeholder="jan@email.com" />
-              </div>
+              <TextField type="tel" label="Telefon *" placeholder="+1 (732) 000-0000" error={errors.phone?.message} {...register('phone')} />
+              <TextField type="email" label="Email" placeholder="jan@email.com" error={errors.email?.message} {...register('email')} />
             </div>
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          <FormError message={errors.root?.message} />
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
               className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
               Anuluj
             </button>
-            <button type="submit" disabled={saving}
+            <button type="submit" disabled={isSubmitting}
               className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
-              {saving ? 'Zapisywanie…' : 'Zapisz'}
+              {isSubmitting ? 'Zapisywanie…' : 'Zapisz'}
             </button>
           </div>
         </form>
@@ -840,48 +843,55 @@ function AddChildModal({gradeId, gradeName, onClose}: {gradeId: string; gradeNam
   )
 }
 
+const homeworkSchema = z.object({
+  title: requiredString('Wypełnij wymagane pola.'),
+  weekOf: requiredString('Wypełnij wymagane pola.'),
+  description: z.string().trim().optional().default(''),
+})
+type HomeworkValues = z.infer<typeof homeworkSchema>
+
 function AddHomeworkModal({gradeId, gradeName, existing, onClose}: {
   gradeId: string; gradeName: string; existing?: Homework; onClose: () => void
 }) {
-  const [title, setTitle]           = useState(existing?.title ?? '')
-  const [weekOf, setWeekOf]         = useState(existing?.weekOf ?? nextMonday())
-  const [description, setDescription] = useState(existing?.description ?? '')
-  const [file, setFile]             = useState<File | null>(null)
-  const [saving, setSaving]         = useState(false)
-  const [error, setError]           = useState('')
+  const [file, setFile] = useState<File | null>(null)
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    if (!title.trim() || !weekOf) {
-      setError('Wypełnij wymagane pola.')
-      return
-    }
-    setSaving(true)
+  const {
+    register, handleSubmit, setError,
+    formState: {errors, isSubmitting},
+  } = useForm<HomeworkValues>({
+    resolver: zodResolver(homeworkSchema),
+    defaultValues: {
+      title: existing?.title ?? '',
+      weekOf: existing?.weekOf ?? nextMonday(),
+      description: existing?.description ?? '',
+    },
+  })
+
+  async function onSubmit(data: HomeworkValues) {
     try {
       let attachmentUrl = existing?.attachmentUrl
       let attachmentName = existing?.attachmentName
       if (file) {
-        const storageRef = ref(storage, `homework/${gradeId}/${Date.now()}_${file.name}`)
+        const storageRef = ref(storage, `homework/${gradeId}/${uniqueFileName(file.name)}`)
         await uploadBytes(storageRef, file)
         attachmentUrl = await getDownloadURL(storageRef)
         attachmentName = file.name
       }
-      const data = {
+      const payload = {
         gradeId,
-        title: title.trim(),
-        weekOf,
-        description: description.trim(),
+        title: data.title,
+        weekOf: data.weekOf,
+        description: data.description,
         ...(attachmentUrl ? {attachmentUrl, attachmentName} : {}),
       }
       if (existing) {
-        await updateDoc(doc(db, 'homework', existing.id), data)
+        await updateDoc(doc(db, 'homework', existing.id), payload)
       } else {
-        await addDoc(collection(db, 'homework'), {...data, createdAt: serverTimestamp()})
+        await addDoc(collection(db, 'homework'), {...payload, createdAt: serverTimestamp()})
       }
       onClose()
     } catch {
-      setError('Błąd zapisu. Spróbuj ponownie.')
-      setSaving(false)
+      setError('root', {message: 'Błąd zapisu. Spróbuj ponownie.'})
     }
   }
 
@@ -892,24 +902,10 @@ function AddHomeworkModal({gradeId, gradeName, existing, onClose}: {
           <h3 className="font-bold text-navy">{existing ? 'Edytuj zadanie' : 'Dodaj zadanie'} — {gradeName}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
         </div>
-        <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Tytuł *</label>
-            <input value={title} onChange={e => setTitle(e.target.value)}
-              className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold"
-              placeholder="np. Ćwiczenia gramatyczne" />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Termin oddania *</label>
-            <input type="date" value={weekOf} onChange={e => setWeekOf(e.target.value)}
-              className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold" />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Opis</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={4}
-              className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold resize-none"
-              placeholder="Opis zadania…" />
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
+          <TextField label="Tytuł *" placeholder="np. Ćwiczenia gramatyczne" error={errors.title?.message} {...register('title')} />
+          <TextField type="date" label="Termin oddania *" error={errors.weekOf?.message} {...register('weekOf')} />
+          <TextAreaField label="Opis" rows={4} placeholder="Opis zadania…" error={errors.description?.message} {...register('description')} />
           <div>
             <label className="block text-xs text-gray-500 mb-1">Załącznik (opcjonalnie)</label>
             {existing?.attachmentName && !file && (
@@ -919,19 +915,107 @@ function AddHomeworkModal({gradeId, gradeName, existing, onClose}: {
               className="w-full text-sm text-gray-600" />
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          <FormError message={errors.root?.message} />
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
               className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
               Anuluj
             </button>
-            <button type="submit" disabled={saving}
+            <button type="submit" disabled={isSubmitting}
               className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
-              {saving ? 'Zapisywanie…' : 'Zapisz'}
+              {isSubmitting ? 'Zapisywanie…' : 'Zapisz'}
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+
+const broadcastSchema = z.object({
+  gradeId: z.string(),
+  subject: requiredString('Wypełnij temat i treść wiadomości.'),
+  message: requiredString('Wypełnij temat i treść wiadomości.'),
+})
+type BroadcastValues = z.infer<typeof broadcastSchema>
+
+function BroadcastModal({grades, teacherUid, defaultGradeId, onClose}: {
+  grades: Grade[]; teacherUid: string; defaultGradeId?: string; onClose: () => void
+}) {
+  const [sent, setSent] = useState(false)
+
+  const {
+    register, handleSubmit, control, setError,
+    formState: {errors, isSubmitting},
+  } = useForm<BroadcastValues>({
+    resolver: zodResolver(broadcastSchema),
+    defaultValues: {gradeId: defaultGradeId ?? 'all', subject: '', message: ''},
+  })
+
+  async function onSubmit(data: BroadcastValues) {
+    try {
+      await addDoc(collection(db, 'classMessages'), {
+        gradeId: data.gradeId,
+        subject: data.subject,
+        message: data.message,
+        teacherUid,
+        createdAt: serverTimestamp(),
+      })
+      setSent(true)
+    } catch {
+      setError('root', {message: 'Błąd wysyłania. Spróbuj ponownie.'})
+    }
+  }
+
+  const gradeOptions = [{value: 'all', label: 'Wszystkie klasy'}, ...grades.map(g => ({value: g.id, label: g.name}))]
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 className="font-bold text-navy">Wyślij wiadomość do rodziców</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        </div>
+
+        {sent ? (
+          <div className="px-6 py-8 text-center">
+            <div className="text-4xl mb-3">✅</div>
+            <p className="text-navy font-bold">Wiadomość wysłana.</p>
+            <button onClick={onClose} className="mt-5 text-sm text-gold font-semibold hover:underline">Zamknij</button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
+            <Controller
+              control={control}
+              name="gradeId"
+              render={({field}) => (
+                <Select
+                  label="Odbiorcy *"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  options={gradeOptions}
+                />
+              )}
+            />
+            <TextField label="Temat *" placeholder="np. Zajęcia odwołane dziś wieczorem" error={errors.subject?.message} {...register('subject')} />
+            <TextAreaField label="Wiadomość *" rows={5} placeholder="Treść wiadomości…" error={errors.message?.message} {...register('message')} />
+
+            <FormError message={errors.root?.message} />
+
+            <div className="flex gap-3 pt-1">
+              <button type="button" onClick={onClose}
+                className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
+                Anuluj
+              </button>
+              <button type="submit" disabled={isSubmitting}
+                className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
+                {isSubmitting ? 'Wysyłanie…' : 'Wyślij'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   )

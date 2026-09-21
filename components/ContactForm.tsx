@@ -1,25 +1,43 @@
 'use client'
 
 import {useState} from 'react'
+import {useForm} from 'react-hook-form'
+import {z} from 'zod'
 import {httpsCallable} from 'firebase/functions'
 import {functions} from '@/lib/firebase'
 import {useTranslations} from 'next-intl'
+import {zodResolver} from '@/lib/zodResolver'
+import {requiredEmail, requiredName, requiredString} from '@/lib/validation'
+import TextField from '@/components/form/TextField'
+import TextAreaField from '@/components/form/TextAreaField'
+import FormError from '@/components/form/FormError'
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 
 export default function ContactForm() {
   const t = useTranslations('Contact')
-  const [form, setForm]     = useState({name: '', email: '', message: ''})
+  const v = useTranslations('Validation')
   const [status, setStatus] = useState<Status>('idle')
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  const schema = z.object({
+    name: requiredName(v('required'), v('invalidName')),
+    email: requiredEmail(v('required'), v('invalidEmail')),
+    message: requiredString(v('required')),
+  })
+  type FormValues = z.infer<typeof schema>
+
+  const {
+    register, handleSubmit, reset,
+    formState: {errors, isSubmitting},
+  } = useForm<FormValues>({resolver: zodResolver(schema), defaultValues: {name: '', email: '', message: ''}})
+
+  async function onSubmit(data: FormValues) {
     setStatus('sending')
     try {
       const sendContactEmail = httpsCallable(functions, 'sendContactEmail')
-      await sendContactEmail(form)
+      await sendContactEmail(data)
       setStatus('sent')
-      setForm({name: '', email: '', message: ''})
+      reset()
     } catch {
       setStatus('error')
     }
@@ -35,39 +53,22 @@ export default function ContactForm() {
   }
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <div>
-        <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">{t('nameLabel')}</label>
-        <input
-          type="text" required value={form.name}
-          onChange={(e) => setForm({...form, name: e.target.value})}
-          className="w-full border border-gray-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-          placeholder={t('namePlaceholder')}
-        />
-      </div>
-      <div>
-        <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">{t('emailFormLabel')}</label>
-        <input
-          type="email" required value={form.email}
-          onChange={(e) => setForm({...form, email: e.target.value})}
-          className="w-full border border-gray-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-          placeholder="email@example.com"
-        />
-      </div>
-      <div>
-        <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">{t('messageLabel')}</label>
-        <textarea
-          required rows={5} value={form.message}
-          onChange={(e) => setForm({...form, message: e.target.value})}
-          className="w-full border border-gray-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold resize-none"
-          placeholder={t('messagePlaceholder')}
-        />
-      </div>
-      {status === 'error' && (
-        <p className="text-red-600 text-sm bg-red-50 border border-red-100 rounded px-3 py-2">{t('sendError')}</p>
-      )}
+    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <TextField
+        label={t('nameLabel')} placeholder={t('namePlaceholder')}
+        error={errors.name?.message} {...register('name')}
+      />
+      <TextField
+        type="email" label={t('emailFormLabel')} placeholder="email@example.com"
+        error={errors.email?.message} {...register('email')}
+      />
+      <TextAreaField
+        label={t('messageLabel')} rows={5} placeholder={t('messagePlaceholder')}
+        error={errors.message?.message} {...register('message')}
+      />
+      {status === 'error' && <FormError message={t('sendError')} />}
       <button
-        type="submit" disabled={status === 'sending'}
+        type="submit" disabled={isSubmitting || status === 'sending'}
         className="w-full bg-navy text-white font-bold py-3 rounded hover:bg-navy-dark transition-colors disabled:opacity-60"
       >
         {status === 'sending' ? t('sending') : t('sendBtn')}

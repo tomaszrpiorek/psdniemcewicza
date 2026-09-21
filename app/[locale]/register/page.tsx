@@ -1,6 +1,8 @@
 'use client'
 
-import {useState, useEffect} from 'react'
+import {useEffect} from 'react'
+import {useForm} from 'react-hook-form'
+import {z} from 'zod'
 import {createUserWithEmailAndPassword, sendEmailVerification} from 'firebase/auth'
 import {doc, setDoc, serverTimestamp} from 'firebase/firestore'
 import {auth, db} from '@/lib/firebase'
@@ -9,72 +11,73 @@ import {useRouter} from 'next/navigation'
 import {useLocale, useTranslations} from 'next-intl'
 import Image from 'next/image'
 import Link from 'next/link'
+import {zodResolver} from '@/lib/zodResolver'
+import {requiredEmail, requiredName, requiredPhone} from '@/lib/validation'
+import TextField from '@/components/form/TextField'
+import FormError from '@/components/form/FormError'
 
 export default function RegisterPage() {
   const {user, loading} = useAuth()
   const router = useRouter()
   const locale = useLocale()
   const t = useTranslations('Register')
+  const v = useTranslations('Validation')
 
-  const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '',
-    phone: '', address: '', password: '', confirm: '',
+  const schema = z
+    .object({
+      firstName: requiredName(v('required'), v('invalidName')),
+      lastName: requiredName(v('required'), v('invalidName')),
+      email: requiredEmail(v('required'), v('invalidEmail')),
+      phone: requiredPhone(v('required'), v('invalidPhone')),
+      address: z.string().trim().optional().default(''),
+      password: z.string().min(8, v('passwordTooShort')),
+      confirm: z.string(),
+    })
+    .refine((data) => data.password === data.confirm, {
+      message: v('passwordMismatch'),
+      path: ['confirm'],
+    })
+  type FormValues = z.infer<typeof schema>
+
+  const {
+    register, handleSubmit, setError,
+    formState: {errors, isSubmitting},
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {firstName: '', lastName: '', email: '', phone: '', address: '', password: '', confirm: ''},
   })
-  const [error, setError]           = useState('')
-  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     if (!loading && user) router.replace('/' + locale + '/dashboard')
   }, [user, loading, router, locale])
 
-  function set(field: string) {
-    return (e: React.ChangeEvent<HTMLInputElement>) =>
-      setForm(prev => ({...prev, [field]: e.target.value}))
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    if (form.password !== form.confirm) { setError(t('errorPasswordMatch')); return }
-    if (form.password.length < 6)       { setError(t('errorPasswordLength')); return }
-    setSubmitting(true)
+  async function onSubmit(data: FormValues) {
     try {
-      const {user: newUser} = await createUserWithEmailAndPassword(auth, form.email, form.password)
+      const {user: newUser} = await createUserWithEmailAndPassword(auth, data.email, data.password)
       await setDoc(doc(db, 'users', newUser.uid), {
-        firstName: form.firstName.trim(),
-        lastName:  form.lastName.trim(),
-        email:     form.email.trim(),
-        role:      'parent',
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        role: 'parent',
         createdAt: serverTimestamp(),
       })
       await setDoc(doc(db, 'parents', newUser.uid), {
-        firstName: form.firstName.trim(),
-        lastName:  form.lastName.trim(),
-        email:     form.email.trim(),
-        phone:     form.phone.trim(),
-        address:   form.address.trim(),
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
         createdAt: serverTimestamp(),
       })
       await sendEmailVerification(newUser)
       router.replace('/' + locale + '/verify-email')
-    } catch (err: any) {
-      setError(err.code === 'auth/email-already-in-use' ? t('errorEmailInUse') : t('errorGeneric'))
-      setSubmitting(false)
+    } catch (err) {
+      const code = err instanceof Object && 'code' in err ? err.code : undefined
+      setError('root', {message: code === 'auth/email-already-in-use' ? t('errorEmailInUse') : t('errorGeneric')})
     }
   }
 
   if (loading) return null
-
-  const field = (label: string, key: string, type = 'text', placeholder = '') => (
-    <div>
-      <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">{label}</label>
-      <input
-        type={type} value={(form as any)[key]} onChange={set(key)}
-        className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold"
-        placeholder={placeholder}
-      />
-    </div>
-  )
 
   return (
     <main className="min-h-[80vh] flex items-center justify-center px-4 py-12">
@@ -85,24 +88,22 @@ export default function RegisterPage() {
           <p className="text-gray-500 text-sm mt-1">{t('subtitle')}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            {field(t('firstName') + ' *', 'firstName', 'text', 'Jan')}
-            {field(t('lastName') + ' *', 'lastName', 'text', 'Kowalski')}
+            <TextField label={t('firstName') + ' *'} placeholder="Jan" error={errors.firstName?.message} {...register('firstName')} />
+            <TextField label={t('lastName') + ' *'} placeholder="Kowalski" error={errors.lastName?.message} {...register('lastName')} />
           </div>
-          {field(t('email') + ' *', 'email', 'email', 'jan@email.com')}
-          {field(t('phone') + ' *', 'phone', 'text', '+1 (732) 000-0000')}
-          {field(t('address'), 'address', 'text', t('addressPlaceholder'))}
-          {field(t('password') + ' *', 'password', 'password', t('passwordPlaceholder'))}
-          {field(t('confirm') + ' *', 'confirm', 'password', '••••••••')}
+          <TextField type="email" label={t('email') + ' *'} placeholder="jan@email.com" error={errors.email?.message} {...register('email')} />
+          <TextField type="tel" label={t('phone') + ' *'} placeholder="+1 (732) 000-0000" error={errors.phone?.message} {...register('phone')} />
+          <TextField label={t('address')} placeholder={t('addressPlaceholder')} error={errors.address?.message} {...register('address')} />
+          <TextField type="password" label={t('password') + ' *'} placeholder={t('passwordPlaceholder')} error={errors.password?.message} {...register('password')} />
+          <TextField type="password" label={t('confirm') + ' *'} placeholder="••••••••" error={errors.confirm?.message} {...register('confirm')} />
 
-          {error && (
-            <p className="text-red-600 text-sm bg-red-50 border border-red-100 rounded px-3 py-2">{error}</p>
-          )}
+          <FormError message={errors.root?.message} />
 
-          <button type="submit" disabled={submitting}
+          <button type="submit" disabled={isSubmitting}
             className="w-full bg-navy text-white font-bold py-2.5 rounded hover:bg-navy-dark transition-colors disabled:opacity-60 text-sm mt-2">
-            {submitting ? t('submitting') : t('submitBtn')}
+            {isSubmitting ? t('submitting') : t('submitBtn')}
           </button>
 
           <p className="text-center text-sm text-gray-500">

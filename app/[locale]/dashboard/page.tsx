@@ -3,6 +3,8 @@
 import {useState, useEffect} from 'react'
 import {useRouter} from 'next/navigation'
 import {useLocale, useTranslations} from 'next-intl'
+import {useForm, Controller} from 'react-hook-form'
+import {z} from 'zod'
 import {
   collection, query, where, onSnapshot, orderBy,
   addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, serverTimestamp,
@@ -11,6 +13,11 @@ import {db} from '@/lib/firebase'
 import {useAuth} from '@/contexts/AuthContext'
 import Link from 'next/link'
 import {ENROLLMENT_OPEN} from '@/lib/features'
+import {zodResolver} from '@/lib/zodResolver'
+import {requiredName, requiredString} from '@/lib/validation'
+import TextField from '@/components/form/TextField'
+import Select from '@/components/form/Select'
+import FormError from '@/components/form/FormError'
 
 type Grade          = {id: string; name: string; level: number}
 type Child          = {id: string; firstName: string; lastName: string; gradeId: string}
@@ -282,34 +289,43 @@ function ChildModal({parentId, grades, existing, t, onClose}: {
   t: TFn
   onClose: () => void
 }) {
-  const [firstName, setFirstName] = useState(existing?.firstName ?? '')
-  const [lastName, setLastName]   = useState(existing?.lastName ?? '')
-  const [gradeId, setGradeId]     = useState(existing?.gradeId ?? grades[0]?.id ?? '')
-  const [saving, setSaving]       = useState(false)
-  const [error, setError]         = useState('')
-
+  const v = useTranslations('Validation')
   const isEdit = !!existing
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    if (!firstName.trim() || !lastName.trim()) { setError(t('errorFillName')); return }
-    if (!gradeId)                              { setError(t('errorNoGrade'));  return }
-    setSaving(true)
+  const schema = z.object({
+    firstName: requiredName(v('required'), v('invalidName')),
+    lastName: requiredName(v('required'), v('invalidName')),
+    gradeId: requiredString(t('errorNoGrade')),
+  })
+  type FormValues = z.infer<typeof schema>
+
+  const {
+    register, handleSubmit, control, setError,
+    formState: {errors, isSubmitting},
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      firstName: existing?.firstName ?? '',
+      lastName: existing?.lastName ?? '',
+      gradeId: existing?.gradeId ?? grades[0]?.id ?? '',
+    },
+  })
+
+  async function onSubmit(data: FormValues) {
     try {
       if (isEdit) {
         await updateDoc(doc(db, 'children', existing!.id), {
-          firstName: firstName.trim(), lastName: lastName.trim(), gradeId,
+          firstName: data.firstName, lastName: data.lastName, gradeId: data.gradeId,
         })
       } else {
         await addDoc(collection(db, 'children'), {
-          firstName: firstName.trim(), lastName: lastName.trim(),
-          gradeId, parentId, createdAt: serverTimestamp(),
+          firstName: data.firstName, lastName: data.lastName,
+          gradeId: data.gradeId, parentId, createdAt: serverTimestamp(),
         })
       }
       onClose()
     } catch {
-      setError(t('errorSave'))
-      setSaving(false)
+      setError('root', {message: t('errorSave')})
     }
   }
 
@@ -320,44 +336,48 @@ function ChildModal({parentId, grades, existing, t, onClose}: {
           <h3 className="font-bold text-navy">{isEdit ? t('modalEditTitle') : t('modalAddTitle')}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
         </div>
-        <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1">{t('childFirstName')} *</label>
-              <input value={firstName} onChange={e => setFirstName(e.target.value)}
-                className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold" placeholder="Maria" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1">{t('childLastName')} *</label>
-              <input value={lastName} onChange={e => setLastName(e.target.value)}
-                className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold" placeholder="Kowalska" />
-            </div>
+            <TextField label={t('childFirstName') + ' *'} placeholder="Maria" error={errors.firstName?.message} {...register('firstName')} />
+            <TextField label={t('childLastName') + ' *'} placeholder="Kowalska" error={errors.lastName?.message} {...register('lastName')} />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1">{t('gradeLabel')} *</label>
             {grades.length === 0 ? (
-              <p className="text-amber-600 text-xs bg-amber-50 border border-amber-200 rounded px-3 py-2">
-                {t('noGrades')}
-              </p>
+              <>
+                <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1">{t('gradeLabel')} *</label>
+                <p className="text-amber-600 text-xs bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                  {t('noGrades')}
+                </p>
+              </>
             ) : (
-              <select value={gradeId} onChange={e => setGradeId(e.target.value)}
-                className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-gold bg-white">
-                {grades.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-              </select>
+              <Controller
+                control={control}
+                name="gradeId"
+                render={({field}) => (
+                  <Select
+                    label={t('gradeLabel') + ' *'}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    error={errors.gradeId?.message}
+                    options={grades.map((g) => ({value: g.id, label: g.name}))}
+                  />
+                )}
+              />
             )}
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          <FormError message={errors.root?.message} />
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
               className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
               {t('cancelBtn')}
             </button>
-            <button type="submit" disabled={saving}
+            <button type="submit" disabled={isSubmitting}
               className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
-              {saving ? t('savingBtn') : isEdit ? t('saveBtn') : t('addBtn')}
+              {isSubmitting ? t('savingBtn') : isEdit ? t('saveBtn') : t('addBtn')}
             </button>
           </div>
         </form>

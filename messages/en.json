@@ -81,6 +81,7 @@
     "patronName": "Julian Ursyn Niemcewicz",
     "patronDates": "1758–1841",
     "patronBio": "Julian Ursyn Niemcewicz was a Polish poet, playwright, and statesman who served as an aide-de-camp to Tadeusz Kościuszko. He spent many years in exile in the United States, including in New Jersey — a connection that ties Polish history to the history of Polish Americans in our own state.",
+    "patronPortraitCredit": "Henryk Piątkowski, 1899 · Album of Polish Writers",
     "valuesTitle": "What We Teach",
     "val1Title": "Polish Language",
     "val1Desc": "Reading, writing, and speaking Polish at every skill level.",
@@ -95,7 +96,10 @@
     "classPreschoolLevel": "Preschool",
     "classPreschoolDesc": "For children age 3 and up — introduction to the alphabet, basic vocabulary, and songs.",
     "classGradesLevel": "Class 1 – Class 12",
-    "classGradesDesc": "A full program of Polish language, history, and culture, through language exam preparation."
+    "classGradesDesc": "A full program of Polish language, history, and culture, through language exam preparation.",
+    "lifeTitle": "Life at Our School",
+    "lifeDesc": "Field trips, events, and celebrations — see what our school community has been up to.",
+    "lifeCta": "See the full gallery"
   },
   "Announcements": {
     "tag": "Latest News",
@@ -307,7 +311,19 @@
     "submitting": "Signing in…",
     "error": "Incorrect email or password.",
     "noAccount": "Don't have an account?",
-    "registerLink": "Register"
+    "registerLink": "Register",
+    "forgotPasswordLink": "Forgot password?"
+  },
+  "ForgotPassword": {
+    "title": "Reset Password",
+    "subtitle": "Polish Supplementary School",
+    "emailLabel": "Email",
+    "emailPlaceholder": "email@address.com",
+    "submitBtn": "Send reset link",
+    "submitting": "Sending…",
+    "success": "If an account exists for that email, a password reset link has been sent. Check your inbox (and spam folder).",
+    "error": "Something went wrong. Please try again.",
+    "backToLogin": "Back to sign in"
   },
   "Register": {
     "title": "Parent Registration",
@@ -374,5 +390,15 @@
     "contact": "Contact",
     "hours": "Mon. 5:30 – 8:00 PM",
     "copyright": "Polish Supplementary School named after Julian Ursyn Niemcewicz in Plainfield, NJ. All rights reserved."
+  },
+  "Validation": {
+    "required": "This field is required.",
+    "tooShort": "This field is too short.",
+    "invalidEmail": "Enter a valid email address.",
+    "invalidPhone": "Enter a valid phone number.",
+    "invalidZip": "Include a valid ZIP code (e.g. 07062).",
+    "invalidName": "Enter a valid name (letters only).",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordMismatch": "Passwords do not match."
   }
 }

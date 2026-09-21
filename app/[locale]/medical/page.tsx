@@ -1,6 +1,8 @@
 'use client'
 
 import {useState, useEffect} from 'react'
+import {useForm} from 'react-hook-form'
+import {z} from 'zod'
 import {useTranslations, useLocale} from 'next-intl'
 import {useRouter} from 'next/navigation'
 import {collection, doc, setDoc, getDoc, query, where, onSnapshot, serverTimestamp} from 'firebase/firestore'
@@ -8,29 +10,16 @@ import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import {db, storage} from '@/lib/firebase'
 import {useAuth} from '@/contexts/AuthContext'
 import Link from 'next/link'
-
-type MedicalForm = {
-  firstName: string; lastName: string; dateOfBirth: string
-  contact1Name: string; contact1Phone: string; contact1Relation: string
-  contact2Name: string; contact2Phone: string; contact2Relation: string
-  allergies: string; medications: string; conditions: string
-  doctorName: string; doctorPhone: string
-  insuranceProvider: string; insurancePolicyNumber: string
-  consentEmergencyTreatment: string; consentPhotos: string; consentFieldTrips: string
-}
+import {zodResolver} from '@/lib/zodResolver'
+import {requiredString, requiredName, requiredPhone, optionalName, optionalPhone} from '@/lib/validation'
+import TextField from '@/components/form/TextField'
+import TextAreaField from '@/components/form/TextAreaField'
+import RadioPills from '@/components/form/RadioPills'
+import Checkbox from '@/components/form/Checkbox'
+import FormError from '@/components/form/FormError'
 
 type MyChild = {id: string; firstName: string; lastName: string}
 type ParentProfile = {firstName: string; lastName: string; email: string; phone: string}
-
-const EMPTY: MedicalForm = {
-  firstName: '', lastName: '', dateOfBirth: '',
-  contact1Name: '', contact1Phone: '', contact1Relation: '',
-  contact2Name: '', contact2Phone: '', contact2Relation: '',
-  allergies: '', medications: '', conditions: '',
-  doctorName: '', doctorPhone: '',
-  insuranceProvider: '', insurancePolicyNumber: '',
-  consentEmergencyTreatment: '', consentPhotos: '', consentFieldTrips: '',
-}
 
 // --- Sub-components outside page to prevent focus loss ---
 
@@ -42,65 +31,9 @@ function SectionHeader({label}: {label: string}) {
   )
 }
 
-function Field({label, value, onChange, required = false, placeholder = '', type = 'text'}: {
-  label: string; value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  required?: boolean; placeholder?: string; type?: string
-}) {
-  return (
-    <div>
-      <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
-        {label}{required && <span className="text-gold ml-1">*</span>}
-      </label>
-      <input
-        type={type} value={value} onChange={onChange} placeholder={placeholder}
-        className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold"
-      />
-    </div>
-  )
-}
-
-function TextArea({label, value, onChange, placeholder = ''}: {
-  label: string; value: string
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-  placeholder?: string
-}) {
-  return (
-    <div>
-      <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">{label}</label>
-      <textarea
-        value={value} onChange={onChange} rows={3} placeholder={placeholder}
-        className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold resize-none"
-      />
-    </div>
-  )
-}
-
-function YesNo({label, value, onChange, yesLabel, noLabel, required = false}: {
-  label: string; value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  yesLabel: string; noLabel: string; required?: boolean
-}) {
-  return (
-    <div>
-      <p className="text-xs font-bold text-navy uppercase tracking-wider mb-2">
-        {label}{required && <span className="text-gold ml-1">*</span>}
-      </p>
-      <div className="flex gap-4">
-        {[{val: 'yes', text: yesLabel}, {val: 'no', text: noLabel}].map(({val, text}) => (
-          <label key={val} className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" value={val} checked={value === val} onChange={onChange} className="accent-navy" />
-            <span className="text-sm text-navy">{text}</span>
-          </label>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 // --- PDF generation ---
 
-async function generateAndUploadPDF(form: MedicalForm, signature: string, docId: string): Promise<string> {
+async function generateAndUploadPDF(form: FormValues, signature: string, docId: string): Promise<string> {
   const {default: jsPDF} = await import('jspdf')
   const pdf = new jsPDF()
   const pageW = pdf.internal.pageSize.getWidth()
@@ -179,10 +112,51 @@ async function generateAndUploadPDF(form: MedicalForm, signature: string, docId:
   return getDownloadURL(storageRef)
 }
 
+// --- Schema ---
+
+function buildSchema(t: ReturnType<typeof useTranslations>, v: ReturnType<typeof useTranslations>) {
+  return z.object({
+    firstName: requiredName(v('required'), v('invalidName')),
+    lastName: requiredName(v('required'), v('invalidName')),
+    dateOfBirth: requiredString(v('required')),
+    contact1Name: requiredName(v('required'), v('invalidName')),
+    contact1Phone: requiredPhone(v('required'), v('invalidPhone')),
+    contact1Relation: z.string().trim().optional().default(''),
+    contact2Name: optionalName(v('invalidName')),
+    contact2Phone: optionalPhone(v('invalidPhone')),
+    contact2Relation: z.string().trim().optional().default(''),
+    allergies: z.string().trim().optional().default(''),
+    medications: z.string().trim().optional().default(''),
+    conditions: z.string().trim().optional().default(''),
+    doctorName: optionalName(v('invalidName')),
+    doctorPhone: optionalPhone(v('invalidPhone')),
+    insuranceProvider: z.string().trim().optional().default(''),
+    insurancePolicyNumber: z.string().trim().optional().default(''),
+    consentEmergencyTreatment: requiredString(t('errorConsent')),
+    consentPhotos: z.string().trim().optional().default(''),
+    consentFieldTrips: z.string().trim().optional().default(''),
+    consent: z.boolean().refine((val) => val, {message: t('errorConsentCheck')}),
+    signature: requiredString(t('errorSignature')),
+  })
+}
+type FormValues = z.infer<ReturnType<typeof buildSchema>>
+
+const EMPTY: FormValues = {
+  firstName: '', lastName: '', dateOfBirth: '',
+  contact1Name: '', contact1Phone: '', contact1Relation: '',
+  contact2Name: '', contact2Phone: '', contact2Relation: '',
+  allergies: '', medications: '', conditions: '',
+  doctorName: '', doctorPhone: '',
+  insuranceProvider: '', insurancePolicyNumber: '',
+  consentEmergencyTreatment: '', consentPhotos: '', consentFieldTrips: '',
+  consent: false, signature: '',
+}
+
 // --- Page ---
 
 export default function MedicalPage() {
   const t = useTranslations('Medical')
+  const v = useTranslations('Validation')
   const locale = useLocale()
   const router = useRouter()
   const {user, role, loading} = useAuth()
@@ -191,14 +165,14 @@ export default function MedicalPage() {
   const [childrenLoading, setChildrenLoading] = useState(true)
   const [selectedChild, setSelectedChild]     = useState<MyChild | null>(null)
   const [parentProfile, setParentProfile]     = useState<ParentProfile | null>(null)
-
-  const [form, setForm]             = useState<MedicalForm>(EMPTY)
-  const [signature, setSignature]   = useState('')
-  const [consent, setConsent]       = useState(false)
-  const [submitting, setSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState('')
-  const [error, setError]           = useState('')
-  const [success, setSuccess]       = useState(false)
+  const [success, setSuccess] = useState(false)
+
+  const schema = buildSchema(t, v)
+  const {
+    register, handleSubmit, setValue, setError,
+    formState: {errors, isSubmitting},
+  } = useForm<FormValues>({resolver: zodResolver(schema), defaultValues: EMPTY})
 
   useEffect(() => {
     if (!loading && !user) router.replace('/' + locale + '/login')
@@ -229,44 +203,29 @@ export default function MedicalPage() {
 
   if (loading || !user) return null
 
-  function setField(field: keyof MedicalForm) {
-    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm(prev => ({...prev, [field]: e.target.value}))
-  }
-
   function handleSelectChild(child: MyChild) {
     setSelectedChild(child)
-    setForm(prev => ({
-      ...prev,
-      firstName:    child.firstName,
-      lastName:     child.lastName,
-      contact1Name: parentProfile ? `${parentProfile.firstName} ${parentProfile.lastName}` : prev.contact1Name,
-      contact1Phone: parentProfile?.phone || prev.contact1Phone,
-    }))
+    setValue('firstName', child.firstName)
+    setValue('lastName', child.lastName)
+    if (parentProfile) setValue('contact1Name', `${parentProfile.firstName} ${parentProfile.lastName}`)
+    if (parentProfile?.phone) setValue('contact1Phone', parentProfile.phone)
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    if (role === 'parent' && !selectedChild) { setError(t('errorSelectChild')); return }
-    if (!form.firstName.trim() || !form.lastName.trim() || !form.dateOfBirth.trim()) { setError(t('errorRequired')); return }
-    if (!form.contact1Name.trim() || !form.contact1Phone.trim()) { setError(t('errorContact')); return }
-    if (!form.consentEmergencyTreatment) { setError(t('errorConsent')); return }
-    if (!consent) { setError(t('errorConsentCheck')); return }
-    if (!signature.trim()) { setError(t('errorSignature')); return }
-
-    setSubmitting(true)
+  async function onSubmit(data: FormValues) {
+    if (role === 'parent' && !selectedChild) {
+      setError('root', {message: t('errorSelectChild')})
+      return
+    }
     try {
       const docRef = doc(collection(db, 'medicalForms'))
       setSubmitStatus(t('statusGenerating'))
-      const pdfUrl = await generateAndUploadPDF(form, signature.trim(), docRef.id)
+      const pdfUrl = await generateAndUploadPDF(data, data.signature, docRef.id)
       setSubmitStatus(t('statusSaving'))
       await setDoc(docRef, {
-        ...form,
-        consentEmergencyTreatment: form.consentEmergencyTreatment === 'yes',
-        consentPhotos:             form.consentPhotos             === 'yes',
-        consentFieldTrips:         form.consentFieldTrips         === 'yes',
-        signature: signature.trim(),
+        ...data,
+        consentEmergencyTreatment: data.consentEmergencyTreatment === 'yes',
+        consentPhotos:             data.consentPhotos             === 'yes',
+        consentFieldTrips:         data.consentFieldTrips         === 'yes',
         uid:       user!.uid,
         childId:   selectedChild?.id ?? null,
         pdfUrl,
@@ -276,8 +235,7 @@ export default function MedicalPage() {
       setSuccess(true)
     } catch (err) {
       console.error(err)
-      setError(t('errorSubmit'))
-      setSubmitting(false)
+      setError('root', {message: t('errorSubmit')})
       setSubmitStatus('')
     }
   }
@@ -348,53 +306,50 @@ export default function MedicalPage() {
             {t('selectChildPrompt')}
           </div>
         ) : (role === 'parent' && myChildren.length === 0) ? null : (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
 
               <SectionHeader label={t('sectionStudent')} />
               <div className="grid sm:grid-cols-2 gap-4">
-                <Field label={t('firstName')}   value={form.firstName}   onChange={setField('firstName')}   required />
-                <Field label={t('lastName')}    value={form.lastName}    onChange={setField('lastName')}    required />
-                <Field label={t('dateOfBirth')} value={form.dateOfBirth} onChange={setField('dateOfBirth')} required placeholder={t('dateOfBirthPlaceholder')} />
+                <TextField label={t('firstName')} required error={errors.firstName?.message} {...register('firstName')} />
+                <TextField label={t('lastName')} required error={errors.lastName?.message} {...register('lastName')} />
+                <TextField type="date" label={t('dateOfBirth')} required error={errors.dateOfBirth?.message} {...register('dateOfBirth')} />
               </div>
 
               <SectionHeader label={t('sectionContacts')} />
               <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                <Field label={t('contact1Name')}     value={form.contact1Name}     onChange={setField('contact1Name')}     required />
-                <Field label={t('contact1Phone')}    value={form.contact1Phone}    onChange={setField('contact1Phone')}    required type="tel" />
-                <Field label={t('contact1Relation')} value={form.contact1Relation} onChange={setField('contact1Relation')} placeholder={t('relationPlaceholder')} />
+                <TextField label={t('contact1Name')} required error={errors.contact1Name?.message} {...register('contact1Name')} />
+                <TextField type="tel" label={t('contact1Phone')} required error={errors.contact1Phone?.message} {...register('contact1Phone')} />
+                <TextField label={t('contact1Relation')} placeholder={t('relationPlaceholder')} error={errors.contact1Relation?.message} {...register('contact1Relation')} />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
-                <Field label={t('contact2Name')}     value={form.contact2Name}     onChange={setField('contact2Name')}     />
-                <Field label={t('contact2Phone')}    value={form.contact2Phone}    onChange={setField('contact2Phone')}    type="tel" />
-                <Field label={t('contact2Relation')} value={form.contact2Relation} onChange={setField('contact2Relation')} placeholder={t('relationPlaceholder')} />
+                <TextField label={t('contact2Name')} error={errors.contact2Name?.message} {...register('contact2Name')} />
+                <TextField type="tel" label={t('contact2Phone')} error={errors.contact2Phone?.message} {...register('contact2Phone')} />
+                <TextField label={t('contact2Relation')} placeholder={t('relationPlaceholder')} error={errors.contact2Relation?.message} {...register('contact2Relation')} />
               </div>
 
               <SectionHeader label={t('sectionMedical')} />
               <div className="space-y-4">
-                <TextArea label={t('allergies')}   value={form.allergies}   onChange={setField('allergies')}   placeholder={t('allergiesPlaceholder')} />
-                <TextArea label={t('medications')} value={form.medications} onChange={setField('medications')} placeholder={t('medicationsPlaceholder')} />
-                <TextArea label={t('conditions')}  value={form.conditions}  onChange={setField('conditions')}  placeholder={t('conditionsPlaceholder')} />
+                <TextAreaField label={t('allergies')} placeholder={t('allergiesPlaceholder')} error={errors.allergies?.message} {...register('allergies')} />
+                <TextAreaField label={t('medications')} placeholder={t('medicationsPlaceholder')} error={errors.medications?.message} {...register('medications')} />
+                <TextAreaField label={t('conditions')} placeholder={t('conditionsPlaceholder')} error={errors.conditions?.message} {...register('conditions')} />
               </div>
               <div className="grid sm:grid-cols-2 gap-4 mt-4">
-                <Field label={t('doctorName')}          value={form.doctorName}          onChange={setField('doctorName')}          />
-                <Field label={t('doctorPhone')}         value={form.doctorPhone}         onChange={setField('doctorPhone')}         type="tel" />
-                <Field label={t('insuranceProvider')}   value={form.insuranceProvider}   onChange={setField('insuranceProvider')}   />
-                <Field label={t('insurancePolicyNumber')} value={form.insurancePolicyNumber} onChange={setField('insurancePolicyNumber')} />
+                <TextField label={t('doctorName')} error={errors.doctorName?.message} {...register('doctorName')} />
+                <TextField type="tel" label={t('doctorPhone')} error={errors.doctorPhone?.message} {...register('doctorPhone')} />
+                <TextField label={t('insuranceProvider')} error={errors.insuranceProvider?.message} {...register('insuranceProvider')} />
+                <TextField label={t('insurancePolicyNumber')} error={errors.insurancePolicyNumber?.message} {...register('insurancePolicyNumber')} />
               </div>
 
               <SectionHeader label={t('sectionConsents')} />
               <div className="space-y-4">
-                <YesNo label={t('consentEmergencyTreatment')} value={form.consentEmergencyTreatment} onChange={setField('consentEmergencyTreatment')} yesLabel={t('yes')} noLabel={t('no')} required />
-                <YesNo label={t('consentPhotos')}             value={form.consentPhotos}             onChange={setField('consentPhotos')}             yesLabel={t('yes')} noLabel={t('no')} />
-                <YesNo label={t('consentFieldTrips')}         value={form.consentFieldTrips}         onChange={setField('consentFieldTrips')}         yesLabel={t('yes')} noLabel={t('no')} />
+                <RadioPills label={t('consentEmergencyTreatment')} required name="consentEmergencyTreatment" register={register} yesLabel={t('yes')} noLabel={t('no')} error={errors.consentEmergencyTreatment?.message} />
+                <RadioPills label={t('consentPhotos')} name="consentPhotos" register={register} yesLabel={t('yes')} noLabel={t('no')} />
+                <RadioPills label={t('consentFieldTrips')} name="consentFieldTrips" register={register} yesLabel={t('yes')} noLabel={t('no')} />
               </div>
 
               <SectionHeader label={t('sectionConfirmation')} />
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="accent-navy mt-0.5 shrink-0" />
-                <span className="text-sm text-gray-600">{t('consentText')}</span>
-              </label>
+              <Checkbox label={t('consentText')} error={errors.consent?.message} {...register('consent')} />
 
               <SectionHeader label={t('sectionSignature')} />
               <div>
@@ -402,21 +357,20 @@ export default function MedicalPage() {
                   {t('signatureLabel')}<span className="text-gold ml-1">*</span>
                 </label>
                 <input
-                  type="text" value={signature} onChange={e => setSignature(e.target.value)}
-                  placeholder={t('signaturePlaceholder')}
+                  type="text" placeholder={t('signaturePlaceholder')}
                   className="w-full border-2 border-gray-300 rounded px-3 py-3 text-base italic focus:outline-none focus:border-navy"
                   style={{fontFamily: 'Georgia, serif'}}
+                  {...register('signature')}
                 />
+                {errors.signature && <p className="text-red-500 text-xs mt-1">{errors.signature.message}</p>}
                 <p className="text-xs text-gray-400 mt-2">{t('signatureHint')}</p>
               </div>
 
-              {error && (
-                <p className="mt-4 text-red-600 text-sm bg-red-50 border border-red-100 rounded px-4 py-3">{error}</p>
-              )}
+              <FormError message={errors.root?.message} />
 
-              <button type="submit" disabled={submitting}
+              <button type="submit" disabled={isSubmitting}
                 className="mt-8 w-full bg-navy text-white font-bold py-3 rounded hover:bg-navy-dark transition-colors disabled:opacity-60 text-sm">
-                {submitting ? (submitStatus || t('submitting')) : t('submitBtn')}
+                {isSubmitting ? (submitStatus || t('submitting')) : t('submitBtn')}
               </button>
             </div>
           </form>

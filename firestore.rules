@@ -31,6 +31,11 @@ service cloud.firestore {
       allow create, update, delete:     if isTeacher();
     }
 
+    match /classMessages/{messageId} {
+      allow read:   if isTeacher();
+      allow create: if isTeacher();
+    }
+
     match /parents/{parentId} {
       allow read:   if isSignedIn() && (request.auth.uid == parentId || isTeacher());
       allow create: if isSignedIn() && request.auth.uid == parentId;
