@@ -16,10 +16,17 @@ type GalleryPreviewAlbum = {
   _id: string; title: string; slug: string
   coverImage?: Record<string, unknown>; firstPhoto?: Record<string, unknown>
 }
+type UpcomingEvent = {_id: string; title: string; date: string; location?: string}
 
 async function getAnnouncements(): Promise<Announcement[]> {
   return client.fetch(`*[_type == "announcement"] | order(pinned desc, publishedAt desc)[0...4] {
     _id, title, body, publishedAt, pinned
+  }`)
+}
+
+async function getUpcomingEvents(): Promise<UpcomingEvent[]> {
+  return client.fetch(`*[_type == "event" && date >= now()] | order(date asc)[0...4] {
+    _id, title, date, location
   }`)
 }
 
@@ -47,8 +54,8 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
   const {locale} = await params
   const t = await getTranslations({locale, namespace: 'Home'})
   const tAbout = await getTranslations({locale, namespace: 'About'})
-  const [announcements, gallery, photos] = await Promise.all([
-    getAnnouncements(), getGalleryPreview(), getHomePhotos(),
+  const [announcements, gallery, photos, upcomingEvents] = await Promise.all([
+    getAnnouncements(), getGalleryPreview(), getHomePhotos(), getUpcomingEvents(),
   ])
   const dateLocale = locale === 'pl' ? 'pl-PL' : 'en-US'
 
@@ -207,18 +214,31 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
 
         <div className="space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1 mb-5">{t('calendarTitle')}</h2>
-            <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100">
-              <iframe
-                src="https://calendar.google.com/calendar/embed?src=psdniemcewicza%40gmail.com&ctz=America%2FNew_York"
-                width="100%"
-                height="400"
-                style={{border: 0}}
-                frameBorder={0}
-                scrolling="no"
-                title="Kalendarz szkolny"
-              />
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('calendarTitle')}</h2>
+              <Link href={'/' + locale + '/calendar'} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
             </div>
+            {upcomingEvents.length === 0 ? (
+              <p className="text-gray-400 text-sm">{t('noEvents')}</p>
+            ) : (
+              <div className="space-y-2">
+                {upcomingEvents.map((e) => {
+                  const d = new Date(e.date)
+                  return (
+                    <div key={e._id} className="bg-white rounded-lg shadow-sm border border-gray-100 flex overflow-hidden">
+                      <div className="bg-navy text-white text-center px-3 py-2 min-w-[52px] flex flex-col justify-center shrink-0">
+                        <p className="text-gold text-[10px] font-bold uppercase">{d.toLocaleDateString(dateLocale, {month: 'short'})}</p>
+                        <p className="text-xl font-bold leading-none">{d.getDate()}</p>
+                      </div>
+                      <div className="p-3">
+                        <h3 className="font-bold text-navy text-sm leading-snug">{e.title}</h3>
+                        {e.location && <p className="text-xs text-gray-500 mt-0.5">📍 {e.location}</p>}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           <div>
