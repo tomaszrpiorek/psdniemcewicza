@@ -1,5 +1,6 @@
 import {client} from '@/lib/sanity'
 import {getTranslations} from 'next-intl/server'
+import MonthCalendar from '@/components/MonthCalendar'
 
 export const revalidate = 30
 
@@ -7,6 +8,13 @@ export const revalidate = 30
 // Sanity's `event` list below is the source of truth. Re-enable by restoring the
 // iframe block if the school starts maintaining this Google Calendar again.
 // const GOOGLE_CALENDAR_SRC = 'https://calendar.google.com/calendar/embed?src=psdniemcewicza%40gmail.com&ctz=America%2FNew_York'
+
+// Kept in sync with the 4 "Nie ma zajęć" dates rendered as text below, and with
+// the 2026-2027 school-year bounds ("Pierwszy dzień zajęć" / "Zakończenie Roku
+// Szkolnego") — used by MonthCalendar to color the month-grid view.
+const NO_CLASS_DATES = ['2026-12-28', '2027-01-18', '2027-02-15', '2027-03-29']
+const SCHOOL_YEAR_START = '2026-09-14'
+const SCHOOL_YEAR_END = '2027-05-24'
 
 async function getEvents() {
   return client.fetch(`*[_type == "event"] | order(date asc) { _id, title, date, location }`)
@@ -57,6 +65,26 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
             </ul>
           </div>
         </div>
+      </div>
+
+      {/* Month view */}
+      <div className="max-w-5xl mx-auto px-4 pt-6">
+        <h2 className="text-xl font-bold text-navy border-b-2 border-gold pb-1 mb-5">{t('monthViewTitle')}</h2>
+        <MonthCalendar
+          events={events.map((e: {date: string; title: string}) => ({date: e.date, title: e.title}))}
+          noClassDates={NO_CLASS_DATES}
+          schoolYearStart={SCHOOL_YEAR_START}
+          schoolYearEnd={SCHOOL_YEAR_END}
+          locale={dateLocale}
+          labels={{
+            legendClass: t('legendClass'),
+            legendNoClass: t('legendNoClass'),
+            legendEvent: t('legendEvent'),
+            prevMonth: t('prevMonth'),
+            nextMonth: t('nextMonth'),
+            noEventsForDay: t('noEventsForDay'),
+          }}
+        />
       </div>
 
       {/* Upcoming events list from Sanity */}

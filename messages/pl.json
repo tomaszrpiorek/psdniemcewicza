@@ -155,7 +155,14 @@
     "noClass1": "28 grudnia 2026 (Ferie Świąteczne)",
     "noClass2": "18 stycznia 2027 (Martin Luther King Day)",
     "noClass3": "15 lutego 2027 (President's Day)",
-    "noClass4": "29 marca 2027 (Ferie Świąteczne)"
+    "noClass4": "29 marca 2027 (Ferie Świąteczne)",
+    "monthViewTitle": "Widok miesięczny",
+    "legendClass": "Zajęcia",
+    "legendNoClass": "Nie ma zajęć",
+    "legendEvent": "Wydarzenie",
+    "prevMonth": "Poprzedni miesiąc",
+    "nextMonth": "Następny miesiąc",
+    "noEventsForDay": "Brak wydarzeń tego dnia."
   },
   "Contact": {
     "tag": "Kontakt",

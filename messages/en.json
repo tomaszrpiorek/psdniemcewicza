@@ -155,7 +155,14 @@
     "noClass1": "December 28, 2026 (Winter Break)",
     "noClass2": "January 18, 2027 (Martin Luther King Day)",
     "noClass3": "February 15, 2027 (President's Day)",
-    "noClass4": "March 29, 2027 (Spring Break)"
+    "noClass4": "March 29, 2027 (Spring Break)",
+    "monthViewTitle": "Month View",
+    "legendClass": "Classes",
+    "legendNoClass": "No classes",
+    "legendEvent": "Event",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "noEventsForDay": "No events on this day."
   },
   "Contact": {
     "tag": "Contact",
