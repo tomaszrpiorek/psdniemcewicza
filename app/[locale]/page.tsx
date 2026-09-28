@@ -38,7 +38,8 @@ async function getHomePhotos() {
   const flat = albums.flatMap((a) => a.photos)
   return {
     heroSlides: flat.slice(0, 5).map((p) => urlFor(p).width(1800).height(1000).fit('crop').url()),
-    pillars: flat.slice(5, 8).map((p) => urlFor(p).width(600).height(750).fit('crop').url()),
+    pillars: flat.slice(5, 11).map((p) => urlFor(p).width(600).height(750).fit('crop').url()),
+    cta: flat[11] ? urlFor(flat[11]).width(1600).height(700).fit('crop').url() : null,
   }
 }
 
@@ -125,22 +126,24 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
             </div>
           </Reveal>
           <div className="grid grid-cols-3 gap-3">
-            {pillars.map((p, i) => (
-              <Reveal key={p.title} delay={i * 0.08}>
+            {photos.pillars.map((src, i) => (
+              <Reveal key={src} delay={i * 0.06}>
                 <div className="relative aspect-[4/5] rounded-lg overflow-hidden group">
-                  {photos.pillars[i] && (
-                    <Image
-                      src={photos.pillars[i]}
-                      alt=""
-                      fill
-                      sizes="(max-width: 1024px) 33vw, 17vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                  <Image
+                    src={src}
+                    alt=""
+                    fill
+                    sizes="(max-width: 1024px) 33vw, 17vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {pillars[i] && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
+                      <p className="absolute bottom-3 left-3 right-3 text-white font-bold text-sm leading-snug">
+                        {pillars[i].title}
+                      </p>
+                    </>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
-                  <p className="absolute bottom-3 left-3 right-3 text-white font-bold text-sm leading-snug">
-                    {p.title}
-                  </p>
                 </div>
               </Reveal>
             ))}
@@ -238,8 +241,12 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
       </div>
 
       {ENROLLMENT_OPEN && (
-        <div className="bg-navy py-12 px-4 text-center">
-          <div className="max-w-2xl mx-auto">
+        <div className="relative overflow-hidden py-16 px-4 text-center">
+          {photos.cta && (
+            <Image src={photos.cta} alt="" fill className="object-cover" />
+          )}
+          <div className="absolute inset-0 bg-navy/85" />
+          <div className="relative max-w-2xl mx-auto">
             <h2 className={`${display.className} text-3xl font-bold text-white mb-3`}>{t('ctaTitle')}</h2>
             <p className="text-gray-300 mb-6">{t('ctaDesc')}</p>
             <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy font-bold px-8 py-3 rounded hover:bg-gold-light transition-colors inline-block">
