@@ -40,7 +40,7 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
             <span className="text-gray-300">{t('mottoLabel')}: </span>
             <span className={`${script.className} text-lg align-middle`}>
               <span className="text-[#ff8a80]">{t('mottoPart1')}</span>
-              <span className="text-gold-tint"> – {t('mottoPart2')}</span>
+              <span className="text-white"> – {t('mottoPart2')}</span>
             </span>
           </p>
         </div>
