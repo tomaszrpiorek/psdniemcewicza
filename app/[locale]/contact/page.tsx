@@ -1,14 +1,19 @@
 import {getTranslations} from 'next-intl/server'
+import Image from 'next/image'
 import ContactForm from '@/components/ContactForm'
+import {getFeaturedPhoto} from '@/lib/sanity'
 
 export default async function ContactPage({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params
   const t = await getTranslations({locale, namespace: 'Contact'})
+  const heroPhoto = await getFeaturedPhoto(6)
 
   return (
     <main>
-      <div className="bg-navy text-white py-12 px-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="relative overflow-hidden py-12 px-4">
+        {heroPhoto && <Image src={heroPhoto} alt="" fill className="object-cover" />}
+        <div className="absolute inset-0 bg-navy/80" />
+        <div className="relative max-w-4xl mx-auto text-white">
           <p className="text-gold-tint text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
           <h1 className="text-3xl font-bold">{t('title')}</h1>
         </div>
