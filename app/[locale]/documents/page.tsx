@@ -18,21 +18,6 @@ export default async function DocumentsPage({params}: {params: Promise<{locale: 
         {label: t('doc3')},
       ],
     },
-    {
-      category: t('cat2'),
-      items: [
-        {label: t('doc4')},
-        {label: t('doc5')},
-        {label: t('doc6')},
-      ],
-    },
-    {
-      category: t('cat3'),
-      items: [
-        {label: t('doc7')},
-        {label: t('doc8')},
-      ],
-    },
   ]
 
   return (

@@ -194,18 +194,11 @@
     "download": "Download",
     "comingSoon": "Coming soon",
     "cat1": "Forms",
-    "cat2": "Curricula",
-    "cat3": "General Information",
     "doc_registration": "Student Registration Form 2026/2027",
     "doc_medical": "Medical & Parental Release Form 2026/2027",
     "doc_id_student": "Student School ID Card Request",
     "doc_id_teacher": "Teacher School ID Card Request",
-    "doc3": "School rules & regulations",
-    "doc4": "Curriculum — Class 1-2",
-    "doc5": "Curriculum — Class 3-4",
-    "doc6": "Curriculum — Class 5",
-    "doc7": "School calendar 2025/2026",
-    "doc8": "Reading list"
+    "doc3": "School rules & regulations"
   },
   "Homework": {
     "tag": "Homework",

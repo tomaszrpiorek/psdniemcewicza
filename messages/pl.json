@@ -194,18 +194,11 @@
     "download": "Pobierz",
     "comingSoon": "Wkrótce",
     "cat1": "Formularze",
-    "cat2": "Programy nauczania",
-    "cat3": "Informacje ogólne",
     "doc_registration": "Formularz Rejestracji Ucznia 2026/2027",
     "doc_medical": "Zgoda medyczna i zwolnienie rodzicielskie 2026/2027",
     "doc_id_student": "Wniosek o legitymację dla ucznia",
     "doc_id_teacher": "Wniosek o legitymację dla nauczyciela",
-    "doc3": "Regulamin szkoły",
-    "doc4": "Program nauczania — Klasa 1-2",
-    "doc5": "Program nauczania — Klasa 3-4",
-    "doc6": "Program nauczania — Klasa 5",
-    "doc7": "Kalendarz szkolny 2025/2026",
-    "doc8": "Lista lektur"
+    "doc3": "Regulamin szkoły"
   },
   "Homework": {
     "tag": "Zadania Domowe",
