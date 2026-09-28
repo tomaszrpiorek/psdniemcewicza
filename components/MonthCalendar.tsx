@@ -93,22 +93,34 @@ export default function MonthCalendar({
           const inSchoolYear = key >= schoolYearStart && key <= schoolYearEnd
           const isToday = key === todayKey
           const isSelected = key === selected
-
-          let dot: string | null = null
-          if (dayEvents) dot = 'bg-blue-500'
-          else if (isNoClass) dot = 'bg-red-500'
-          else if (isMonday && inSchoolYear) dot = 'bg-green-500'
+          const isRegularClass = !dayEvents && !isNoClass && isMonday && inSchoolYear
 
           return (
             <button
               key={i}
               onClick={() => setSelected(isSelected ? null : key)}
-              className={`aspect-square flex flex-col items-center justify-center rounded-lg text-sm relative transition-colors
-                ${isSelected ? 'bg-navy text-white' : isToday ? 'ring-2 ring-gold text-navy' : dayEvents ? 'text-navy font-bold hover:bg-cream' : 'text-gray-600 hover:bg-cream'}`}
+              className={`min-h-[4.5rem] sm:min-h-[5.5rem] p-1 flex flex-col items-start gap-0.5 rounded-lg text-left overflow-hidden transition-colors
+                ${isSelected ? 'bg-navy text-white' : isToday ? 'ring-2 ring-gold' : 'hover:bg-cream'}`}
             >
-              {d}
-              {dot && (
-                <span className={`absolute bottom-1.5 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : dot}`} />
+              <span className={`text-sm shrink-0 ${dayEvents ? 'font-bold' : ''} ${isSelected ? 'text-white' : 'text-navy'}`}>
+                {d}
+              </span>
+              {dayEvents && dayEvents.map((title, ti) => (
+                <span
+                  key={ti}
+                  className={`w-full text-left text-[10px] leading-tight px-1 py-0.5 rounded line-clamp-2
+                    ${isSelected ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-700'}`}
+                >
+                  {title}
+                </span>
+              ))}
+              {isNoClass && (
+                <span className={`w-full text-left text-[10px] leading-tight px-1 py-0.5 rounded ${isSelected ? 'bg-white/20 text-white' : 'bg-red-50 text-red-600'}`}>
+                  {labels.legendNoClass}
+                </span>
+              )}
+              {isRegularClass && (
+                <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-green-500'}`} />
               )}
             </button>
           )
