@@ -1,6 +1,7 @@
 import {client} from '@/lib/sanity'
 import {getTranslations} from 'next-intl/server'
 import MonthCalendar from '@/components/MonthCalendar'
+import {script} from '@/lib/fonts'
 
 export const revalidate = 30
 
@@ -35,7 +36,13 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
         <div className="max-w-5xl mx-auto">
           <p className="text-gold-tint text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
           <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
-          <p className="text-gray-300 text-sm italic">{t('motto')}</p>
+          <p className="text-sm">
+            <span className="text-gray-300">{t('mottoLabel')}: </span>
+            <span className={`${script.className} text-lg align-middle`}>
+              <span className="text-[#ff8a80]">{t('mottoPart1')}</span>
+              <span className="text-gold-tint"> – {t('mottoPart2')}</span>
+            </span>
+          </p>
         </div>
       </div>
 

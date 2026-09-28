@@ -143,7 +143,9 @@
   "Calendar": {
     "tag": "School",
     "title": "Events Calendar",
-    "motto": "Motto of the Year: \"One Heart – Two Homelands\"",
+    "mottoLabel": "Motto of the Year",
+    "mottoPart1": "One Heart",
+    "mottoPart2": "Two Homelands",
     "upcoming": "Upcoming events",
     "past": "Past events",
     "noUpcoming": "No upcoming events.",

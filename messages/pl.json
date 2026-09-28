@@ -143,7 +143,9 @@
   "Calendar": {
     "tag": "Szkoła",
     "title": "Kalendarz Wydarzeń",
-    "motto": "Hasło Roku: „Jedno serce – dwie ojczyzny”",
+    "mottoLabel": "Hasło Roku",
+    "mottoPart1": "Jedno serce",
+    "mottoPart2": "dwie ojczyzny",
     "upcoming": "Nadchodzące wydarzenia",
     "past": "Minione wydarzenia",
     "noUpcoming": "Brak nadchodzących wydarzeń.",
