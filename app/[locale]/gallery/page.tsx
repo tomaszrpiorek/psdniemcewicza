@@ -6,7 +6,7 @@ import {getTranslations} from 'next-intl/server'
 export const revalidate = 30
 
 async function getAlbums() {
-  return client.fetch(`*[_type == "galleryAlbum"] | order(date desc) {
+  return client.fetch(`*[_type == "galleryAlbum"] | order(coalesce(date, "1970-01-01") desc) {
     _id, title, "slug": slug.current, date, category, coverImage, "firstPhoto": photos[defined(asset)][0]
   }`)
 }
@@ -25,7 +25,7 @@ export default async function GalleryPage({params}: {params: Promise<{locale: st
     <main>
       <div className="bg-navy text-white py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
+          <p className="text-gold-tint text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
           <h1 className="text-3xl font-bold">{t('title')}</h1>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default async function GalleryPage({params}: {params: Promise<{locale: st
                 </div>
                 <div className="p-3">
                   {album.category && (
-                    <span className="text-xs bg-navy text-gold px-2 py-0.5 rounded font-medium">
+                    <span className="text-xs bg-navy text-gold-tint px-2 py-0.5 rounded font-medium">
                       {categoryLabel[album.category] ?? album.category}
                     </span>
                   )}

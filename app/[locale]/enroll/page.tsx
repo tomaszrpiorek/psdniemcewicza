@@ -254,7 +254,7 @@ export default function EnrollPage() {
     <main>
       <div className="bg-navy text-white py-12 px-4">
         <div className="max-w-3xl mx-auto">
-          <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
+          <p className="text-gold-tint text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
           <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-gray-300 text-sm mt-2">{t('subtitle')}</p>
         </div>

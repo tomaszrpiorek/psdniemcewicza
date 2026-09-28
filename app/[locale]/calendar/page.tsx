@@ -3,7 +3,10 @@ import {getTranslations} from 'next-intl/server'
 
 export const revalidate = 30
 
-const GOOGLE_CALENDAR_SRC = 'https://calendar.google.com/calendar/embed?src=psdniemcewicza%40gmail.com&ctz=America%2FNew_York'
+// Google Calendar embed — disabled while the calendar isn't actively kept in sync.
+// Sanity's `event` list below is the source of truth. Re-enable by restoring the
+// iframe block if the school starts maintaining this Google Calendar again.
+// const GOOGLE_CALENDAR_SRC = 'https://calendar.google.com/calendar/embed?src=psdniemcewicza%40gmail.com&ctz=America%2FNew_York'
 
 async function getEvents() {
   return client.fetch(`*[_type == "event"] | order(date asc) { _id, title, date, location }`)
@@ -22,23 +25,37 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
     <main>
       <div className="bg-navy text-white py-12 px-4">
         <div className="max-w-5xl mx-auto">
-          <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
+          <p className="text-gold-tint text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
+          <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
+          <p className="text-gray-300 text-sm italic">{t('motto')}</p>
         </div>
       </div>
 
-      {/* Outlook Calendar embed */}
+      {/* Class schedule at a glance */}
       <div className="max-w-5xl mx-auto px-4 pt-10">
-        <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100">
-          <iframe
-            src={GOOGLE_CALENDAR_SRC}
-            width="100%"
-            height="600"
-            style={{border: 0}}
-            frameBorder={0}
-            scrolling="no"
-            title="Kalendarz szkolny"
-          />
+        <div className="rounded-xl border border-gray-100 shadow-sm bg-white p-6 grid sm:grid-cols-2 gap-6">
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gold mb-2">{t('scheduleTitle')}</h2>
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-green-500 shrink-0" />
+              <div>
+                <p className="font-bold text-navy text-sm">{t('regularLabel')}</p>
+                <p className="text-gray-500 text-sm">{t('regularDesc')}</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="w-3 h-3 rounded-full bg-red-500 shrink-0" />
+              <p className="font-bold text-navy text-sm">{t('noClassLabel')}</p>
+            </div>
+            <ul className="text-gray-500 text-sm space-y-1 pl-6 list-disc">
+              <li>{t('noClass1')}</li>
+              <li>{t('noClass2')}</li>
+              <li>{t('noClass3')}</li>
+              <li>{t('noClass4')}</li>
+            </ul>
+          </div>
         </div>
       </div>
 

@@ -34,6 +34,9 @@
     "topbarHours": "Classes: Mondays 5:30 – 8:00 PM"
   },
   "Home": {
+    "mottoLabel": "Motto of the Year",
+    "mottoPart1": "One Heart",
+    "mottoPart2": "Two Homelands",
     "welcome": "Welcome to our school",
     "title": "Polish Supplementary School",
     "subtitle": "named after Julian Ursyn Niemcewicz",
@@ -60,7 +63,12 @@
     "link_documents": "📄 School Documents",
     "link_staff": "👩‍🏫 Teaching Staff",
     "link_gallery": "📷 Photo Gallery",
-    "link_contact": "✉️ Contact"
+    "link_contact": "✉️ Contact",
+    "missionTag": "Our Mission",
+    "missionAccent": "Rooted",
+    "missionRest": "in Heritage.",
+    "missionBody": "For over two decades, we've given children in Plainfield a place to grow up connected to the language, faith, and traditions of their ancestors.",
+    "missionCta": "Learn our story →"
   },
   "About": {
     "tag": "Who We Are",
@@ -69,6 +77,9 @@
     "missionTitle": "Our Mission",
     "missionP1": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza was founded in 2002 at the parish of St. Bernard of Clairvaux and St. Stanislaus Kostka in Plainfield, New Jersey. Ever since, we've taught children the Polish language, history, and culture, keeping alive a connection to their ancestors' homeland.",
     "missionP2": "We're a member of the Polish Supplementary School Union in America (CPSD) and listed with ORPEG through the Polish Consulate General in New York — a mark of our program's recognized quality.",
+    "mottoLabel": "Motto of the Year",
+    "mottoPart1": "One Heart",
+    "mottoPart2": "Two Homelands",
     "statFoundedLabel": "Founded",
     "statFoundedVal": "2002",
     "statGradesLabel": "Grades",
@@ -77,6 +88,13 @@
     "statScheduleVal": "Mondays 5:30–8:00 PM",
     "statParishLabel": "Parish",
     "statParishVal": "St. Bernard & St. Stanislaus Kostka",
+    "historyTitle": "Our History",
+    "history1Year": "2002",
+    "history1Text": "The school is founded at the parish of St. Bernard of Clairvaux and St. Stanislaus Kostka in Plainfield, New Jersey.",
+    "history2Year": "Today",
+    "history2Text": "We're a member of the Polish Supplementary School Union in America (CPSD) and listed with ORPEG through the Polish Consulate General in New York.",
+    "history3Year": "2027",
+    "history3Text": "25th-anniversary celebration — a carnival gala at The Westwood.",
     "patronTitle": "Our Patron",
     "patronName": "Julian Ursyn Niemcewicz",
     "patronDates": "1758–1841",
@@ -87,8 +105,6 @@
     "val1Desc": "Reading, writing, and speaking Polish at every skill level.",
     "val2Title": "History & Culture",
     "val2Desc": "The history and geography of Poland, along with Polish literature, art, and tradition.",
-    "val3Title": "Sacramental Preparation",
-    "val3Desc": "Religious instruction in Polish, preparing students for First Holy Communion and Confirmation.",
     "val4Title": "Traditions & Events",
     "val4Desc": "Christmas pageants, Easter celebrations, Polish Independence Day, and Constitution Day, plus arts, music, and scouting.",
     "classTitle": "Class Structure",
@@ -105,7 +121,8 @@
     "tag": "Latest News",
     "title": "School Announcements",
     "empty": "No announcements yet.",
-    "pinned": "Important"
+    "pinned": "Important",
+    "viewAttachment": "Download attachment"
   },
   "Staff": {
     "tag": "School",
@@ -126,10 +143,19 @@
   "Calendar": {
     "tag": "School",
     "title": "Events Calendar",
+    "motto": "Motto of the Year: \"One Heart – Two Homelands\"",
     "upcoming": "Upcoming events",
     "past": "Past events",
     "noUpcoming": "No upcoming events.",
-    "location": "Location"
+    "location": "Location",
+    "scheduleTitle": "2026/2027 Class Schedule",
+    "regularLabel": "Regular classes",
+    "regularDesc": "Mondays, 5:30–8:00 PM",
+    "noClassLabel": "No classes",
+    "noClass1": "December 28, 2026 (Winter Break)",
+    "noClass2": "January 18, 2027 (Martin Luther King Day)",
+    "noClass3": "February 15, 2027 (President's Day)",
+    "noClass4": "March 29, 2027 (Spring Break)"
   },
   "Contact": {
     "tag": "Contact",

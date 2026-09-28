@@ -1,58 +1,99 @@
 import {client, urlFor} from '@/lib/sanity'
 import {PortableText} from 'next-sanity'
+import type {PortableTextBlock} from '@portabletext/types'
 import Link from 'next/link'
 import Image from 'next/image'
 import {getTranslations} from 'next-intl/server'
 import {ENROLLMENT_OPEN} from '@/lib/features'
+import {display, script} from '@/lib/fonts'
+import Reveal from '@/components/Reveal'
 
 export const revalidate = 30
 
-async function getAnnouncements() {
+type Announcement = {_id: string; title: string; body?: PortableTextBlock[]; publishedAt: string; pinned?: boolean}
+type GalleryPreviewAlbum = {
+  _id: string; title: string; slug: string
+  coverImage?: Record<string, unknown>; firstPhoto?: Record<string, unknown>
+}
+
+async function getAnnouncements(): Promise<Announcement[]> {
   return client.fetch(`*[_type == "announcement"] | order(pinned desc, publishedAt desc)[0...4] {
     _id, title, body, publishedAt, pinned
   }`)
 }
 
-async function getEvents() {
-  return client.fetch(`*[_type == "event" && date >= now()] | order(date asc)[0...5] {
-    _id, title, date, location
+async function getGalleryPreview(): Promise<GalleryPreviewAlbum[]> {
+  return client.fetch(`*[_type == "galleryAlbum"] | order(coalesce(date, "1970-01-01") desc)[0...3] {
+    _id, title, "slug": slug.current, coverImage, "firstPhoto": photos[defined(asset)][0]
   }`)
 }
 
-async function getGalleryPreview() {
-  return client.fetch(`*[_type == "galleryAlbum"] | order(date desc)[0...3] {
-    _id, title, "slug": slug.current, coverImage, "firstPhoto": photos[defined(asset)][0]
-  }`)
+type RawPhoto = {caption?: string; asset?: unknown}
+
+async function getHomePhotos() {
+  const albums: {photos: RawPhoto[]}[] = await client.fetch(
+    `*[_type == "galleryAlbum"] | order(coalesce(date, "1970-01-01") desc) { "photos": photos[defined(asset)] }`
+  )
+  const flat = albums.flatMap((a) => a.photos)
+  return {
+    hero: flat[0] ? urlFor(flat[0]).width(1800).height(1000).fit('crop').url() : null,
+    pillars: flat.slice(1, 5).map((p) => urlFor(p).width(600).height(750).fit('crop').url()),
+  }
 }
 
 export default async function Home({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params
   const t = await getTranslations({locale, namespace: 'Home'})
-  const [announcements, events, gallery] = await Promise.all([
-    getAnnouncements(), getEvents(), getGalleryPreview(),
+  const tAbout = await getTranslations({locale, namespace: 'About'})
+  const [announcements, gallery, photos] = await Promise.all([
+    getAnnouncements(), getGalleryPreview(), getHomePhotos(),
   ])
   const dateLocale = locale === 'pl' ? 'pl-PL' : 'en-US'
 
+  const pillars = [
+    {title: tAbout('val1Title'), desc: tAbout('val1Desc')},
+    {title: tAbout('val2Title'), desc: tAbout('val2Desc')},
+    {title: tAbout('val3Title'), desc: tAbout('val3Desc')},
+    {title: tAbout('val4Title'), desc: tAbout('val4Desc')},
+  ]
+
   return (
     <>
-      <section className="bg-navy py-14 px-4 text-center">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-3">{t('welcome')}</p>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
-            {t('title')}<br />
-            <span className="text-gold">{t('subtitle')}</span>
-          </h2>
-          <p className="text-gray-300 text-lg mb-8 max-w-xl mx-auto">{t('description')}</p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link href={'/' + locale + '/about'} className="bg-gold text-navy font-bold px-6 py-3 rounded hover:bg-gold-light transition-colors text-sm">
-              {t('learnMore')}
-            </Link>
-            <Link href={'/' + locale + '/contact'} className="border border-gold text-gold font-bold px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors text-sm">
-              {t('contactBtn')}
-            </Link>
-          </div>
+      {/* Motto of the year — shown first, above the hero */}
+      <div className="py-6 px-4 text-center">
+        <p className="text-navy/60 text-xs font-bold uppercase tracking-[0.2em] mb-1">{t('mottoLabel')}</p>
+        <p className={`${script.className} text-4xl sm:text-5xl leading-none`}>
+          <span className="text-[#c0392b]">{t('mottoPart1')}</span>
+          <span className="text-navy"> – {t('mottoPart2')}</span>
+        </p>
+      </div>
+
+      {/* Hero */}
+      <div className="relative overflow-hidden min-h-[70vh] flex items-center">
+        {photos.hero && (
+          <Image src={photos.hero} alt="" fill priority className="object-cover" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/85 to-navy/60" />
+        <div className="relative max-w-3xl mx-auto px-4 py-24 text-center text-white w-full">
+          <Reveal>
+            <p className="text-gold-tint text-sm font-bold uppercase tracking-[0.2em] mb-4">{t('welcome')}</p>
+            <h1 className={`${display.className} text-4xl sm:text-5xl leading-tight mb-4`}>
+              <span className="italic font-semibold">{t('title')}</span>
+              <br />
+              <span className="font-bold">{t('subtitle')}</span>
+            </h1>
+            <p className="text-gray-200 text-lg mb-8 max-w-xl mx-auto">{t('description')}</p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link href={'/' + locale + '/about'} className="bg-gold text-navy font-bold px-6 py-3 rounded hover:bg-gold-light transition-colors text-sm">
+                {t('learnMore')}
+              </Link>
+              <Link href={'/' + locale + '/contact'} className="border border-gold-tint text-gold-tint font-bold px-6 py-3 rounded hover:bg-gold-tint hover:text-navy transition-colors text-sm">
+                {t('contactBtn')}
+              </Link>
+            </div>
+          </Reveal>
         </div>
-      </section>
+      </div>
 
       <div className="bg-navy-dark text-gray-300 py-4 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm">
@@ -64,10 +105,49 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
           ].map((item) => (
             <div key={item.label}>
               <span className="text-lg">{item.icon}</span>
-              <p className="text-gold text-xs font-bold uppercase tracking-wider mt-1">{item.label}</p>
+              <p className="text-gold-tint text-xs font-bold uppercase tracking-wider mt-1">{item.label}</p>
               <p className="text-gray-300 text-xs mt-0.5">{item.value}</p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Mission / pillars */}
+      <div className="bg-cream py-16 px-4">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <Reveal>
+            <div>
+              <p className="text-gold text-xs font-bold uppercase tracking-widest mb-3">{t('missionTag')}</p>
+              <h2 className={`${display.className} text-4xl font-bold text-navy mb-5 leading-tight`}>
+                <span className="italic">{t('missionAccent')}</span> {t('missionRest')}
+              </h2>
+              <p className="text-gray-600 leading-relaxed mb-6 max-w-md">{t('missionBody')}</p>
+              <Link href={'/' + locale + '/about'} className="text-sm font-bold text-navy hover:text-gold transition-colors">
+                {t('missionCta')}
+              </Link>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-2 gap-3">
+            {pillars.map((p, i) => (
+              <Reveal key={p.title} delay={i * 0.08}>
+                <div className="relative aspect-[4/5] rounded-lg overflow-hidden group">
+                  {photos.pillars[i] && (
+                    <Image
+                      src={photos.pillars[i]}
+                      alt=""
+                      fill
+                      sizes="(max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
+                  <p className="absolute bottom-3 left-3 right-3 text-white font-bold text-sm leading-snug">
+                    {p.title}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -82,7 +162,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
               <p className="text-gray-400 text-sm">{t('noAnnouncements')}</p>
             ) : (
               <div className="space-y-4">
-                {announcements.map((a: any) => (
+                {announcements.map((a) => (
                   <article key={a._id} className={'bg-white border-l-4 ' + (a.pinned ? 'border-gold' : 'border-navy-light') + ' rounded-r-lg shadow-sm p-5'}>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex items-center gap-2">
@@ -107,7 +187,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
                 <Link href={'/' + locale + '/gallery'} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
               </div>
               <div className="grid grid-cols-3 gap-3">
-                {gallery.map((album: any) => {
+                {gallery.map((album) => {
                   const cover = album.coverImage || album.firstPhoto
                   return (
                     <Link key={album._id} href={`/${locale}/gallery/${album.slug}`} className="group">
@@ -163,7 +243,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
       {ENROLLMENT_OPEN && (
         <div className="bg-navy py-12 px-4 text-center">
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold text-white mb-3">{t('ctaTitle')}</h2>
+            <h2 className={`${display.className} text-3xl font-bold text-white mb-3`}>{t('ctaTitle')}</h2>
             <p className="text-gray-300 mb-6">{t('ctaDesc')}</p>
             <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy font-bold px-8 py-3 rounded hover:bg-gold-light transition-colors inline-block">
               {t('ctaBtn')}

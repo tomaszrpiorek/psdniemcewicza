@@ -40,6 +40,11 @@ export const announcement = defineType({
       ],
     }),
     defineField({
+      name: 'attachment',
+      title: 'Attachment (PDF, etc.)',
+      type: 'file',
+    }),
+    defineField({
       name: 'publishedAt',
       title: 'Published At',
       type: 'datetime',

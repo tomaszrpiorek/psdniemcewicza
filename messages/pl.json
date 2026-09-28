@@ -34,6 +34,9 @@
     "topbarHours": "Zajęcia: Poniedziałki 17:30 – 20:00"
   },
   "Home": {
+    "mottoLabel": "Hasło Roku",
+    "mottoPart1": "Jedno serce",
+    "mottoPart2": "dwie ojczyzny",
     "welcome": "Witamy w naszej szkole",
     "title": "Polska Szkoła Dokształcająca",
     "subtitle": "im. Juliana Ursyna Niemcewicza",
@@ -60,7 +63,12 @@
     "link_documents": "📄 Dokumenty Szkolne",
     "link_staff": "👩‍🏫 Kadra Pedagogiczna",
     "link_gallery": "📷 Galeria Zdjęć",
-    "link_contact": "✉️ Kontakt"
+    "link_contact": "✉️ Kontakt",
+    "missionTag": "Nasza Misja",
+    "missionAccent": "Zakorzenieni",
+    "missionRest": "w Tradycji.",
+    "missionBody": "Od ponad dwudziestu lat dajemy dzieciom z Plainfield miejsce, w którym dorastają w więzi z językiem, wiarą i tradycją swoich przodków.",
+    "missionCta": "Poznaj naszą historię →"
   },
   "About": {
     "tag": "Kim Jesteśmy",
@@ -69,6 +77,9 @@
     "missionTitle": "Nasza Misja",
     "missionP1": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza powstała w 2002 roku przy parafii św. Bernarda z Clairvaux i św. Stanisława Kostki w Plainfield, New Jersey. Od tego czasu nieprzerwanie uczymy dzieci języka polskiego, historii i kultury, pielęgnując więź z ojczyzną ich przodków.",
     "missionP2": "Jesteśmy członkiem Centrali Polskich Szkół Dokształcających w Ameryce (CPSD) i figurujemy w rejestrze ORPEG przy Konsulacie Generalnym RP w Nowym Jorku — co potwierdza jakość naszego programu nauczania.",
+    "mottoLabel": "Hasło Roku",
+    "mottoPart1": "Jedno serce",
+    "mottoPart2": "dwie ojczyzny",
     "statFoundedLabel": "Rok założenia",
     "statFoundedVal": "2002",
     "statGradesLabel": "Klasy",
@@ -77,6 +88,13 @@
     "statScheduleVal": "Poniedziałki 17:30–20:00",
     "statParishLabel": "Parafia",
     "statParishVal": "Św. Bernarda i św. Stanisława Kostki",
+    "historyTitle": "Nasza Historia",
+    "history1Year": "2002",
+    "history1Text": "Powstanie szkoły przy parafii św. Bernarda z Clairvaux i św. Stanisława Kostki w Plainfield, New Jersey.",
+    "history2Year": "Dziś",
+    "history2Text": "Jesteśmy członkiem Centrali Polskich Szkół Dokształcających w Ameryce (CPSD) i figurujemy w rejestrze ORPEG przy Konsulacie Generalnym RP w Nowym Jorku.",
+    "history3Year": "2027",
+    "history3Text": "Obchody 25-lecia szkoły — zabawa karnawałowa w The Westwood.",
     "patronTitle": "Nasz Patron",
     "patronName": "Julian Ursyn Niemcewicz",
     "patronDates": "1758–1841",
@@ -87,8 +105,6 @@
     "val1Desc": "Czytanie, pisanie i mówienie po polsku na wszystkich poziomach zaawansowania.",
     "val2Title": "Historia i Kultura",
     "val2Desc": "Historia i geografia Polski oraz polska literatura, sztuka i tradycje.",
-    "val3Title": "Przygotowanie do Sakramentów",
-    "val3Desc": "Nauka religii po polsku, przygotowująca do I Komunii Świętej i Bierzmowania.",
     "val4Title": "Tradycje i Wydarzenia",
     "val4Desc": "Jasełka, obchody Wielkanocy, Święto Niepodległości i Konstytucji 3 Maja, a także zajęcia artystyczne, muzyczne i harcerskie.",
     "classTitle": "Struktura Klas",
@@ -105,7 +121,8 @@
     "tag": "Aktualności",
     "title": "Ogłoszenia Szkolne",
     "empty": "Brak ogłoszeń.",
-    "pinned": "Ważne"
+    "pinned": "Ważne",
+    "viewAttachment": "Pobierz załącznik"
   },
   "Staff": {
     "tag": "Szkoła",
@@ -126,10 +143,19 @@
   "Calendar": {
     "tag": "Szkoła",
     "title": "Kalendarz Wydarzeń",
+    "motto": "Hasło Roku: „Jedno serce – dwie ojczyzny”",
     "upcoming": "Nadchodzące wydarzenia",
     "past": "Minione wydarzenia",
     "noUpcoming": "Brak nadchodzących wydarzeń.",
-    "location": "Lokalizacja"
+    "location": "Lokalizacja",
+    "scheduleTitle": "Harmonogram zajęć 2026/2027",
+    "regularLabel": "Regularne zajęcia",
+    "regularDesc": "Poniedziałki, 17:30–20:00",
+    "noClassLabel": "Nie ma zajęć",
+    "noClass1": "28 grudnia 2026 (Ferie Świąteczne)",
+    "noClass2": "18 stycznia 2027 (Martin Luther King Day)",
+    "noClass3": "15 lutego 2027 (President's Day)",
+    "noClass4": "29 marca 2027 (Ferie Świąteczne)"
   },
   "Contact": {
     "tag": "Kontakt",

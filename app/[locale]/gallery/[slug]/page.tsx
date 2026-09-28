@@ -43,11 +43,11 @@ export default async function AlbumPage({params}: {params: Promise<{locale: stri
     <main>
       <div className="bg-navy text-white py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <Link href={`/${locale}/gallery`} className="text-gold text-xs font-bold uppercase tracking-widest hover:underline">{t('back')}</Link>
+          <Link href={`/${locale}/gallery`} className="text-gold-tint text-xs font-bold uppercase tracking-widest hover:underline">{t('back')}</Link>
           <h1 className="text-3xl font-bold mt-3">{album.title}</h1>
           <div className="flex items-center gap-3 mt-2 text-sm text-gray-300">
             {album.category && (
-              <span className="text-xs bg-white/10 text-gold px-2 py-0.5 rounded font-medium">
+              <span className="text-xs bg-white/10 text-gold-tint px-2 py-0.5 rounded font-medium">
                 {categoryLabel[album.category] ?? album.category}
               </span>
             )}

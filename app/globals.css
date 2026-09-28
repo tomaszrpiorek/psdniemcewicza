@@ -7,6 +7,9 @@
   --color-navy-light: #2a5298;
   --color-gold:       #c9a227;
   --color-gold-light: #f0d060;
+  /* Same as gold-light: safe for accent text/labels sitting on navy
+     backgrounds, where the base gold's contrast is borderline (~4.8:1). */
+  --color-gold-tint:  #f0d060;
   --color-cream:      #f8f6f1;
 }
 

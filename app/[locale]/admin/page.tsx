@@ -264,7 +264,7 @@ export default function AdminPage() {
           ✉️ Wyślij wiadomość
         </button>
         <div className={mainTab === 'classes' ? '' : 'opacity-30 pointer-events-none transition-opacity'}>
-          <p className="text-gold text-xs font-bold uppercase tracking-widest px-3 mb-3">Klasy</p>
+          <p className="text-gold-tint text-xs font-bold uppercase tracking-widest px-3 mb-3">Klasy</p>
           {grades.length === 0 && superAdmin && (
             <button
               onClick={seedGrades}

@@ -71,7 +71,7 @@ export default function HomeworkPage() {
     <main>
       <div className="bg-navy text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
+          <p className="text-gold-tint text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
           <h1 className="text-3xl font-bold">{gradeName || tNav(('class' + levelNum) as 'class1')}</h1>
           {teacherName && <p className="text-gray-300 mt-1 text-sm">{t('teacher')}: {teacherName}</p>}
         </div>

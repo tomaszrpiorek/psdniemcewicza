@@ -18,7 +18,7 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="text-gold font-bold mb-3 text-xs uppercase tracking-widest">{t('school')}</h3>
+          <h3 className="text-gold-tint font-bold mb-3 text-xs uppercase tracking-widest">{t('school')}</h3>
           <ul className="space-y-2 text-sm">
             {[
               {href: `/${locale}/about`,     label: tNav('about')},
@@ -26,13 +26,13 @@ export default function Footer() {
               {href: `/${locale}/gallery`,   label: tNav('gallery')},
               {href: `/${locale}/documents`, label: tNav('documents')},
             ].map((l) => (
-              <li key={l.href}><Link href={l.href} className="hover:text-gold transition-colors">{l.label}</Link></li>
+              <li key={l.href}><Link href={l.href} className="hover:text-gold-tint transition-colors">{l.label}</Link></li>
             ))}
           </ul>
         </div>
 
         <div>
-          <h3 className="text-gold font-bold mb-3 text-xs uppercase tracking-widest">{t('info')}</h3>
+          <h3 className="text-gold-tint font-bold mb-3 text-xs uppercase tracking-widest">{t('info')}</h3>
           <ul className="space-y-2 text-sm">
             {[
               {href: `/${locale}/announcements`,    label: tNav('announcements')},
@@ -40,13 +40,13 @@ export default function Footer() {
               {href: `/${locale}/homework/klasa-1`, label: tNav('homework')},
               {href: `/${locale}/contact`,          label: tNav('contact')},
             ].map((l) => (
-              <li key={l.href}><Link href={l.href} className="hover:text-gold transition-colors">{l.label}</Link></li>
+              <li key={l.href}><Link href={l.href} className="hover:text-gold-tint transition-colors">{l.label}</Link></li>
             ))}
           </ul>
         </div>
 
         <div>
-          <h3 className="text-gold font-bold mb-3 text-xs uppercase tracking-widest">{t('contact')}</h3>
+          <h3 className="text-gold-tint font-bold mb-3 text-xs uppercase tracking-widest">{t('contact')}</h3>
           <ul className="space-y-2 text-sm text-gray-400">
             <li>📧 psdniemcewicza@gmail.com</li>
             <li>📞 (732) 266-4310</li>

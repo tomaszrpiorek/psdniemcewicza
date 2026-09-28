@@ -76,7 +76,7 @@ export default function Navbar() {
               item.children ? (
                 <DropdownItem key={item.label} label={item.label} children={item.children} />
               ) : (
-                <Link key={item.href} href={item.href!} className="px-4 py-2 text-sm font-semibold text-white hover:text-gold transition-colors tracking-wide">
+                <Link key={item.href} href={item.href!} className="px-4 py-2 text-sm font-semibold text-white hover:text-gold-tint transition-colors tracking-wide">
                   {item.label}
                 </Link>
               )
@@ -92,7 +92,7 @@ export default function Navbar() {
                 {role === 'parent' && (
                   <>
                     {ENROLLMENT_OPEN && (
-                      <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy-dark text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
+                      <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
                         ✏️ {t('enroll')}
                       </Link>
                     )}
@@ -106,7 +106,7 @@ export default function Navbar() {
                 </Link>
               </>
             ) : (
-              <Link href={'/' + locale + '/login'} className="bg-gold text-navy-dark text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
+              <Link href={'/' + locale + '/login'} className="bg-gold text-navy text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
                 🔐 {t('login')}
               </Link>
             )}
@@ -126,7 +126,7 @@ export default function Navbar() {
             {navItems.map((item) =>
               item.children ? (
                 <div key={item.label}>
-                  <p className="text-gold text-xs font-bold uppercase tracking-wider pt-2 pb-1">{item.label}</p>
+                  <p className="text-gold-tint text-xs font-bold uppercase tracking-wider pt-2 pb-1">{item.label}</p>
                   {item.children.map((child) => (
                     <Link key={child.href} href={child.href} onClick={() => setMobileOpen(false)} className="block text-sm text-gray-300 hover:text-white py-1 pl-2">
                       {child.label}
@@ -148,7 +148,7 @@ export default function Navbar() {
                   {role === 'parent' && (
                     <>
                       {ENROLLMENT_OPEN && (
-                        <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="text-gold font-bold text-sm">
+                        <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="text-gold-tint font-bold text-sm">
                           ✏️ {t('enroll')}
                         </Link>
                       )}
@@ -162,7 +162,7 @@ export default function Navbar() {
                   </Link>
                 </>
               ) : (
-                <Link href={'/' + locale + '/login'} onClick={() => setMobileOpen(false)} className="text-gold font-bold text-sm">
+                <Link href={'/' + locale + '/login'} onClick={() => setMobileOpen(false)} className="text-gold-tint font-bold text-sm">
                   🔐 {t('login')}
                 </Link>
               )}
@@ -184,7 +184,7 @@ function DropdownItem({label, children}: {label: string; children: Child[]}) {
       onMouseEnter={() => { if (timer.current) clearTimeout(timer.current); setOpen(true) }}
       onMouseLeave={() => { timer.current = setTimeout(() => setOpen(false), 150) }}
     >
-      <button className="px-4 py-2 text-sm font-semibold text-white hover:text-gold transition-colors flex items-center gap-1 tracking-wide">
+      <button className="px-4 py-2 text-sm font-semibold text-white hover:text-gold-tint transition-colors flex items-center gap-1 tracking-wide">
         {label}
         <svg className="w-3 h-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

@@ -17,7 +17,7 @@ export default async function StaffPage({params}: {params: Promise<{locale: stri
     <main>
       <div className="bg-navy text-white py-12 px-4">
         <div className="max-w-5xl mx-auto">
-          <p className="text-gold text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
+          <p className="text-gold-tint text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
           <h1 className="text-3xl font-bold">{t('title')}</h1>
         </div>
       </div>
