@@ -7,6 +7,7 @@ import {getTranslations} from 'next-intl/server'
 import {ENROLLMENT_OPEN} from '@/lib/features'
 import {display, script} from '@/lib/fonts'
 import Reveal from '@/components/Reveal'
+import HeroCarousel from '@/components/HeroCarousel'
 
 export const revalidate = 30
 
@@ -36,8 +37,8 @@ async function getHomePhotos() {
   )
   const flat = albums.flatMap((a) => a.photos)
   return {
-    hero: flat[0] ? urlFor(flat[0]).width(1800).height(1000).fit('crop').url() : null,
-    pillars: flat.slice(1, 5).map((p) => urlFor(p).width(600).height(750).fit('crop').url()),
+    heroSlides: flat.slice(0, 5).map((p) => urlFor(p).width(1800).height(1000).fit('crop').url()),
+    pillars: flat.slice(5, 8).map((p) => urlFor(p).width(600).height(750).fit('crop').url()),
   }
 }
 
@@ -51,10 +52,9 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
   const dateLocale = locale === 'pl' ? 'pl-PL' : 'en-US'
 
   const pillars = [
-    {title: tAbout('val1Title'), desc: tAbout('val1Desc')},
-    {title: tAbout('val2Title'), desc: tAbout('val2Desc')},
-    {title: tAbout('val3Title'), desc: tAbout('val3Desc')},
-    {title: tAbout('val4Title'), desc: tAbout('val4Desc')},
+    {title: tAbout('val1Title')},
+    {title: tAbout('val2Title')},
+    {title: tAbout('val4Title')},
   ]
 
   return (
@@ -70,10 +70,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
 
       {/* Hero */}
       <div className="relative overflow-hidden min-h-[70vh] flex items-center">
-        {photos.hero && (
-          <Image src={photos.hero} alt="" fill priority className="object-cover" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/85 to-navy/60" />
+        <HeroCarousel slides={photos.heroSlides} />
         <div className="relative max-w-3xl mx-auto px-4 py-24 text-center text-white w-full">
           <Reveal>
             <p className="text-gold-tint text-sm font-bold uppercase tracking-[0.2em] mb-4">{t('welcome')}</p>
@@ -127,7 +124,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
               </Link>
             </div>
           </Reveal>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {pillars.map((p, i) => (
               <Reveal key={p.title} delay={i * 0.08}>
                 <div className="relative aspect-[4/5] rounded-lg overflow-hidden group">
@@ -136,7 +133,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
                       src={photos.pillars[i]}
                       alt=""
                       fill
-                      sizes="(max-width: 1024px) 50vw, 25vw"
+                      sizes="(max-width: 1024px) 33vw, 17vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
