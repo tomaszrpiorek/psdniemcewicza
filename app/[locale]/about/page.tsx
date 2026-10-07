@@ -91,9 +91,14 @@ export default async function AboutPage({params}: {params: Promise<{locale: stri
         <Reveal>
           <section>
             <h2 className={`${display.className} text-3xl font-bold text-navy mb-5`}>{t('missionTitle')}</h2>
-            <div className="grid md:grid-cols-2 gap-x-10 gap-y-4 text-gray-600 leading-relaxed">
-              <p>{t('missionP1')}</p>
+            <div className="space-y-4 text-gray-600 leading-relaxed">
+              <p>{t.rich('missionP1', {b: (chunks) => <strong className="font-bold text-navy">{chunks}</strong>})}</p>
               <p>{t('missionP2')}</p>
+              <p>{t.rich('missionP3', {b: (chunks) => <strong className="font-bold text-navy">{chunks}</strong>})}</p>
+              <p>{t('missionP4')}</p>
+              <p>{t('missionP5')}</p>
+              <p>{t('missionP6')}</p>
+              <p>{t('missionP7')}</p>
             </div>
 
             <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-200 border-y border-gray-200 py-6">
