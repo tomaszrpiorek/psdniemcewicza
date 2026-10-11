@@ -8,6 +8,7 @@ import {ENROLLMENT_OPEN} from '@/lib/features'
 import {display, script} from '@/lib/fonts'
 import Reveal from '@/components/Reveal'
 import HeroCarousel from '@/components/HeroCarousel'
+import {IconCalendar, IconMapPin, IconMail, IconPhone, IconBook, IconDocument, IconUsers, IconCamera} from '@/components/icons'
 
 export const revalidate = 30
 
@@ -42,10 +43,18 @@ async function getHomePhotos() {
   const albums: {photos: RawPhoto[]}[] = await client.fetch(
     `*[_type == "galleryAlbum"] | order(coalesce(date, "1970-01-01") desc) { "photos": photos[defined(asset)] }`
   )
+  // Photos for the three Nasza Misja cards, chosen in Sanity Studio
+  // ("Strona główna — zdjęcia Nasza Misja"); gallery photos fill any empty slot.
+  const chosen: Record<'jezykPolski' | 'historia' | 'tradycje', RawPhoto | null> | null = await client.fetch(
+    `*[_type == "homePillars"][0]{jezykPolski, historia, tradycje}`
+  )
   const flat = albums.flatMap((a) => a.photos)
+  const pillarPhotos = [chosen?.jezykPolski, chosen?.historia, chosen?.tradycje]
+    .map((p, i) => (p?.asset ? p : flat[5 + i]))
+    .filter(Boolean)
   return {
     heroSlides: flat.slice(0, 5).map((p) => urlFor(p).width(1800).height(1000).fit('crop').url()),
-    pillars: flat.slice(5, 11).map((p) => urlFor(p).width(600).height(750).fit('crop').url()),
+    pillars: pillarPhotos.map((p) => urlFor(p).width(600).height(750).fit('crop').url()),
     cta: flat[11] ? urlFor(flat[11]).width(1600).height(700).fit('crop').url() : null,
   }
 }
@@ -103,13 +112,13 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
       <div className="bg-navy-dark text-gray-300 py-4 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm">
           {[
-            {icon: '📅', label: t('schedule'), value: t('scheduleVal')},
-            {icon: '📍', label: t('address'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
-            {icon: '📧', label: t('email'), value: 'psdniemcewicza@gmail.com'},
-            {icon: '📞', label: t('phone'), value: '(732) 266-4310'},
-          ].map((item) => (
+            {Icon: IconCalendar, label: t('schedule'), value: t('scheduleVal')},
+            {Icon: IconMapPin, label: t('address'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
+            {Icon: IconMail, label: t('email'), value: 'psdniemcewicza@gmail.com'},
+            {Icon: IconPhone, label: t('phone'), value: '(732) 266-4310'},
+          ].map(({Icon, ...item}) => (
             <div key={item.label}>
-              <span className="text-lg">{item.icon}</span>
+              <Icon className="w-6 h-6 mx-auto text-gold-tint" />
               <p className="text-gold-tint text-xs font-bold uppercase tracking-wider mt-1">{item.label}</p>
               <p className="text-gray-300 text-xs mt-0.5">{item.value}</p>
             </div>
@@ -122,6 +131,13 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <Reveal>
             <div>
+              <Image
+                src="/logo-25-lat.png"
+                alt="25 lat — Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, New Jersey"
+                width={698}
+                height={674}
+                className="w-44 sm:w-56 h-auto mb-6 mix-blend-multiply"
+              />
               <p className="text-gold text-xs font-bold uppercase tracking-widest mb-3">{t('missionTag')}</p>
               <h2 className={`${display.className} text-4xl font-bold text-navy mb-5 leading-tight`}>
                 <span className="italic">{t('missionAccent')}</span> {t('missionRest')}
@@ -245,14 +261,15 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
             <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1 mb-5">{t('quickLinks')}</h2>
             <div className="space-y-2">
               {[
-                {href: '/' + locale + '/homework/klasa-1', label: t('link_homework')},
-                {href: '/' + locale + '/documents',        label: t('link_documents')},
-                {href: '/' + locale + '/staff',            label: t('link_staff')},
-                {href: '/' + locale + '/gallery',          label: t('link_gallery')},
-                {href: '/' + locale + '/contact',          label: t('link_contact')},
-              ].map((l) => (
+                {Icon: IconBook,     href: '/' + locale + '/homework/klasa-1', label: t('link_homework')},
+                {Icon: IconDocument, href: '/' + locale + '/documents',        label: t('link_documents')},
+                {Icon: IconUsers,    href: '/' + locale + '/staff',            label: t('link_staff')},
+                {Icon: IconCamera,   href: '/' + locale + '/gallery',          label: t('link_gallery')},
+                {Icon: IconMail,     href: '/' + locale + '/contact',          label: t('link_contact')},
+              ].map(({Icon, ...l}) => (
                 <Link key={l.href} href={l.href} className="flex items-center justify-between bg-white border border-gray-100 rounded px-4 py-3 text-sm text-navy font-medium hover:border-gold hover:text-gold transition-colors shadow-sm">
-                  {l.label}<span className="text-gray-300">›</span>
+                  <span className="flex items-center gap-3"><Icon className="w-5 h-5 text-gold" />{l.label}</span>
+                  <span className="text-gray-300">›</span>
                 </Link>
               ))}
             </div>

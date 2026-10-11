@@ -2,6 +2,7 @@ import {getTranslations} from 'next-intl/server'
 import Image from 'next/image'
 import ContactForm from '@/components/ContactForm'
 import {getFeaturedPhoto} from '@/lib/sanity'
+import {IconMail, IconPhone, IconMapPin, IconMailbox, IconClock} from '@/components/icons'
 
 export default async function ContactPage({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params
@@ -24,14 +25,16 @@ export default async function ContactPage({params}: {params: Promise<{locale: st
             <h2 className="text-xl font-bold text-navy border-b-2 border-gold pb-1 mb-5 inline-block">{t('infoTitle')}</h2>
             <ul className="space-y-5">
               {[
-                {icon: '📧', label: t('emailLabel'), value: 'psdniemcewicza@gmail.com', href: 'mailto:psdniemcewicza@gmail.com'},
-                {icon: '📞', label: t('phoneLabel'), value: '(732) 266-4310', href: 'tel:+17322664310'},
-                {icon: '📍', label: t('addressLabel'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
-                {icon: '✉️', label: t('addressMailLabel'), value: '1232 George Street, Plainfield, NJ 07062'},
-                {icon: '🕐', label: t('hoursLabel'), value: t('hoursVal')},
-              ].map((item) => (
+                {Icon: IconMail, label: t('emailLabel'), value: 'psdniemcewicza@gmail.com', href: 'mailto:psdniemcewicza@gmail.com'},
+                {Icon: IconPhone, label: t('phoneLabel'), value: '(732) 266-4310', href: 'tel:+17322664310'},
+                {Icon: IconMapPin, label: t('addressLabel'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
+                {Icon: IconMailbox, label: t('addressMailLabel'), value: '1232 George Street, Plainfield, NJ 07062'},
+                {Icon: IconClock, label: t('hoursLabel'), value: t('hoursVal')},
+              ].map(({Icon, ...item}) => (
                 <li key={item.label} className="flex items-start gap-3">
-                  <span className="text-xl mt-0.5">{item.icon}</span>
+                  <span className="flex-none w-10 h-10 rounded-full bg-cream text-gold flex items-center justify-center">
+                    <Icon className="w-5 h-5" />
+                  </span>
                   <div>
                     <p className="text-xs font-bold text-gold uppercase tracking-wider">{item.label}</p>
                     {item.href ? (

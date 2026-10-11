@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import {useLocale, useTranslations} from 'next-intl'
+import {IconMail, IconPhone, IconMapPin, IconClock} from '@/components/icons'
 
 export default function Footer() {
   const locale = useLocale()
@@ -48,10 +49,10 @@ export default function Footer() {
         <div>
           <h3 className="text-gold-tint font-bold mb-3 text-xs uppercase tracking-widest">{t('contact')}</h3>
           <ul className="space-y-2 text-sm text-gray-400">
-            <li>📧 psdniemcewicza@gmail.com</li>
-            <li>📞 (732) 266-4310</li>
-            <li>📍 365 Emerson Avenue, Plainfield, NJ 07062</li>
-            <li className="pt-1">🕐 {t('hours')}</li>
+            <li className="flex items-start gap-2"><IconMail className="flex-none w-4 h-4 mt-0.5 text-gold-tint" />psdniemcewicza@gmail.com</li>
+            <li className="flex items-start gap-2"><IconPhone className="flex-none w-4 h-4 mt-0.5 text-gold-tint" />(732) 266-4310</li>
+            <li className="flex items-start gap-2"><IconMapPin className="flex-none w-4 h-4 mt-0.5 text-gold-tint" />365 Emerson Avenue, Plainfield, NJ 07062</li>
+            <li className="flex items-start gap-2 pt-1"><IconClock className="flex-none w-4 h-4 mt-0.5 text-gold-tint" />{t('hours')}</li>
           </ul>
         </div>
       </div>

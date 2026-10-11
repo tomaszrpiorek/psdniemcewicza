@@ -7,8 +7,9 @@ import {useLocale, useTranslations} from 'next-intl'
 import {usePathname, useRouter} from 'next/navigation'
 import {useAuth} from '@/contexts/AuthContext'
 import {ENROLLMENT_OPEN} from '@/lib/features'
+import {IconMail, IconPhone, IconLock, IconPencil, IconMedical} from '@/components/icons'
 
-type Child = {label: string; href: string}
+type Child = {label: string; href: string; external?: boolean}
 type NavItem = {label: string; href?: string; children?: Child[]}
 
 export default function Navbar() {
@@ -32,6 +33,7 @@ export default function Navbar() {
         {label: t('staff'),     href: `/${locale}/staff`},
         {label: t('gallery'),   href: `/${locale}/gallery`},
         {label: t('documents'), href: `/${locale}/documents`},
+        {label: t('church'),    href: 'https://www.bestchurch.net/', external: true},
       ],
     },
     {label: t('announcements'), href: `/${locale}/announcements`},
@@ -50,7 +52,11 @@ export default function Navbar() {
     <header>
       <div className="bg-navy-dark text-gray-300 text-xs py-1.5 px-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <span>📧 psdniemcewicza@gmail.com &nbsp;|&nbsp; 📞 (732) 266-4310</span>
+          <span className="flex items-center gap-1.5">
+            <IconMail className="w-3.5 h-3.5 text-gold-tint" /> psdniemcewicza@gmail.com
+            <span className="mx-1.5 text-gray-500">|</span>
+            <IconPhone className="w-3.5 h-3.5 text-gold-tint" /> (732) 266-4310
+          </span>
           <span>{t('topbarHours')}</span>
         </div>
       </div>
@@ -92,12 +98,12 @@ export default function Navbar() {
                 {role === 'parent' && (
                   <>
                     {ENROLLMENT_OPEN && (
-                      <Link href={'/' + locale + '/enroll'} className="bg-gold text-navy text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
-                        ✏️ {t('enroll')}
+                      <Link href={'/' + locale + '/enroll'} className="flex items-center gap-1.5 bg-gold text-navy text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
+                        <IconPencil className="w-4 h-4" /> {t('enroll')}
                       </Link>
                     )}
-                    <Link href={'/' + locale + '/medical'} className="border border-white/30 text-white text-xs font-bold px-4 py-2 rounded hover:bg-white/10 transition-colors">
-                      🏥 {t('medicalForm')}
+                    <Link href={'/' + locale + '/medical'} className="flex items-center gap-1.5 border border-white/30 text-white text-xs font-bold px-4 py-2 rounded hover:bg-white/10 transition-colors">
+                      <IconMedical className="w-4 h-4" /> {t('medicalForm')}
                     </Link>
                   </>
                 )}
@@ -106,8 +112,8 @@ export default function Navbar() {
                 </Link>
               </>
             ) : (
-              <Link href={'/' + locale + '/login'} className="bg-gold text-navy text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
-                🔐 {t('login')}
+              <Link href={'/' + locale + '/login'} className="flex items-center gap-1.5 bg-gold text-navy text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
+                <IconLock className="w-4 h-4" /> {t('login')}
               </Link>
             )}
           </div>
@@ -128,8 +134,12 @@ export default function Navbar() {
                 <div key={item.label}>
                   <p className="text-gold-tint text-xs font-bold uppercase tracking-wider pt-2 pb-1">{item.label}</p>
                   {item.children.map((child) => (
-                    <Link key={child.href} href={child.href} onClick={() => setMobileOpen(false)} className="block text-sm text-gray-300 hover:text-white py-1 pl-2">
-                      {child.label}
+                    <Link
+                      key={child.href} href={child.href} onClick={() => setMobileOpen(false)}
+                      {...(child.external && {target: '_blank', rel: 'noopener noreferrer'})}
+                      className="block text-sm text-gray-300 hover:text-white py-1 pl-2"
+                    >
+                      {child.label}{child.external && ' ↗'}
                     </Link>
                   ))}
                 </div>
@@ -148,12 +158,12 @@ export default function Navbar() {
                   {role === 'parent' && (
                     <>
                       {ENROLLMENT_OPEN && (
-                        <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="text-gold-tint font-bold text-sm">
-                          ✏️ {t('enroll')}
+                        <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-gold-tint font-bold text-sm">
+                          <IconPencil className="w-4 h-4" /> {t('enroll')}
                         </Link>
                       )}
-                      <Link href={'/' + locale + '/medical'} onClick={() => setMobileOpen(false)} className="text-white font-bold text-sm">
-                        🏥 {t('medicalForm')}
+                      <Link href={'/' + locale + '/medical'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-white font-bold text-sm">
+                        <IconMedical className="w-4 h-4" /> {t('medicalForm')}
                       </Link>
                     </>
                   )}
@@ -162,8 +172,8 @@ export default function Navbar() {
                   </Link>
                 </>
               ) : (
-                <Link href={'/' + locale + '/login'} onClick={() => setMobileOpen(false)} className="text-gold-tint font-bold text-sm">
-                  🔐 {t('login')}
+                <Link href={'/' + locale + '/login'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-gold-tint font-bold text-sm">
+                  <IconLock className="w-4 h-4" /> {t('login')}
                 </Link>
               )}
             </div>
@@ -193,8 +203,12 @@ function DropdownItem({label, children}: {label: string; children: Child[]}) {
       {open && (
         <div className="absolute top-full left-0 bg-white shadow-xl border-t-2 border-gold min-w-[220px] z-50 py-1">
           {children.map((child) => (
-            <Link key={child.href} href={child.href} onClick={() => setOpen(false)} className="block px-4 py-2.5 text-sm text-navy hover:bg-cream hover:text-gold font-medium transition-colors border-b border-gray-50 last:border-0">
-              {child.label}
+            <Link
+              key={child.href} href={child.href} onClick={() => setOpen(false)}
+              {...(child.external && {target: '_blank', rel: 'noopener noreferrer'})}
+              className="block px-4 py-2.5 text-sm text-navy hover:bg-cream hover:text-gold font-medium transition-colors border-b border-gray-50 last:border-0"
+            >
+              {child.label}{child.external && ' ↗'}
             </Link>
           ))}
         </div>

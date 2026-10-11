@@ -5,6 +5,7 @@ import {client, urlFor} from '@/lib/sanity'
 import {display, sans, script} from '@/lib/fonts'
 import Reveal from '@/components/Reveal'
 import AlbumGallery from '@/components/AlbumGallery'
+import {SHOW_HISTORY} from '@/lib/features'
 
 export const revalidate = 30
 
@@ -91,7 +92,14 @@ export default async function AboutPage({params}: {params: Promise<{locale: stri
         <Reveal>
           <section>
             <h2 className={`${display.className} text-3xl font-bold text-navy mb-5`}>{t('missionTitle')}</h2>
-            <div className="space-y-4 text-gray-600 leading-relaxed">
+            <div className="flow-root space-y-4 text-gray-600 leading-relaxed">
+              <Image
+                src="/logo-25-lat.png"
+                alt="25 lat — Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, New Jersey"
+                width={698}
+                height={674}
+                className="block w-56 sm:w-72 h-auto mx-auto mb-6 sm:float-right sm:ml-8 sm:mb-4 mix-blend-multiply"
+              />
               <p>{t.rich('missionP1', {b: (chunks) => <strong className="font-bold text-navy">{chunks}</strong>})}</p>
               <p>{t('missionP2')}</p>
               <p>{t.rich('missionP3', {b: (chunks) => <strong className="font-bold text-navy">{chunks}</strong>})}</p>
@@ -113,7 +121,7 @@ export default async function AboutPage({params}: {params: Promise<{locale: stri
         </Reveal>
 
         {/* History timeline */}
-        <Reveal>
+        {SHOW_HISTORY && <Reveal>
           <section>
             <h2 className={`${display.className} text-3xl font-bold text-navy mb-8`}>{t('historyTitle')}</h2>
             <div className="relative grid sm:grid-cols-3 gap-8 sm:gap-5">
@@ -133,7 +141,7 @@ export default async function AboutPage({params}: {params: Promise<{locale: stri
               ))}
             </div>
           </section>
-        </Reveal>
+        </Reveal>}
 
         {/* Patron */}
         <Reveal>
@@ -185,11 +193,12 @@ export default async function AboutPage({params}: {params: Promise<{locale: stri
           <section>
             <h2 className={`${display.className} text-3xl font-bold text-navy mb-3`}>{t('classTitle')}</h2>
             <p className="text-gray-600 mb-8 max-w-2xl">{t('classDesc')}</p>
-            <div className="relative grid sm:grid-cols-2 gap-8 sm:gap-5">
-              <div className="hidden sm:block absolute top-3 left-[calc(25%)] right-[calc(25%)] h-px bg-gold/40" />
+            <div className="relative grid sm:grid-cols-3 gap-8 sm:gap-5">
+              <div className="hidden sm:block absolute top-3 left-[calc(16.66%)] right-[calc(16.66%)] h-px bg-gold/40" />
               {[
                 {level: t('classPreschoolLevel'), desc: t('classPreschoolDesc')},
                 {level: t('classGradesLevel'), desc: t('classGradesDesc')},
+                {level: t('classHighSchoolLevel'), desc: t('classHighSchoolDesc')},
               ].map((c) => (
                 <div key={c.level} className="relative pl-7 sm:pl-0 sm:pt-8">
                   <span className="absolute left-0 top-1 sm:top-0 sm:left-1/2 sm:-translate-x-1/2 w-2.5 h-2.5 rounded-full bg-gold" />
