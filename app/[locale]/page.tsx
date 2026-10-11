@@ -69,9 +69,9 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
   const dateLocale = locale === 'pl' ? 'pl-PL' : 'en-US'
 
   const pillars = [
-    {title: tAbout('val1Title')},
-    {title: tAbout('val2Title')},
-    {title: tAbout('val4Title')},
+    {title: tAbout('val1Title'), short: tAbout('val1Short'), anchor: 'jezyk-polski'},
+    {title: tAbout('val2Title'), short: tAbout('val2Short'), anchor: 'historia-i-kultura'},
+    {title: tAbout('val4Title'), short: tAbout('val4Short'), anchor: 'tradycje-i-wydarzenia'},
   ]
 
   return (
@@ -151,23 +151,32 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
           <div className="grid grid-cols-3 gap-3">
             {photos.pillars.map((src, i) => (
               <Reveal key={src} delay={i * 0.06}>
-                <div className="relative aspect-[4/5] rounded-lg overflow-hidden group">
+                {/* Plain <a>, not <Link>: Next 16's client router re-appends the #hash
+                    after back-navigation (/about#x#x), so let the browser handle it */}
+                <a
+                  href={`/${locale}/about#${pillars[i].anchor}`}
+                  className="group block relative aspect-[4/5] rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
+                >
                   <Image
                     src={src}
                     alt=""
                     fill
                     sizes="(max-width: 1024px) 33vw, 17vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                   />
-                  {pillars[i] && (
-                    <>
-                      <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
-                      <p className="absolute bottom-3 left-3 right-3 text-white font-bold text-sm leading-snug">
-                        {pillars[i].title}
-                      </p>
-                    </>
-                  )}
-                </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent transition-colors duration-500 group-hover:via-navy/50" />
+                  <div className="absolute bottom-3 left-3 right-3 text-white">
+                    <p className="font-bold text-sm leading-snug">{pillars[i].title}</p>
+                    <span className="block h-0.5 w-6 bg-gold mt-1.5 transition-all duration-500 group-hover:w-12" />
+                    {/* Teaser: always shown on touch screens wide enough, revealed on hover elsewhere */}
+                    <div className="hidden sm:grid grid-rows-[1fr] [@media(hover:hover)]:grid-rows-[0fr] group-hover:grid-rows-[1fr] group-focus-visible:grid-rows-[1fr] transition-[grid-template-rows] duration-500">
+                      <div className="overflow-hidden">
+                        <p className="text-xs text-gray-200 leading-snug pt-2">{pillars[i].short}</p>
+                        <p className="text-xs font-bold text-gold-tint pt-1.5">{tAbout('valMore')} →</p>
+                      </div>
+                    </div>
+                  </div>
+                </a>
               </Reveal>
             ))}
           </div>

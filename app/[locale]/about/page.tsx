@@ -32,10 +32,19 @@ async function getHeroPhoto() {
   return photo ? urlFor(photo).width(1800).height(1000).fit('crop').url() : null
 }
 
+// Same photos as the home page Nasza Misja cards (Sanity "homePillars")
+async function getTeachPhotos() {
+  const chosen: Record<'jezykPolski' | 'historia' | 'tradycje', RawPhoto | null> | null = await client.fetch(
+    `*[_type == "homePillars"][0]{jezykPolski, historia, tradycje}`
+  )
+  const url = (p?: RawPhoto | null) => (p?.asset ? urlFor(p).width(900).height(675).fit('crop').url() : null)
+  return [url(chosen?.jezykPolski), url(chosen?.historia), url(chosen?.tradycje)]
+}
+
 export default async function AboutPage({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params
   const t = await getTranslations({locale, namespace: 'About'})
-  const [lifePhotos, heroPhoto] = await Promise.all([getLifePhotos(), getHeroPhoto()])
+  const [lifePhotos, heroPhoto, teachPhotos] = await Promise.all([getLifePhotos(), getHeroPhoto(), getTeachPhotos()])
 
   const facts = [
     {label: t('statFoundedLabel'), value: t('statFoundedVal')},
@@ -45,9 +54,9 @@ export default async function AboutPage({params}: {params: Promise<{locale: stri
   ]
 
   const teach = [
-    {icon: <IconLanguage />, title: t('val1Title'), desc: t('val1Desc')},
-    {icon: <IconLandmark />, title: t('val2Title'), desc: t('val2Desc')},
-    {icon: <IconSparkle />, title: t('val4Title'), desc: t('val4Desc')},
+    {icon: <IconLanguage />, title: t('val1Title'), desc: t('val1Desc'), points: t.raw('val1Points') as string[], photo: teachPhotos[0], anchor: 'jezyk-polski'},
+    {icon: <IconLandmark />, title: t('val2Title'), desc: t('val2Desc'), points: t.raw('val2Points') as string[], photo: teachPhotos[1], anchor: 'historia-i-kultura'},
+    {icon: <IconSparkle />, title: t('val4Title'), desc: t('val4Desc'), points: t.raw('val4Points') as string[], photo: teachPhotos[2], anchor: 'tradycje-i-wydarzenia'},
   ]
 
   return (
@@ -175,13 +184,33 @@ export default async function AboutPage({params}: {params: Promise<{locale: stri
           <Reveal>
             <h2 className={`${display.className} text-3xl font-bold text-navy mb-8`}>{t('valuesTitle')}</h2>
           </Reveal>
-          <div className="grid sm:grid-cols-3 gap-5">
+          <div className="space-y-6">
             {teach.map((v, i) => (
-              <Reveal key={v.title} delay={i * 0.08}>
-                <div className="h-full bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:border-gold transition-colors">
-                  <div className="text-navy mb-4">{v.icon}</div>
-                  <h3 className="font-bold text-navy mb-2">{v.title}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed">{v.desc}</p>
+              <Reveal key={v.title}>
+                <div
+                  id={v.anchor}
+                  className="grid md:grid-cols-2 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:border-gold transition-colors scroll-mt-24 target:border-gold target:ring-2 target:ring-gold/40"
+                >
+                  {v.photo && (
+                    <div className={`relative aspect-[4/3] ${i % 2 === 1 ? 'md:order-2' : ''}`}>
+                      <Image src={v.photo} alt={v.title} fill sizes="(max-width: 768px) 100vw, 480px" className="object-cover" />
+                    </div>
+                  )}
+                  <div className={`p-6 sm:p-8 flex flex-col justify-center ${v.photo ? '' : 'md:col-span-2'}`}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-gold">{v.icon}</span>
+                      <h3 className={`${display.className} text-2xl font-bold text-navy`}>{v.title}</h3>
+                    </div>
+                    <p className="text-gray-600 leading-relaxed mb-4">{v.desc}</p>
+                    <ul className="space-y-1.5">
+                      {v.points.map((p) => (
+                        <li key={p} className="flex items-start gap-2 text-sm text-gray-600">
+                          <span className="flex-none w-1.5 h-1.5 rounded-full bg-gold mt-2" />
+                          {p}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </Reveal>
             ))}
