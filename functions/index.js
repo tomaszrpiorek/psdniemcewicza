@@ -3,6 +3,7 @@ const {onDocumentCreated} = require('firebase-functions/v2/firestore')
 const {defineSecret} = require('firebase-functions/params')
 const {initializeApp} = require('firebase-admin/app')
 const {getFirestore} = require('firebase-admin/firestore')
+const {getAuth} = require('firebase-admin/auth')
 const {isValidSignature, SIGNATURE_HEADER_NAME} = require('@sanity/webhook')
 const nodemailer = require('nodemailer')
 
@@ -26,26 +27,40 @@ function gmailTransporter() {
 
 // Returns the email addresses of parents with a registered account, either
 // for one grade (gradeId) or for the whole school (gradeId === 'all').
+// A teacher counts as a parent when they have a child registered.
+// Includes a second parent/guardian when the account holder opted them in.
 async function getRegisteredParentEmails(gradeId) {
   let parentIds
   if (gradeId === 'all') {
-    const usersSnap = await db.collection('users').where('role', '==', 'parent').get()
-    parentIds = usersSnap.docs.map(d => d.id)
+    const [usersSnap, childrenSnap] = await Promise.all([
+      db.collection('users').get(),
+      db.collection('children').get(),
+    ])
+    const withChildren = new Set(childrenSnap.docs.map(d => d.data().parentId).filter(Boolean))
+    parentIds = usersSnap.docs
+      .filter(d => d.data().role === 'parent' || withChildren.has(d.id))
+      .map(d => d.id)
   } else {
     const childrenSnap = await db.collection('children').where('gradeId', '==', gradeId).get()
     const candidateIds = [...new Set(childrenSnap.docs.map(d => d.data().parentId).filter(Boolean))]
     const checks = await Promise.all(candidateIds.map(async (id) => {
       const userSnap = await db.collection('users').doc(id).get()
-      return userSnap.exists && userSnap.data().role === 'parent' ? id : null
+      return userSnap.exists ? id : null
     }))
     parentIds = checks.filter(Boolean)
   }
 
   const emails = await Promise.all(parentIds.map(async (id) => {
     const parentSnap = await db.collection('parents').doc(id).get()
-    return parentSnap.exists ? parentSnap.data().email : null
+    if (!parentSnap.exists) {
+      // Teacher accounts created in the console have no parents document.
+      const authUser = await getAuth().getUser(id).catch(() => null)
+      return [authUser?.email]
+    }
+    const {email, secondGuardian} = parentSnap.data()
+    return [email, secondGuardian?.notify ? secondGuardian.email : null]
   }))
-  return emails.filter(Boolean)
+  return [...new Set(emails.flat().filter(Boolean))]
 }
 
 exports.sendContactEmail = onCall({secrets: [gmailAppPassword], region: 'us-central1'}, async (request) => {

@@ -25,7 +25,12 @@ type Homework = {
   id: string; gradeId: string; title: string; weekOf?: string
   description?: string; attachmentUrl?: string; attachmentName?: string
 }
-type Parent = {id: string; firstName: string; lastName: string; phone: string; email: string; uid?: string}
+type Parent = {
+  id: string; firstName: string; lastName: string; phone: string; email: string; uid?: string
+  secondGuardian?: {firstName: string; lastName: string; relationship: string; email: string; phone: string} | null
+}
+
+const RELATIONSHIP_PL: Record<string, string> = {mother: 'Matka', father: 'Ojciec', guardian: 'Opiekun prawny', other: 'Inny'}
 type Enrollment = {
   id: string; firstName: string; lastName: string; email: string
   polishGrade: string; englishGrade: string; status: string; uid?: string; childId?: string
@@ -621,14 +626,31 @@ export default function AdminPage() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                          {Object.values(parents).map(p => (
-                            <tr key={p.id} className="hover:bg-gray-50">
-                              <td className="px-4 py-3 font-medium text-navy">{p.firstName} {p.lastName}</td>
-                              <td className="px-4 py-3 text-gray-600">{p.phone || '—'}</td>
-                              <td className="px-4 py-3 text-gray-600">{p.email || '—'}</td>
-                              <td className="px-4 py-3 text-gray-600">—</td>
-                            </tr>
-                          ))}
+                          {Object.values(parents).map(p => {
+                            const g = p.secondGuardian
+                            return (
+                              <tr key={p.id} className="hover:bg-gray-50 align-top">
+                                <td className="px-4 py-3 font-medium text-navy">
+                                  {p.firstName} {p.lastName}
+                                  {g && (
+                                    <p className="font-normal text-gray-500 mt-1.5">
+                                      {g.firstName} {g.lastName}
+                                      <span className="text-gray-400"> · {RELATIONSHIP_PL[g.relationship] ?? g.relationship}</span>
+                                    </p>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 text-gray-600">
+                                  {p.phone || '—'}
+                                  {g && <p className="mt-1.5">{g.phone || '—'}</p>}
+                                </td>
+                                <td className="px-4 py-3 text-gray-600">
+                                  {p.email || '—'}
+                                  {g && <p className="mt-1.5">{g.email || '—'}</p>}
+                                </td>
+                                <td className="px-4 py-3 text-gray-600">—</td>
+                              </tr>
+                            )
+                          })}
                         </tbody>
                       </table>
                     )}

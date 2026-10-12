@@ -6,7 +6,7 @@ import {useState, useRef} from 'react'
 import {useLocale, useTranslations} from 'next-intl'
 import {usePathname, useRouter} from 'next/navigation'
 import {useAuth} from '@/contexts/AuthContext'
-import {ENROLLMENT_OPEN} from '@/lib/features'
+import {ENROLLMENT_OPEN, MEDICAL_FORM_OPEN} from '@/lib/features'
 import {IconMail, IconPhone, IconLock, IconPencil, IconMedical} from '@/components/icons'
 
 type Child = {label: string; href: string; external?: boolean}
@@ -95,20 +95,23 @@ export default function Navbar() {
             </button>
             {user ? (
               <>
-                {role === 'parent' && (
-                  <>
-                    {ENROLLMENT_OPEN && (
-                      <Link href={'/' + locale + '/enroll'} className="flex items-center gap-1.5 bg-gold text-navy text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
-                        <IconPencil className="w-4 h-4" /> {t('enroll')}
-                      </Link>
-                    )}
-                    <Link href={'/' + locale + '/medical'} className="flex items-center gap-1.5 border border-white/30 text-white text-xs font-bold px-4 py-2 rounded hover:bg-white/10 transition-colors">
-                      <IconMedical className="w-4 h-4" /> {t('medicalForm')}
-                    </Link>
-                  </>
+                {ENROLLMENT_OPEN && (
+                  <Link href={'/' + locale + '/enroll'} className="flex items-center gap-1.5 bg-gold text-navy text-xs font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors">
+                    <IconPencil className="w-4 h-4" /> {t('enroll')}
+                  </Link>
                 )}
-                <Link href={'/' + locale + (role === 'teacher' ? '/admin' : '/dashboard')} className="border border-white/30 text-white text-xs font-bold px-4 py-2 rounded hover:bg-white/10 transition-colors">
-                  {role === 'teacher' ? t('adminPanel') : t('myAccount')}
+                {MEDICAL_FORM_OPEN && (
+                  <Link href={'/' + locale + '/medical'} className="flex items-center gap-1.5 border border-white/30 text-white text-xs font-bold px-4 py-2 rounded hover:bg-white/10 transition-colors">
+                    <IconMedical className="w-4 h-4" /> {t('medicalForm')}
+                  </Link>
+                )}
+                {role === 'teacher' && (
+                  <Link href={'/' + locale + '/admin'} className="border border-white/30 text-white text-xs font-bold px-4 py-2 rounded hover:bg-white/10 transition-colors">
+                    {t('adminPanel')}
+                  </Link>
+                )}
+                <Link href={'/' + locale + '/dashboard'} className="border border-white/30 text-white text-xs font-bold px-4 py-2 rounded hover:bg-white/10 transition-colors">
+                  {t('myAccount')}
                 </Link>
               </>
             ) : (
@@ -155,20 +158,23 @@ export default function Navbar() {
               </button>
               {user ? (
                 <>
-                  {role === 'parent' && (
-                    <>
-                      {ENROLLMENT_OPEN && (
-                        <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-gold-tint font-bold text-sm">
-                          <IconPencil className="w-4 h-4" /> {t('enroll')}
-                        </Link>
-                      )}
-                      <Link href={'/' + locale + '/medical'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-white font-bold text-sm">
-                        <IconMedical className="w-4 h-4" /> {t('medicalForm')}
-                      </Link>
-                    </>
+                  {ENROLLMENT_OPEN && (
+                    <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-gold-tint font-bold text-sm">
+                      <IconPencil className="w-4 h-4" /> {t('enroll')}
+                    </Link>
                   )}
-                  <Link href={'/' + locale + (role === 'teacher' ? '/admin' : '/dashboard')} onClick={() => setMobileOpen(false)} className="text-white font-bold text-sm">
-                    {role === 'teacher' ? t('adminPanel') : t('myAccount')}
+                  {MEDICAL_FORM_OPEN && (
+                    <Link href={'/' + locale + '/medical'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-white font-bold text-sm">
+                      <IconMedical className="w-4 h-4" /> {t('medicalForm')}
+                    </Link>
+                  )}
+                  {role === 'teacher' && (
+                    <Link href={'/' + locale + '/admin'} onClick={() => setMobileOpen(false)} className="text-white font-bold text-sm">
+                      {t('adminPanel')}
+                    </Link>
+                  )}
+                  <Link href={'/' + locale + '/dashboard'} onClick={() => setMobileOpen(false)} className="text-white font-bold text-sm">
+                    {t('myAccount')}
                   </Link>
                 </>
               ) : (

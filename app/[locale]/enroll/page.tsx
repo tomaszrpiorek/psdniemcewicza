@@ -147,7 +147,7 @@ export default function EnrollPage() {
   const v = useTranslations('Validation')
   const locale = useLocale()
   const router = useRouter()
-  const {user, role, loading} = useAuth()
+  const {user, loading} = useAuth()
 
   const [myChildren, setMyChildren]       = useState<MyChild[]>([])
   const [childrenLoading, setChildrenLoading] = useState(true)
@@ -169,7 +169,7 @@ export default function EnrollPage() {
 
   // Load parent's children
   useEffect(() => {
-    if (!user || role !== 'parent') return
+    if (!user) return
     const q = query(collection(db, 'children'), where('parentId', '==', user.uid))
     return onSnapshot(q, snap => {
       setMyChildren(snap.docs.map(d => ({
@@ -179,11 +179,11 @@ export default function EnrollPage() {
       })))
       setChildrenLoading(false)
     })
-  }, [user, role])
+  }, [user])
 
   // Load parent profile for pre-filling contact info
   useEffect(() => {
-    if (!user || role !== 'parent') return
+    if (!user) return
     getDoc(doc(db, 'parents', user.uid)).then(snap => {
       if (snap.exists()) {
         const d = snap.data()
@@ -193,7 +193,7 @@ export default function EnrollPage() {
         })
       }
     })
-  }, [user, role])
+  }, [user])
 
   if (loading || !user) return null
 
@@ -207,7 +207,7 @@ export default function EnrollPage() {
   }
 
   async function onSubmit(data: FormValues) {
-    if (role === 'parent' && !selectedChild) {
+    if (!selectedChild) {
       setError('root', {message: t('errorSelectChild')})
       return
     }
@@ -262,53 +262,51 @@ export default function EnrollPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-10">
 
-        {/* Child selector — only for parents */}
-        {role === 'parent' && (
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-6">
-            <h2 className="text-sm font-bold text-navy uppercase tracking-widest mb-4">
-              {t('selectChildTitle')}
-            </h2>
+        {/* Child selector */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-6">
+          <h2 className="text-sm font-bold text-navy uppercase tracking-widest mb-4">
+            {t('selectChildTitle')}
+          </h2>
 
-            {childrenLoading ? (
-              <p className="text-sm text-gray-400">{t('loadingChildren')}</p>
-            ) : myChildren.length === 0 ? (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg px-5 py-4">
-                <p className="text-sm font-semibold text-amber-800 mb-1">{t('noChildrenTitle')}</p>
-                <p className="text-sm text-amber-700 mb-3">{t('noChildrenDesc')}</p>
-                <Link href={'/' + locale + '/dashboard'}
-                  className="inline-block bg-navy text-white text-xs font-bold px-4 py-2 rounded hover:bg-navy-dark transition-colors">
-                  {t('goToDashboard')}
-                </Link>
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-3">
-                {myChildren.map(child => (
-                  <button
-                    key={child.id}
-                    type="button"
-                    onClick={() => handleSelectChild(child)}
-                    className={`flex items-center gap-2 px-5 py-3 rounded-lg border-2 text-sm font-semibold transition-colors ${
-                      selectedChild?.id === child.id
-                        ? 'border-gold bg-gold/10 text-navy'
-                        : 'border-gray-200 text-gray-600 hover:border-gold hover:text-navy'
-                    }`}
-                  >
-                    <span className="text-lg">👤</span>
-                    {child.firstName} {child.lastName}
-                    {selectedChild?.id === child.id && <span className="text-gold ml-1">✓</span>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+          {childrenLoading ? (
+            <p className="text-sm text-gray-400">{t('loadingChildren')}</p>
+          ) : myChildren.length === 0 ? (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-5 py-4">
+              <p className="text-sm font-semibold text-amber-800 mb-1">{t('noChildrenTitle')}</p>
+              <p className="text-sm text-amber-700 mb-3">{t('noChildrenDesc')}</p>
+              <Link href={'/' + locale + '/dashboard'}
+                className="inline-block bg-navy text-white text-xs font-bold px-4 py-2 rounded hover:bg-navy-dark transition-colors">
+                {t('goToDashboard')}
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              {myChildren.map(child => (
+                <button
+                  key={child.id}
+                  type="button"
+                  onClick={() => handleSelectChild(child)}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-lg border-2 text-sm font-semibold transition-colors ${
+                    selectedChild?.id === child.id
+                      ? 'border-gold bg-gold/10 text-navy'
+                      : 'border-gray-200 text-gray-600 hover:border-gold hover:text-navy'
+                  }`}
+                >
+                  <span className="text-lg">👤</span>
+                  {child.firstName} {child.lastName}
+                  {selectedChild?.id === child.id && <span className="text-gold ml-1">✓</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Hide form until child is selected (parents only) */}
-        {role === 'parent' && myChildren.length > 0 && !selectedChild ? (
+        {/* Hide form until child is selected */}
+        {myChildren.length > 0 && !selectedChild ? (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center text-gray-400 text-sm">
             {t('selectChildPrompt')}
           </div>
-        ) : (role === 'parent' && myChildren.length === 0) ? null : (
+        ) : myChildren.length === 0 ? null : (
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
 
