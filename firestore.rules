@@ -14,10 +14,16 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.superAdmin == true;
     }
 
+    // role and superAdmin are privileges: a new account can only register as a
+    // parent, and nobody can change their own role/superAdmin from the app.
+    // Teachers are promoted by editing the document in the Firebase console.
     match /users/{uid} {
       allow read:   if isSignedIn() && (request.auth.uid == uid || isTeacher());
-      allow create: if isSignedIn() && request.auth.uid == uid;
-      allow update: if isSignedIn() && request.auth.uid == uid;
+      allow create: if isSignedIn() && request.auth.uid == uid
+                    && request.resource.data.role == 'parent'
+                    && !('superAdmin' in request.resource.data);
+      allow update: if isSignedIn() && request.auth.uid == uid
+                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'superAdmin']);
       allow delete: if isSuperAdmin();
     }
 
@@ -55,13 +61,13 @@ service cloud.firestore {
     }
 
     match /enrollments/{enrollmentId} {
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
       allow read:   if isTeacher() || (isSignedIn() && resource.data.uid == request.auth.uid);
       allow update, delete: if isTeacher();
     }
 
     match /medicalForms/{docId} {
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
       allow read:   if isTeacher() || (isSignedIn() && resource.data.uid == request.auth.uid);
       allow update, delete: if isTeacher();
     }
