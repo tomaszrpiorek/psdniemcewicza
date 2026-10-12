@@ -9,6 +9,8 @@ import {
   collection, query, where, onSnapshot, orderBy,
   addDoc, setDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, serverTimestamp,
 } from 'firebase/firestore'
+import {EmailAuthProvider, reauthenticateWithCredential, updatePassword, User} from 'firebase/auth'
+import {FirebaseError} from 'firebase/app'
 import {db} from '@/lib/firebase'
 import {useAuth} from '@/contexts/AuthContext'
 import Link from 'next/link'
@@ -49,6 +51,7 @@ export default function DashboardPage() {
   const [showAdd, setShowAdd]     = useState(false)
   const [showGuardian, setShowGuardian] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
     if (loading) return
@@ -156,10 +159,16 @@ export default function DashboardPage() {
           </h1>
           <p className="text-sm text-gray-400 mt-0.5">{user.email}</p>
         </div>
-        <button onClick={handleSignOut}
-          className="text-sm border border-gray-200 text-gray-500 px-4 py-1.5 rounded hover:border-red-300 hover:text-red-500 transition-colors">
-          {t('signOut')}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setShowPassword(true)}
+            className="text-sm border border-gray-200 text-gray-500 px-4 py-1.5 rounded hover:border-gold hover:text-navy transition-colors">
+            {t('passwordChange')}
+          </button>
+          <button onClick={handleSignOut}
+            className="text-sm border border-gray-200 text-gray-500 px-4 py-1.5 rounded hover:border-red-300 hover:text-red-500 transition-colors">
+            {t('signOut')}
+          </button>
+        </div>
       </div>
 
       {profile && (
@@ -315,6 +324,9 @@ export default function DashboardPage() {
       {showProfile && (
         <ProfileModal t={t} onSave={createProfile} onClose={() => setShowProfile(false)} />
       )}
+      {showPassword && (
+        <PasswordModal user={user} t={t} onClose={() => setShowPassword(false)} />
+      )}
     </main>
   )
 }
@@ -375,6 +387,87 @@ function FormStatus({label, status, pdfUrl, submitHref, t, type}: {
           PDF →
         </a>
       ) : null}
+    </div>
+  )
+}
+
+function PasswordModal({user, t, onClose}: {
+  user: User
+  t: TFn
+  onClose: () => void
+}) {
+  const v = useTranslations('Validation')
+  const [done, setDone] = useState(false)
+
+  const schema = z.object({
+    current: z.string().min(1, v('required')),
+    password: z.string().min(8, v('passwordTooShort')),
+    confirm: z.string(),
+  }).refine((d) => d.password === d.confirm, {message: v('passwordMismatch'), path: ['confirm']})
+  type FormValues = z.infer<typeof schema>
+
+  const {
+    register, handleSubmit, setError,
+    formState: {errors, isSubmitting},
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {current: '', password: '', confirm: ''},
+  })
+
+  async function onSubmit(data: FormValues) {
+    try {
+      // Firebase only allows a password change right after a fresh sign-in.
+      await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email!, data.current))
+      await updatePassword(user, data.password)
+      setDone(true)
+    } catch (err) {
+      const code = err instanceof FirebaseError ? err.code : ''
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        setError('current', {message: t('passwordWrong')})
+      } else if (code === 'auth/too-many-requests') {
+        setError('root', {message: t('passwordTooMany')})
+      } else {
+        setError('root', {message: t('passwordError')})
+      }
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 className="font-bold text-navy">{t('passwordChange')}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        </div>
+        {done ? (
+          <div className="px-6 py-5 space-y-4">
+            <p className="text-sm font-medium text-green-700">✓ {t('passwordChanged')}</p>
+            <button type="button" onClick={onClose}
+              className="w-full bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors">
+              {t('closeBtn')}
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
+            <TextField type="password" autoComplete="current-password" label={t('passwordCurrent') + ' *'} error={errors.current?.message} {...register('current')} />
+            <TextField type="password" autoComplete="new-password" label={t('passwordNew') + ' *'} error={errors.password?.message} {...register('password')} />
+            <TextField type="password" autoComplete="new-password" label={t('passwordConfirm') + ' *'} error={errors.confirm?.message} {...register('confirm')} />
+
+            <FormError message={errors.root?.message} />
+
+            <div className="flex gap-3 pt-1">
+              <button type="button" onClick={onClose}
+                className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
+                {t('cancelBtn')}
+              </button>
+              <button type="submit" disabled={isSubmitting}
+                className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
+                {isSubmitting ? t('savingBtn') : t('saveBtn')}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   )
 }
