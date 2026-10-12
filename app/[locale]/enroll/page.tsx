@@ -8,6 +8,7 @@ import {useRouter} from 'next/navigation'
 import {collection, doc, setDoc, getDoc, query, where, onSnapshot, serverTimestamp} from 'firebase/firestore'
 import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import {db, storage} from '@/lib/firebase'
+import {SCHOOL_GRADES} from '@/lib/grades'
 import {useAuth} from '@/contexts/AuthContext'
 import Link from 'next/link'
 import {zodResolver} from '@/lib/zodResolver'
@@ -22,7 +23,8 @@ import FormError from '@/components/form/FormError'
 type MyChild = {id: string; firstName: string; lastName: string}
 type ParentProfile = {firstName: string; lastName: string; email: string; phone: string; address?: string}
 
-const GRADES = ['Przedszkole', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+// Grades at the child's English-language (American) school
+const ENGLISH_GRADES = ['Przedszkole', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
 // --- Sub-components outside the page to prevent focus loss ---
 
@@ -345,7 +347,7 @@ export default function EnrollPage() {
                       label={t('englishGrade')} required
                       value={field.value} onChange={field.onChange} onBlur={field.onBlur}
                       error={errors.englishGrade?.message}
-                      options={GRADES.map(g => ({value: g, label: g === 'Przedszkole' ? g : `Grade ${g}`}))}
+                      options={ENGLISH_GRADES.map(g => ({value: g, label: g === 'Przedszkole' ? g : `Grade ${g}`}))}
                     />
                   )}
                 />
@@ -357,7 +359,7 @@ export default function EnrollPage() {
                       label={t('polishGrade')} required
                       value={field.value} onChange={field.onChange} onBlur={field.onBlur}
                       error={errors.polishGrade?.message}
-                      options={GRADES.map(g => ({value: g, label: g === 'Przedszkole' ? g : `Klasa ${g}`}))}
+                      options={SCHOOL_GRADES.map(g => ({value: g.name, label: g.name}))}
                     />
                   )}
                 />

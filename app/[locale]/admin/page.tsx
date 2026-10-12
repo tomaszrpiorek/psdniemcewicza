@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore'
 import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import {db, storage} from '@/lib/firebase'
+import {SCHOOL_GRADES} from '@/lib/grades'
 import {useAuth} from '@/contexts/AuthContext'
 import {zodResolver} from '@/lib/zodResolver'
 import {requiredName, requiredPhone, requiredString, optionalName} from '@/lib/validation'
@@ -61,22 +62,6 @@ function nextMonday(): string {
 function uniqueFileName(name: string): string {
   return `${Date.now()}_${name}`
 }
-
-const GRADE_DEFAULTS = [
-  {level: 0,  name: 'Przedszkole'},
-  {level: 1,  name: 'Klasa 1'},
-  {level: 2,  name: 'Klasa 2'},
-  {level: 3,  name: 'Klasa 3'},
-  {level: 4,  name: 'Klasa 4'},
-  {level: 5,  name: 'Klasa 5'},
-  {level: 6,  name: 'Klasa 6'},
-  {level: 7,  name: 'Klasa 7'},
-  {level: 8,  name: 'Klasa 8'},
-  {level: 9,  name: 'Klasa 9'},
-  {level: 10, name: 'Klasa 10'},
-  {level: 11, name: 'Klasa 11'},
-  {level: 12, name: 'Klasa 12'},
-]
 
 export default function AdminPage() {
   const {user, role, superAdmin, loading, signOut} = useAuth()
@@ -175,12 +160,12 @@ export default function AdminPage() {
   }
 
   async function seedGrades() {
-    if (!confirm('Inicjalizuj klasy Przedszkole – Klasa 12?')) return
+    if (!confirm('Inicjalizuj klasy Przedszkole – III Liceum?')) return
     setSeeding(true)
     const batch = writeBatch(db)
-    GRADE_DEFAULTS.forEach(g => {
+    SCHOOL_GRADES.forEach(g => {
       const ref = doc(collection(db, 'grades'))
-      batch.set(ref, {...g, createdAt: serverTimestamp()})
+      batch.set(ref, {level: g.level, name: g.name, createdAt: serverTimestamp()})
     })
     await batch.commit()
     setSeeding(false)

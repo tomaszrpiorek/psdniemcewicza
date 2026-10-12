@@ -6,6 +6,7 @@ import {useParams} from 'next/navigation'
 import {useTranslations} from 'next-intl'
 import {collection, query, where, orderBy, getDocs, limit} from 'firebase/firestore'
 import {db} from '@/lib/firebase'
+import {SCHOOL_GRADES} from '@/lib/grades'
 
 type Homework = {
   id: string
@@ -16,16 +17,14 @@ type Homework = {
   attachmentName?: string
 }
 
-const GRADE_LEVELS = Array.from({length: 12}, (_, i) => i + 1)
-
 export default function HomeworkPage() {
   const {locale, classId} = useParams<{locale: string; classId: string}>()
   const tNav = useTranslations('Nav')
   const t = useTranslations('Homework')
 
-  const level = /^klasa-(\d+)$/.exec(classId)?.[1]
-  const levelNum = level ? Number(level) : null
-  const valid = levelNum !== null && GRADE_LEVELS.includes(levelNum)
+  const schoolGrade = SCHOOL_GRADES.find((g) => g.slug === classId)
+  const levelNum = schoolGrade?.level ?? null
+  const valid = schoolGrade !== undefined
 
   const [loading, setLoading]   = useState(true)
   const [gradeName, setGradeName] = useState('')
@@ -56,7 +55,7 @@ export default function HomeworkPage() {
     return () => { cancelled = true }
   }, [valid, levelNum])
 
-  if (!valid) {
+  if (!schoolGrade) {
     return (
       <main className="max-w-4xl mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-navy mb-4">{t('notFound')}</h1>
@@ -72,21 +71,21 @@ export default function HomeworkPage() {
       <div className="bg-navy text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <p className="text-gold-tint text-xs font-bold uppercase tracking-widest mb-2">{t('tag')}</p>
-          <h1 className="text-3xl font-bold">{gradeName || tNav(('class' + levelNum) as 'class1')}</h1>
+          <h1 className="text-3xl font-bold">{gradeName || tNav(schoolGrade.navKey)}</h1>
           {teacherName && <p className="text-gray-300 mt-1 text-sm">{t('teacher')}: {teacherName}</p>}
         </div>
       </div>
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="flex flex-wrap gap-2 mb-8">
-          {GRADE_LEVELS.map((n) => (
+          {SCHOOL_GRADES.map((g) => (
             <Link
-              key={n}
-              href={'/' + locale + '/homework/klasa-' + n}
+              key={g.slug}
+              href={'/' + locale + '/homework/' + g.slug}
               className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${
-                n === levelNum ? 'bg-navy text-white border-navy' : 'border-gray-200 text-navy hover:border-gold hover:text-gold bg-white'
+                g.level === levelNum ? 'bg-navy text-white border-navy' : 'border-gray-200 text-navy hover:border-gold hover:text-gold bg-white'
               }`}
             >
-              {tNav(('class' + n) as 'class1')}
+              {tNav(g.navKey)}
             </Link>
           ))}
         </div>

@@ -7,6 +7,7 @@ import {useLocale, useTranslations} from 'next-intl'
 import {usePathname, useRouter} from 'next/navigation'
 import {useAuth} from '@/contexts/AuthContext'
 import {ENROLLMENT_OPEN, MEDICAL_FORM_OPEN} from '@/lib/features'
+import {SCHOOL_GRADES} from '@/lib/grades'
 import {IconMail, IconPhone, IconLock, IconPencil, IconMedical} from '@/components/icons'
 
 type Child = {label: string; href: string; external?: boolean}
@@ -39,9 +40,9 @@ export default function Navbar() {
     {label: t('announcements'), href: `/${locale}/announcements`},
     {
       label: t('homework'),
-      children: Array.from({length: 12}, (_, i) => i + 1).map((n) => ({
-        label: t(('class' + n) as 'class1'),
-        href: `/${locale}/homework/klasa-${n}`,
+      children: SCHOOL_GRADES.map((g) => ({
+        label: t(g.navKey),
+        href: `/${locale}/homework/${g.slug}`,
       })),
     },
     {label: t('calendar'), href: `/${locale}/calendar`},
