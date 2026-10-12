@@ -1,6 +1,7 @@
 'use client'
 
 import {useState} from 'react'
+import {IconCheckCircle} from '@/components/icons'
 import {useForm} from 'react-hook-form'
 import {z} from 'zod'
 import {sendPasswordResetEmail} from 'firebase/auth'
@@ -56,7 +57,7 @@ export default function ForgotPasswordPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
           {sent ? (
             <div className="text-center">
-              <div className="text-4xl mb-3">✅</div>
+              <IconCheckCircle className="w-12 h-12 mx-auto mb-3 text-green-600" />
               <p className="text-sm text-gray-600">{t('success')}</p>
               <Link href={'/' + locale + '/login'} className="inline-block mt-6 text-gold font-semibold hover:underline text-sm">
                 {t('backToLogin')}

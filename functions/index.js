@@ -12,6 +12,9 @@ const db = getFirestore()
 
 const SCHOOL_EMAIL = 'psdniemcewicza@gmail.com'
 const SITE_URL = 'https://psdniemcewicza--polska-szkola-7ae70.us-central1.hosted.app'
+// Gmail rejects messages over 25 MB, and attachments grow by a third when encoded,
+// so this caps the combined size of the files attached to one email.
+const MAX_EMAIL_ATTACHMENT_BYTES = 15 * 1024 * 1024
 const gmailAppPassword = defineSecret('GMAIL_APP_PASSWORD')
 const sanityWebhookSecret = defineSecret('SANITY_WEBHOOK_SECRET')
 
@@ -108,11 +111,34 @@ exports.notifyParentsOfHomework = onDocumentCreated(
     if (dueDate) lines.push(`Termin oddania: ${dueDate}`)
     if (hw.description) lines.push('', hw.description)
 
+    // Attach the teacher's files while they fit in one Gmail message; every
+    // link is always included so larger files can still be downloaded.
+    const files = hw.attachments
+      || (hw.attachmentUrl ? [{url: hw.attachmentUrl, name: hw.attachmentName}] : [])
+    const attachments = []
+    let attachedBytes = 0
+    if (files.length > 0) lines.push('', files.length === 1 ? 'Załącznik:' : 'Załączniki:')
+    for (const file of files) {
+      const fileName = file.name || 'zalacznik'
+      lines.push(`${fileName} — ${file.url}`)
+      try {
+        const res = await fetch(file.url)
+        const content = Buffer.from(await res.arrayBuffer())
+        if (res.ok && attachedBytes + content.length <= MAX_EMAIL_ATTACHMENT_BYTES) {
+          attachments.push({filename: fileName, content})
+          attachedBytes += content.length
+        }
+      } catch (err) {
+        console.error('Could not fetch homework attachment', err)
+      }
+    }
+
     await Promise.all(emails.map((email) => transporter.sendMail({
       from: `PSD Niemcewicza <${SCHOOL_EMAIL}>`,
       to: email,
       subject: `Nowe zadanie domowe — ${gradeName}`,
       text: lines.join('\n'),
+      attachments,
     })))
   }
 )

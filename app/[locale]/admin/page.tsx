@@ -1,17 +1,19 @@
 'use client'
 
 import {useState, useEffect} from 'react'
+import {IconCheckCircle, IconPaperclip} from '@/components/icons'
 import {useRouter} from 'next/navigation'
 import {useLocale} from 'next-intl'
 import {useForm, Controller} from 'react-hook-form'
 import {z} from 'zod'
 import {
   collection, query, where, onSnapshot, orderBy,
-  addDoc, deleteDoc, doc, setDoc, updateDoc, getDocs, serverTimestamp, writeBatch,
+  addDoc, deleteDoc, deleteField, doc, setDoc, updateDoc, getDocs, serverTimestamp, writeBatch,
 } from 'firebase/firestore'
 import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import {db, storage} from '@/lib/firebase'
 import {SCHOOL_GRADES} from '@/lib/grades'
+import {homeworkAttachments, HomeworkAttachment} from '@/lib/homework'
 import {useAuth} from '@/contexts/AuthContext'
 import {zodResolver} from '@/lib/zodResolver'
 import {requiredName, requiredPhone, requiredString, optionalName} from '@/lib/validation'
@@ -24,7 +26,8 @@ type Grade = {id: string; name: string; level: number; teacherName?: string}
 type Child = {id: string; firstName: string; lastName: string; gradeId: string; parentId: string}
 type Homework = {
   id: string; gradeId: string; title: string; weekOf?: string
-  description?: string; attachmentUrl?: string; attachmentName?: string
+  description?: string; attachments?: HomeworkAttachment[]
+  attachmentUrl?: string; attachmentName?: string
 }
 type Parent = {
   id: string; firstName: string; lastName: string; phone: string; email: string; uid?: string
@@ -680,14 +683,19 @@ export default function AdminPage() {
                                   )}
                                 </div>
                                 <h3 className="font-bold text-navy">{hw.title}</h3>
+                                {homeworkAttachments(hw).length > 0 && (
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    {homeworkAttachments(hw).map((a) => (
+                                      <a key={a.url} href={a.url} target="_blank" rel="noopener noreferrer" title={a.name}
+                                        className="inline-flex items-center gap-1.5 bg-gray-700 text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-gray-800 transition-colors max-w-[14rem]">
+                                        <IconPaperclip className="w-4 h-4 shrink-0" />
+                                        <span className="truncate">{a.name || 'Załącznik'}</span>
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                               <div className="flex items-center gap-3 shrink-0">
-                                {hw.attachmentUrl && (
-                                  <a href={hw.attachmentUrl} target="_blank" rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 bg-gray-700 text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-gray-800 transition-colors">
-                                    📎 Załącznik
-                                  </a>
-                                )}
                                 <button onClick={() => setEditingHomework(hw)} className="text-xs text-gold font-semibold hover:underline">
                                   Edytuj
                                 </button>
@@ -860,7 +868,9 @@ type HomeworkValues = z.infer<typeof homeworkSchema>
 function AddHomeworkModal({gradeId, gradeName, existing, onClose}: {
   gradeId: string; gradeName: string; existing?: Homework; onClose: () => void
 }) {
-  const [file, setFile] = useState<File | null>(null)
+  // Files already on the homework that the teacher is keeping, and new ones to upload
+  const [kept, setKept] = useState<HomeworkAttachment[]>(existing ? homeworkAttachments(existing) : [])
+  const [files, setFiles] = useState<File[]>([])
 
   const {
     register, handleSubmit, setError,
@@ -876,23 +886,23 @@ function AddHomeworkModal({gradeId, gradeName, existing, onClose}: {
 
   async function onSubmit(data: HomeworkValues) {
     try {
-      let attachmentUrl = existing?.attachmentUrl
-      let attachmentName = existing?.attachmentName
-      if (file) {
-        const storageRef = ref(storage, `homework/${gradeId}/${uniqueFileName(file.name)}`)
+      const uploaded = await Promise.all(files.map(async (file, i) => {
+        const storageRef = ref(storage, `homework/${gradeId}/${i}_${uniqueFileName(file.name)}`)
         await uploadBytes(storageRef, file)
-        attachmentUrl = await getDownloadURL(storageRef)
-        attachmentName = file.name
-      }
+        return {url: await getDownloadURL(storageRef), name: file.name}
+      }))
       const payload = {
         gradeId,
         title: data.title,
         weekOf: data.weekOf,
         description: data.description,
-        ...(attachmentUrl ? {attachmentUrl, attachmentName} : {}),
+        attachments: [...kept, ...uploaded],
       }
       if (existing) {
-        await updateDoc(doc(db, 'homework', existing.id), payload)
+        // Drop the single-file fields older homework was saved with
+        await updateDoc(doc(db, 'homework', existing.id), {
+          ...payload, attachmentUrl: deleteField(), attachmentName: deleteField(),
+        })
       } else {
         await addDoc(collection(db, 'homework'), {...payload, createdAt: serverTimestamp()})
       }
@@ -914,12 +924,29 @@ function AddHomeworkModal({gradeId, gradeName, existing, onClose}: {
           <TextField type="date" label="Termin oddania *" error={errors.weekOf?.message} {...register('weekOf')} />
           <TextAreaField label="Opis" rows={4} placeholder="Opis zadania…" error={errors.description?.message} {...register('description')} />
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Załącznik (opcjonalnie)</label>
-            {existing?.attachmentName && !file && (
-              <p className="text-xs text-gray-400 mb-1">Obecny: {existing.attachmentName} (wybierz nowy plik, aby zastąpić)</p>
+            <label className="block text-xs text-gray-500 mb-1">Załączniki (opcjonalnie)</label>
+            {(kept.length > 0 || files.length > 0) && (
+              <ul className="mb-2 space-y-1">
+                {kept.map((a) => (
+                  <li key={a.url} className="flex items-center justify-between gap-2 text-sm text-gray-600 bg-gray-50 rounded px-2 py-1">
+                    <span className="truncate">{a.name || 'Załącznik'}</span>
+                    <button type="button" onClick={() => setKept(k => k.filter(x => x.url !== a.url))}
+                      className="text-xs text-red-400 hover:text-red-600 shrink-0">Usuń</button>
+                  </li>
+                ))}
+                {files.map((f, i) => (
+                  <li key={i + f.name} className="flex items-center justify-between gap-2 text-sm text-gray-600 bg-gray-50 rounded px-2 py-1">
+                    <span className="truncate">{f.name} <span className="text-xs text-gray-400">(nowy)</span></span>
+                    <button type="button" onClick={() => setFiles(fs => fs.filter((_, j) => j !== i))}
+                      className="text-xs text-red-400 hover:text-red-600 shrink-0">Usuń</button>
+                  </li>
+                ))}
+              </ul>
             )}
-            <input type="file" onChange={e => setFile(e.target.files?.[0] ?? null)}
+            <input type="file" multiple
+              onChange={e => { const picked = Array.from(e.target.files ?? []); setFiles(fs => [...fs, ...picked]); e.target.value = '' }}
               className="w-full text-sm text-gray-600" />
+            <p className="text-xs text-gray-400 mt-1">Możesz wybrać kilka plików naraz. Maks. 25 MB na plik.</p>
           </div>
 
           <FormError message={errors.root?.message} />
@@ -987,7 +1014,7 @@ function BroadcastModal({grades, teacherUid, defaultGradeId, onClose}: {
 
         {sent ? (
           <div className="px-6 py-8 text-center">
-            <div className="text-4xl mb-3">✅</div>
+            <IconCheckCircle className="w-12 h-12 mx-auto mb-3 text-green-600" />
             <p className="text-navy font-bold">Wiadomość wysłana.</p>
             <button onClick={onClose} className="mt-5 text-sm text-gold font-semibold hover:underline">Zamknij</button>
           </div>

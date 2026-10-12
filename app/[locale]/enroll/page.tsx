@@ -1,6 +1,7 @@
 'use client'
 
 import {useState, useEffect} from 'react'
+import {IconCheckCircle} from '@/components/icons'
 import {useForm, Controller} from 'react-hook-form'
 import {z} from 'zod'
 import {useTranslations, useLocale} from 'next-intl'
@@ -242,7 +243,7 @@ export default function EnrollPage() {
     return (
       <main className="min-h-[70vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="text-6xl mb-4">✅</div>
+          <IconCheckCircle className="w-16 h-16 mx-auto mb-4 text-green-600" />
           <h1 className="text-2xl font-bold text-navy mb-3">{t('successTitle')}</h1>
           <p className="text-gray-500 mb-8">{t('successDesc')}</p>
           <Link href={'/' + locale} className="bg-gold text-navy font-bold px-6 py-3 rounded hover:bg-gold-light transition-colors text-sm">

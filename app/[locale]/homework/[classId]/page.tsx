@@ -7,12 +7,15 @@ import {useTranslations} from 'next-intl'
 import {collection, query, where, orderBy, getDocs, limit} from 'firebase/firestore'
 import {db} from '@/lib/firebase'
 import {SCHOOL_GRADES} from '@/lib/grades'
+import {homeworkAttachments, HomeworkAttachment} from '@/lib/homework'
+import {IconPaperclip} from '@/components/icons'
 
 type Homework = {
   id: string
   title: string
   weekOf?: string
   description?: string
+  attachments?: HomeworkAttachment[]
   attachmentUrl?: string
   attachmentName?: string
 }
@@ -101,7 +104,7 @@ export default function HomeworkPage() {
               <div key={hw.id} className={`bg-white rounded-lg shadow-sm p-5 ${
                 i === 0 ? 'border-2 border-gold' : 'border border-gray-100'
               }`}>
-                <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       {hw.weekOf && (
@@ -117,15 +120,20 @@ export default function HomeworkPage() {
                     </div>
                     <h2 className="font-bold text-navy">{hw.title}</h2>
                   </div>
-                  {hw.attachmentUrl && (
-                    <a href={hw.attachmentUrl} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 bg-navy text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-navy-dark transition-colors shrink-0">
-                      📎 {t('attachment')}
-                    </a>
-                  )}
                 </div>
                 {hw.description && (
                   <p className="text-sm text-gray-600 mt-3 whitespace-pre-line">{hw.description}</p>
+                )}
+                {homeworkAttachments(hw).length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {homeworkAttachments(hw).map((a) => (
+                      <a key={a.url} href={a.url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 bg-navy text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-navy-dark transition-colors max-w-full">
+                        <IconPaperclip className="w-4 h-4 shrink-0" />
+                        <span className="truncate">{a.name || t('attachment')}</span>
+                      </a>
+                    ))}
+                  </div>
                 )}
               </div>
             ))}

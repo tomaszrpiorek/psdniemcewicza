@@ -128,3 +128,20 @@ export function IconClock(props: IconProps) {
     </Svg>
   )
 }
+
+export function IconCheckCircle(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="9.5" />
+      <path d="M7.5 12.5l3 3 6-6.5" />
+    </Svg>
+  )
+}
+
+export function IconPaperclip(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M20 11.5l-8.3 8.3a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8" />
+    </Svg>
+  )
+}

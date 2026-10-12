@@ -1,6 +1,7 @@
 'use client'
 
 import {useState} from 'react'
+import {IconCheckCircle} from '@/components/icons'
 import {useForm} from 'react-hook-form'
 import {z} from 'zod'
 import {httpsCallable} from 'firebase/functions'
@@ -46,7 +47,7 @@ export default function ContactForm() {
   if (status === 'sent') {
     return (
       <div className="text-center py-8">
-        <div className="text-4xl mb-3">✅</div>
+        <IconCheckCircle className="w-12 h-12 mx-auto mb-3 text-green-600" />
         <p className="text-navy font-bold">{t('sendSuccess')}</p>
       </div>
     )
