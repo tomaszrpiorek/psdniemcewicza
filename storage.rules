@@ -1,18 +1,45 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+
+    function isSignedIn() { return request.auth != null; }
+
+    function isTeacher() {
+      return isSignedIn() &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+
+    // A form PDF tagged with the uploader's own uid (customMetadata.uid).
+    function isOwnNewPdf() {
+      return isSignedIn()
+        && request.resource.metadata.uid == request.auth.uid
+        && request.resource.contentType == 'application/pdf'
+        && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    function isOwner() {
+      return isSignedIn() && resource.metadata.uid == request.auth.uid;
+    }
+
+    // Enrollment and medical form PDFs hold personal data: only the parent who
+    // submitted one and teachers can read it, nobody can overwrite one, and
+    // only teachers can list or delete them.
     match /enrollments/{enrollmentId}/{allPaths=**} {
-      allow write: if request.auth != null;
-      allow read:  if request.auth != null;
+      allow create: if isOwnNewPdf();
+      allow get:    if isOwner() || isTeacher();
+      allow list, delete: if isTeacher();
     }
     match /medical/{docId}/{allPaths=**} {
-      allow write: if request.auth != null;
-      allow read:  if request.auth != null;
+      allow create: if isOwnNewPdf();
+      allow get:    if isOwner() || isTeacher();
+      allow list, delete: if isTeacher();
     }
+
+    // Homework attachments are public, like the homework pages.
     match /homework/{gradeId}/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null &&
-        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+      allow create, update: if isTeacher() && request.resource.size < 25 * 1024 * 1024;
+      allow delete: if isTeacher();
     }
   }
 }

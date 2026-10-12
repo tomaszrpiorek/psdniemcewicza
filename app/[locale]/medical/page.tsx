@@ -33,7 +33,7 @@ function SectionHeader({label}: {label: string}) {
 
 // --- PDF generation ---
 
-async function generateAndUploadPDF(form: FormValues, signature: string, docId: string): Promise<string> {
+async function generateAndUploadPDF(form: FormValues, signature: string, docId: string, uid: string): Promise<string> {
   const {default: jsPDF} = await import('jspdf')
   const pdf = new jsPDF()
   const pageW = pdf.internal.pageSize.getWidth()
@@ -108,7 +108,8 @@ async function generateAndUploadPDF(form: FormValues, signature: string, docId: 
 
   const blob = pdf.output('blob')
   const storageRef = ref(storage, `medical/${docId}/form.pdf`)
-  await uploadBytes(storageRef, blob, {contentType: 'application/pdf'})
+  // storage.rules only lets the owner (and teachers) read the file, by this uid
+  await uploadBytes(storageRef, blob, {contentType: 'application/pdf', customMetadata: {uid}})
   return getDownloadURL(storageRef)
 }
 
@@ -219,7 +220,7 @@ export default function MedicalPage() {
     try {
       const docRef = doc(collection(db, 'medicalForms'))
       setSubmitStatus(t('statusGenerating'))
-      const pdfUrl = await generateAndUploadPDF(data, data.signature, docRef.id)
+      const pdfUrl = await generateAndUploadPDF(data, data.signature, docRef.id, user!.uid)
       setSubmitStatus(t('statusSaving'))
       await setDoc(docRef, {
         ...data,

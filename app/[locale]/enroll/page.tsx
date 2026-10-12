@@ -38,7 +38,7 @@ function SectionHeader({label}: {label: string}) {
 
 // --- PDF generation ---
 
-async function generateAndUploadPDF(form: FormValues, signature: string, enrollmentId: string): Promise<string> {
+async function generateAndUploadPDF(form: FormValues, signature: string, enrollmentId: string, uid: string): Promise<string> {
   const {default: jsPDF} = await import('jspdf')
   const pdf = new jsPDF()
   const pageW = pdf.internal.pageSize.getWidth()
@@ -103,7 +103,8 @@ async function generateAndUploadPDF(form: FormValues, signature: string, enrollm
 
   const blob = pdf.output('blob')
   const storageRef = ref(storage, `enrollments/${enrollmentId}/form.pdf`)
-  await uploadBytes(storageRef, blob, {contentType: 'application/pdf'})
+  // storage.rules only lets the owner (and teachers) read the file, by this uid
+  await uploadBytes(storageRef, blob, {contentType: 'application/pdf', customMetadata: {uid}})
   return getDownloadURL(storageRef)
 }
 
@@ -216,7 +217,7 @@ export default function EnrollPage() {
     try {
       const enrollRef = doc(collection(db, 'enrollments'))
       setSubmitStatus('Generowanie PDF…')
-      const pdfUrl = await generateAndUploadPDF(data, data.signature, enrollRef.id)
+      const pdfUrl = await generateAndUploadPDF(data, data.signature, enrollRef.id, user!.uid)
       setSubmitStatus('Zapisywanie…')
       await setDoc(enrollRef, {
         ...data,
