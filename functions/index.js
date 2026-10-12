@@ -109,7 +109,7 @@ exports.notifyParentsOfHomework = onDocumentCreated(
     if (hw.description) lines.push('', hw.description)
 
     await Promise.all(emails.map((email) => transporter.sendMail({
-      from: `Strona PSD Niemcewicza <${SCHOOL_EMAIL}>`,
+      from: `PSD Niemcewicza <${SCHOOL_EMAIL}>`,
       to: email,
       subject: `Nowe zadanie domowe — ${gradeName}`,
       text: lines.join('\n'),
@@ -134,7 +134,7 @@ exports.notifyParentsOfClassMessage = onDocumentCreated(
 
     const transporter = gmailTransporter()
     await Promise.all(emails.map((email) => transporter.sendMail({
-      from: `Strona PSD Niemcewicza <${SCHOOL_EMAIL}>`,
+      from: `PSD Niemcewicza <${SCHOOL_EMAIL}>`,
       to: email,
       subject: msg.subject,
       text: msg.message,
@@ -171,7 +171,7 @@ exports.notifyParentsOfAnnouncement = onRequest(
     if (emails.length > 0) {
       const transporter = gmailTransporter()
       await Promise.all(emails.map((email) => transporter.sendMail({
-        from: `Strona PSD Niemcewicza <${SCHOOL_EMAIL}>`,
+        from: `PSD Niemcewicza <${SCHOOL_EMAIL}>`,
         to: email,
         subject: `Nowe ważne ogłoszenie: ${doc.title}`,
         text: `Szkoła opublikowała nowe ważne ogłoszenie: ${doc.title}\n\nSzczegóły: ${SITE_URL}/pl/announcements`,
