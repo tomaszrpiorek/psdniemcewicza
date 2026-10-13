@@ -11,7 +11,7 @@ initializeApp()
 const db = getFirestore()
 
 const SCHOOL_EMAIL = 'psdniemcewicza@gmail.com'
-const SITE_URL = 'https://psdniemcewicza--polska-szkola-7ae70.us-central1.hosted.app'
+const SITE_URL = 'https://psdniemcewicza.org'
 // Gmail rejects messages over 25 MB, and attachments grow by a third when encoded,
 // so this caps the combined size of the files attached to one email.
 const MAX_EMAIL_ATTACHMENT_BYTES = 15 * 1024 * 1024
