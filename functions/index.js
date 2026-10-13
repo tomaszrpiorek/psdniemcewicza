@@ -52,7 +52,12 @@ async function getRegisteredParentEmails(gradeId) {
     }))
     parentIds = checks.filter(Boolean)
   }
+  return getParentEmails(parentIds)
+}
 
+// Email addresses for the given parent ids, plus each one's second
+// parent/guardian when the account holder opted them in.
+async function getParentEmails(parentIds) {
   const emails = await Promise.all(parentIds.map(async (id) => {
     const parentSnap = await db.collection('parents').doc(id).get()
     if (!parentSnap.exists) {
@@ -155,7 +160,11 @@ exports.notifyParentsOfClassMessage = onDocumentCreated(
       gradeName = gradeSnap.exists ? gradeSnap.data().name : 'Twojej klasy'
     }
 
-    const emails = await getRegisteredParentEmails(msg.gradeId)
+    // A message can target hand-picked parents (parentIds) instead of a class.
+    const picked = Array.isArray(msg.parentIds) ? msg.parentIds.filter((id) => typeof id === 'string') : []
+    const emails = picked.length > 0
+      ? await getParentEmails([...new Set(picked)])
+      : await getRegisteredParentEmails(msg.gradeId)
     if (emails.length === 0) return
 
     const transporter = gmailTransporter()

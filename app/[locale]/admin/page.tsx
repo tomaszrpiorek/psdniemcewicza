@@ -8,7 +8,7 @@ import {useForm, Controller} from 'react-hook-form'
 import {z} from 'zod'
 import {
   collection, query, where, onSnapshot, orderBy,
-  addDoc, deleteDoc, deleteField, doc, setDoc, updateDoc, getDocs, serverTimestamp, writeBatch,
+  addDoc, deleteDoc, deleteField, doc, updateDoc, getDocs, serverTimestamp, writeBatch,
 } from 'firebase/firestore'
 import {ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import {db, storage} from '@/lib/firebase'
@@ -16,7 +16,7 @@ import {SCHOOL_GRADES} from '@/lib/grades'
 import {homeworkAttachments, HomeworkAttachment} from '@/lib/homework'
 import {useAuth} from '@/contexts/AuthContext'
 import {zodResolver} from '@/lib/zodResolver'
-import {requiredName, requiredPhone, requiredString, optionalName} from '@/lib/validation'
+import {requiredString} from '@/lib/validation'
 import TextField from '@/components/form/TextField'
 import TextAreaField from '@/components/form/TextAreaField'
 import Select from '@/components/form/Select'
@@ -76,13 +76,14 @@ export default function AdminPage() {
   const [children, setChildren]       = useState<Child[]>([])
   const [parents, setParents]         = useState<Record<string, Parent>>({})
   const [selected, setSelected]       = useState<Set<string>>(new Set())
-  const [showAddChild, setShowAddChild] = useState(false)
   const [seeding, setSeeding]         = useState(false)
   const [tab, setTab]                 = useState<'students' | 'parents' | 'homework'>('students')
   const [homework, setHomework]         = useState<Homework[]>([])
   const [showAddHomework, setShowAddHomework] = useState(false)
   const [editingHomework, setEditingHomework] = useState<Homework | null>(null)
   const [showBroadcast, setShowBroadcast] = useState(false)
+  const [selectedParents, setSelectedParents] = useState<Set<string>>(new Set())
+  const [messageParents, setMessageParents] = useState<Parent[] | null>(null)
   const [enrollments, setEnrollments]   = useState<Enrollment[]>([])
   const [medicalForms, setMedicalForms] = useState<MedicalForm[]>([])
   const [mainTab, setMainTab]           = useState<'classes' | 'enrollments' | 'medical'>('classes')
@@ -195,6 +196,18 @@ export default function AdminPage() {
 
   function toggleAll() {
     setSelected(selected.size === children.length ? new Set() : new Set(children.map(c => c.id)))
+  }
+
+  // Parents ticked in the Rodzice tab, limited to those still in the open class
+  const parentList = Object.values(parents)
+  const chosenParents = parentList.filter(p => selectedParents.has(p.id))
+
+  function toggleParent(id: string) {
+    setSelectedParents(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  }
+
+  function toggleAllParents() {
+    setSelectedParents(chosenParents.length === parentList.length ? new Set() : new Set(parentList.map(p => p.id)))
   }
 
   if (loading || !user || role !== 'teacher') return null
@@ -501,25 +514,18 @@ export default function AdminPage() {
 
                 {tab === 'students' && (
                   <>
-                    <div className="flex items-center justify-between mb-4">
-                      {selected.size > 0 && (
+                    {selected.size > 0 && (
+                      <div className="mb-4">
                         <span className="text-xs bg-gold/10 text-gold border border-gold/30 px-3 py-1.5 rounded font-semibold">
                           {selected.size} zaznaczone
                         </span>
-                      )}
-                      <div className="ml-auto">
-                        <button
-                          onClick={() => setShowAddChild(true)}
-                          className="bg-gold text-navy text-sm font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors"
-                        >
-                          + Dodaj ucznia
-                        </button>
                       </div>
-                    </div>
+                    )}
 
                     {children.length === 0 ? (
                       <div className="bg-white rounded-lg border border-gray-100 p-10 text-center text-gray-400 text-sm">
-                        Brak uczniów w tej klasie.
+                        Brak uczniów w tej klasie.<br />
+                        Uczniów dodają rodzice w zakładce „Moje konto”.
                       </div>
                     ) : (
                       <div className="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
@@ -585,9 +591,11 @@ export default function AdminPage() {
                                     )}
                                   </td>
                                   <td className="px-4 py-3 text-right">
-                                    <button onClick={() => handleDeleteChild(child.id)} className="text-xs text-red-400 hover:text-red-600 transition-colors">
-                                      Usuń
-                                    </button>
+                                    {superAdmin && (
+                                      <button onClick={() => handleDeleteChild(child.id)} className="text-xs text-red-400 hover:text-red-600 transition-colors">
+                                        Usuń
+                                      </button>
+                                    )}
                                   </td>
                                 </tr>
                               )
@@ -599,14 +607,32 @@ export default function AdminPage() {
                   </>
                 )}
 
+                {tab === 'parents' && chosenParents.length > 0 && (
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs bg-gold/10 text-gold border border-gold/30 px-3 py-1.5 rounded font-semibold">
+                      {chosenParents.length} zaznaczone
+                    </span>
+                    <button
+                      onClick={() => setMessageParents(chosenParents)}
+                      className="bg-gold text-navy text-sm font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors"
+                    >
+                      Wyślij wiadomość do zaznaczonych
+                    </button>
+                  </div>
+                )}
+
                 {tab === 'parents' && (
                   <div className="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
-                    {Object.keys(parents).length === 0 ? (
+                    {parentList.length === 0 ? (
                       <p className="text-center text-gray-400 text-sm p-10">Brak rodziców powiązanych z tą klasą.</p>
                     ) : (
                       <table className="w-full text-sm">
                         <thead className="bg-gray-50 border-b border-gray-100">
                           <tr>
+                            <th className="px-4 py-3 w-10">
+                              <input type="checkbox" aria-label="Zaznacz wszystkich rodziców"
+                                checked={chosenParents.length === parentList.length} onChange={toggleAllParents} className="accent-navy" />
+                            </th>
                             <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Rodzic</th>
                             <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Telefon</th>
                             <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
@@ -614,10 +640,14 @@ export default function AdminPage() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                          {Object.values(parents).map(p => {
+                          {parentList.map(p => {
                             const g = p.secondGuardian
                             return (
-                              <tr key={p.id} className="hover:bg-gray-50 align-top">
+                              <tr key={p.id} className={`align-top ${selectedParents.has(p.id) ? 'bg-gold/5' : 'hover:bg-gray-50'}`}>
+                                <td className="px-4 py-3">
+                                  <input type="checkbox" aria-label={`Zaznacz: ${p.firstName} ${p.lastName}`}
+                                    checked={selectedParents.has(p.id)} onChange={() => toggleParent(p.id)} className="accent-navy" />
+                                </td>
                                 <td className="px-4 py-3 font-medium text-navy">
                                   {p.firstName} {p.lastName}
                                   {g && (
@@ -744,14 +774,16 @@ export default function AdminPage() {
           onClose={() => setShowBroadcast(false)}
         />
       )}
-
-      {showAddChild && activeGrade && (
-        <AddChildModal
-          gradeId={activeGrade.id}
-          gradeName={activeGrade.name}
-          onClose={() => setShowAddChild(false)}
+      {messageParents && activeGrade && (
+        <BroadcastModal
+          grades={grades}
+          teacherUid={user.uid}
+          defaultGradeId={activeGrade.id}
+          recipients={messageParents}
+          onClose={() => { setMessageParents(null); setSelectedParents(new Set()) }}
         />
       )}
+
     </div>
   )
 }
@@ -762,98 +794,6 @@ function InfoRow({label, val}: {label: string; val?: string | null}) {
     <div className="flex gap-2">
       <span className="text-gray-400 shrink-0">{label}:</span>
       <span className="text-navy font-medium">{val}</span>
-    </div>
-  )
-}
-
-const addChildSchema = z.object({
-  childFirst: requiredName('Wypełnij wymagane pola.', 'Podaj prawidłowe imię lub nazwisko (tylko litery).'),
-  childLast: requiredName('Wypełnij wymagane pola.', 'Podaj prawidłowe imię lub nazwisko (tylko litery).'),
-  parentFirst: requiredName('Wypełnij wymagane pola.', 'Podaj prawidłowe imię lub nazwisko (tylko litery).'),
-  parentLast: optionalName('Podaj prawidłowe imię lub nazwisko (tylko litery).'),
-  phone: requiredPhone('Wypełnij wymagane pola.', 'Podaj prawidłowy numer telefonu.'),
-  email: z.string().trim().optional().default('').refine(
-    (v) => !v || z.email().safeParse(v).success,
-    'Podaj prawidłowy adres email.'
-  ),
-})
-type AddChildValues = z.infer<typeof addChildSchema>
-
-function AddChildModal({gradeId, gradeName, onClose}: {gradeId: string; gradeName: string; onClose: () => void}) {
-  const {
-    register, handleSubmit, setError,
-    formState: {errors, isSubmitting},
-  } = useForm<AddChildValues>({
-    resolver: zodResolver(addChildSchema),
-    defaultValues: {childFirst: '', childLast: '', parentFirst: '', parentLast: '', phone: '', email: ''},
-  })
-
-  async function onSubmit(data: AddChildValues) {
-    try {
-      const parentRef = doc(collection(db, 'parents'))
-      await setDoc(parentRef, {
-        firstName: data.parentFirst,
-        lastName:  data.parentLast,
-        phone:     data.phone,
-        email:     data.email,
-        uid:       null,
-        createdAt: serverTimestamp(),
-      })
-      await addDoc(collection(db, 'children'), {
-        firstName: data.childFirst,
-        lastName:  data.childLast,
-        gradeId,
-        parentId:  parentRef.id,
-        createdAt: serverTimestamp(),
-      })
-      onClose()
-    } catch {
-      setError('root', {message: 'Błąd zapisu. Spróbuj ponownie.'})
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="font-bold text-navy">Dodaj ucznia — {gradeName}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
-        </div>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
-          <div>
-            <p className="text-xs font-bold text-gold uppercase tracking-wider mb-2">Uczeń</p>
-            <div className="grid grid-cols-2 gap-3">
-              <TextField label="Imię *" placeholder="Maria" error={errors.childFirst?.message} {...register('childFirst')} />
-              <TextField label="Nazwisko *" placeholder="Kowalska" error={errors.childLast?.message} {...register('childLast')} />
-            </div>
-          </div>
-
-          <div>
-            <p className="text-xs font-bold text-gold uppercase tracking-wider mb-2">Rodzic / Opiekun</p>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <TextField label="Imię *" placeholder="Jan" error={errors.parentFirst?.message} {...register('parentFirst')} />
-              <TextField label="Nazwisko" placeholder="Kowalski" error={errors.parentLast?.message} {...register('parentLast')} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <TextField type="tel" label="Telefon *" placeholder="+1 (732) 000-0000" error={errors.phone?.message} {...register('phone')} />
-              <TextField type="email" label="Email" placeholder="jan@email.com" error={errors.email?.message} {...register('email')} />
-            </div>
-          </div>
-
-          <FormError message={errors.root?.message} />
-
-          <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose}
-              className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
-              Anuluj
-            </button>
-            <button type="submit" disabled={isSubmitting}
-              className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
-              {isSubmitting ? 'Zapisywanie…' : 'Zapisz'}
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   )
 }
@@ -974,8 +914,10 @@ const broadcastSchema = z.object({
 })
 type BroadcastValues = z.infer<typeof broadcastSchema>
 
-function BroadcastModal({grades, teacherUid, defaultGradeId, onClose}: {
-  grades: Grade[]; teacherUid: string; defaultGradeId?: string; onClose: () => void
+// Sends to a whole class or the whole school, or, when `recipients` is given,
+// only to those parents.
+function BroadcastModal({grades, teacherUid, defaultGradeId, recipients, onClose}: {
+  grades: Grade[]; teacherUid: string; defaultGradeId?: string; recipients?: Parent[]; onClose: () => void
 }) {
   const [sent, setSent] = useState(false)
 
@@ -991,6 +933,7 @@ function BroadcastModal({grades, teacherUid, defaultGradeId, onClose}: {
     try {
       await addDoc(collection(db, 'classMessages'), {
         gradeId: data.gradeId,
+        ...(recipients ? {parentIds: recipients.map(p => p.id)} : {}),
         subject: data.subject,
         message: data.message,
         teacherUid,
@@ -1020,19 +963,28 @@ function BroadcastModal({grades, teacherUid, defaultGradeId, onClose}: {
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
-            <Controller
-              control={control}
-              name="gradeId"
-              render={({field}) => (
-                <Select
-                  label="Odbiorcy *"
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  options={gradeOptions}
-                />
-              )}
-            />
+            {recipients ? (
+              <div>
+                <p className="block text-xs text-gray-500 mb-1">Odbiorcy ({recipients.length})</p>
+                <p className="text-sm text-navy bg-gray-50 rounded px-3 py-2">
+                  {recipients.map(p => `${p.firstName} ${p.lastName}`.trim()).join(', ')}
+                </p>
+              </div>
+            ) : (
+              <Controller
+                control={control}
+                name="gradeId"
+                render={({field}) => (
+                  <Select
+                    label="Odbiorcy *"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    options={gradeOptions}
+                  />
+                )}
+              />
+            )}
             <TextField label="Temat *" placeholder="np. Zajęcia odwołane dziś wieczorem" error={errors.subject?.message} {...register('subject')} />
             <TextAreaField label="Wiadomość *" rows={5} placeholder="Treść wiadomości…" error={errors.message?.message} {...register('message')} />
 
