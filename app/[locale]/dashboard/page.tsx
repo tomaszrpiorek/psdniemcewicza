@@ -152,39 +152,39 @@ export default function DashboardPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-navy">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-navy break-words">
             {profile ? profile.firstName + ' ' + profile.lastName : user.email}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">{user.email}</p>
+          <p className="text-sm text-gray-400 mt-0.5 break-all">{user.email}</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowPassword(true)}
-            className="text-sm border border-gray-200 text-gray-500 px-4 py-1.5 rounded hover:border-gold hover:text-navy transition-colors">
+            className="text-sm border border-gray-200 text-gray-500 px-4 py-2 sm:py-1.5 rounded hover:border-gold hover:text-navy transition-colors">
             {t('passwordChange')}
           </button>
           <button onClick={handleSignOut}
-            className="text-sm border border-gray-200 text-gray-500 px-4 py-1.5 rounded hover:border-red-300 hover:text-red-500 transition-colors">
+            className="text-sm border border-gray-200 text-gray-500 px-4 py-2 sm:py-1.5 rounded hover:border-red-300 hover:text-red-500 transition-colors">
             {t('signOut')}
           </button>
         </div>
       </div>
 
       {profile && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 mb-8">
           <h2 className="text-sm font-bold text-navy uppercase tracking-wider mb-4">{t('profileTitle')}</h2>
           <div className="grid sm:grid-cols-2 gap-3 text-sm">
             <div><span className="text-gray-400">{t('profileName')}</span><p className="font-medium text-navy">{profile.firstName} {profile.lastName}</p></div>
             <div><span className="text-gray-400">{t('profilePhone')}</span><p className="font-medium text-navy">{profile.phone || '—'}</p></div>
-            <div><span className="text-gray-400">{t('profileEmail')}</span><p className="font-medium text-navy">{profile.email}</p></div>
+            <div><span className="text-gray-400">{t('profileEmail')}</span><p className="font-medium text-navy break-all">{profile.email}</p></div>
             <div><span className="text-gray-400">{t('profileAddress')}</span><p className="font-medium text-navy">{profile.address || '—'}</p></div>
           </div>
         </div>
       )}
 
       {profileLoaded && !profile && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 mb-8">
           <h2 className="text-sm font-bold text-navy uppercase tracking-wider mb-4">{t('profileTitle')}</h2>
           <div className="border border-dashed border-gray-200 rounded-lg p-5 text-center">
             <p className="text-sm text-gray-500 mb-3">{t('profileEmpty')}</p>
@@ -197,15 +197,15 @@ export default function DashboardPage() {
       )}
 
       {profile && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 mb-4">
             <h2 className="text-sm font-bold text-navy uppercase tracking-wider">{t('guardianTitle')}</h2>
             {profile.secondGuardian && (
-              <div className="flex gap-3">
-                <button onClick={() => setShowGuardian(true)} className="text-sm text-gold font-semibold hover:underline">
+              <div className="flex gap-1">
+                <button onClick={() => setShowGuardian(true)} className="text-sm text-gold font-semibold hover:underline px-2 py-2">
                   {t('editBtn')}
                 </button>
-                <button onClick={handleRemoveGuardian} className="text-sm text-red-400 hover:text-red-600 transition-colors">
+                <button onClick={handleRemoveGuardian} className="text-sm text-red-400 hover:text-red-600 transition-colors px-2 py-2">
                   {t('guardianRemove')}
                 </button>
               </div>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div><span className="text-gray-400">{t('profilePhone')}</span><p className="font-medium text-navy">{profile.secondGuardian.phone || '—'}</p></div>
-              <div><span className="text-gray-400">{t('profileEmail')}</span><p className="font-medium text-navy">{profile.secondGuardian.email || '—'}</p></div>
+              <div><span className="text-gray-400">{t('profileEmail')}</span><p className="font-medium text-navy break-all">{profile.secondGuardian.email || '—'}</p></div>
               <div>
                 <span className="text-gray-400">{t('guardianNotifyLabel')}</span>
                 <p className={`font-medium ${profile.secondGuardian.notify && profile.secondGuardian.email ? 'text-green-700' : 'text-gray-400'}`}>
@@ -242,7 +242,7 @@ export default function DashboardPage() {
       )}
 
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">
             {t('childrenTitle')}
             <span className="ml-2 text-sm font-normal text-gray-400">({children.length})</span>
@@ -263,18 +263,18 @@ export default function DashboardPage() {
               const enroll  = childEnrollment(child.id)
               const medical = childMedical(child.id)
               return (
-                <div key={child.id} className="bg-white rounded-xl border border-gray-100 shadow-sm px-6 py-4">
+                <div key={child.id} className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 sm:px-6 py-4">
                   {/* Child header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="font-bold text-navy text-lg">{child.firstName} {child.lastName}</p>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="min-w-0">
+                      <p className="font-bold text-navy text-lg break-words">{child.firstName} {child.lastName}</p>
                       <p className="text-sm text-gray-500">{gradeName(child.gradeId)}</p>
                     </div>
-                    <div className="flex gap-3">
-                      <button onClick={() => setEditingChild(child)} className="text-sm text-gold font-semibold hover:underline">
+                    <div className="flex gap-1 shrink-0">
+                      <button onClick={() => setEditingChild(child)} className="text-sm text-gold font-semibold hover:underline px-2 py-2">
                         {t('editBtn')}
                       </button>
-                      <button onClick={() => handleDelete(child.id, child.firstName)} className="text-sm text-red-400 hover:text-red-600 transition-colors">
+                      <button onClick={() => handleDelete(child.id, child.firstName)} className="text-sm text-red-400 hover:text-red-600 transition-colors px-2 py-2">
                         {t('deleteBtn')}
                       </button>
                     </div>
@@ -377,13 +377,13 @@ function FormStatus({label, status, pdfUrl, submitHref, t, type}: {
       </div>
       {!status ? (
         (type !== 'enroll' || ENROLLMENT_OPEN) && (
-          <Link href={submitHref} className="ml-2 text-navy font-bold hover:text-gold transition-colors shrink-0">
+          <Link href={submitHref} className="ml-2 py-2 text-navy font-bold hover:text-gold transition-colors shrink-0">
             {t('submitNow')}
           </Link>
         )
       ) : pdfUrl ? (
         <a href={pdfUrl} target="_blank" rel="noopener noreferrer"
-          className={`ml-2 font-bold hover:underline shrink-0 ${style.text}`}>
+          className={`ml-2 py-2 font-bold hover:underline shrink-0 ${style.text}`}>
           PDF →
         </a>
       ) : null}
@@ -434,10 +434,10 @@ function PasswordModal({user, t, onClose}: {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm max-h-[90dvh] overflow-y-auto">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-bold text-navy">{t('passwordChange')}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none w-10 h-10 -mr-2 flex items-center justify-center">&times;</button>
         </div>
         {done ? (
           <div className="px-6 py-5 space-y-4">
@@ -457,11 +457,11 @@ function PasswordModal({user, t, onClose}: {
 
             <div className="flex gap-3 pt-1">
               <button type="button" onClick={onClose}
-                className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
+                className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded text-sm hover:bg-gray-50 transition-colors">
                 {t('cancelBtn')}
               </button>
               <button type="submit" disabled={isSubmitting}
-                className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
+                className="flex-1 bg-navy text-white font-bold py-2.5 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
                 {isSubmitting ? t('savingBtn') : t('saveBtn')}
               </button>
             </div>
@@ -506,10 +506,10 @@ function ProfileModal({t, onSave, onClose}: {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90dvh] overflow-y-auto">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-bold text-navy">{t('profileModalTitle')}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none w-10 h-10 -mr-2 flex items-center justify-center">&times;</button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -523,11 +523,11 @@ function ProfileModal({t, onSave, onClose}: {
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
-              className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
+              className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded text-sm hover:bg-gray-50 transition-colors">
               {t('cancelBtn')}
             </button>
             <button type="submit" disabled={isSubmitting}
-              className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
+              className="flex-1 bg-navy text-white font-bold py-2.5 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
               {isSubmitting ? t('savingBtn') : t('saveBtn')}
             </button>
           </div>
@@ -581,10 +581,10 @@ function GuardianModal({existing, t, onSave, onClose}: {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90dvh] overflow-y-auto">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-bold text-navy">{existing ? t('guardianModalEdit') : t('guardianModalAdd')}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none w-10 h-10 -mr-2 flex items-center justify-center">&times;</button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -613,11 +613,11 @@ function GuardianModal({existing, t, onSave, onClose}: {
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
-              className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
+              className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded text-sm hover:bg-gray-50 transition-colors">
               {t('cancelBtn')}
             </button>
             <button type="submit" disabled={isSubmitting}
-              className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
+              className="flex-1 bg-navy text-white font-bold py-2.5 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
               {isSubmitting ? t('savingBtn') : existing ? t('saveBtn') : t('addBtn')}
             </button>
           </div>
@@ -676,10 +676,10 @@ function ChildModal({parentId, grades, existing, t, onClose}: {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm max-h-[90dvh] overflow-y-auto">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-bold text-navy">{isEdit ? t('modalEditTitle') : t('modalAddTitle')}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none w-10 h-10 -mr-2 flex items-center justify-center">&times;</button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-6 py-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -717,11 +717,11 @@ function ChildModal({parentId, grades, existing, t, onClose}: {
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
-              className="flex-1 border border-gray-200 text-gray-600 py-2 rounded text-sm hover:bg-gray-50 transition-colors">
+              className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded text-sm hover:bg-gray-50 transition-colors">
               {t('cancelBtn')}
             </button>
             <button type="submit" disabled={isSubmitting}
-              className="flex-1 bg-navy text-white font-bold py-2 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
+              className="flex-1 bg-navy text-white font-bold py-2.5 rounded text-sm hover:bg-navy-dark transition-colors disabled:opacity-60">
               {isSubmitting ? t('savingBtn') : isEdit ? t('saveBtn') : t('addBtn')}
             </button>
           </div>

@@ -19,7 +19,7 @@ export default async function ContactPage({params}: {params: Promise<{locale: st
           <h1 className="text-3xl font-bold">{t('title')}</h1>
         </div>
       </div>
-      <div className="max-w-4xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-12">
+      <div className="max-w-4xl mx-auto px-4 py-10 sm:py-12 grid md:grid-cols-2 gap-8 md:gap-12">
         <div className="space-y-8">
           <div>
             <h2 className="text-xl font-bold text-navy border-b-2 border-gold pb-1 mb-5 inline-block">{t('infoTitle')}</h2>
@@ -35,10 +35,10 @@ export default async function ContactPage({params}: {params: Promise<{locale: st
                   <span className="flex-none w-10 h-10 rounded-full bg-cream text-gold flex items-center justify-center">
                     <Icon className="w-5 h-5" />
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs font-bold text-gold uppercase tracking-wider">{item.label}</p>
                     {item.href ? (
-                      <a href={item.href} className="text-navy hover:text-gold transition-colors">{item.value}</a>
+                      <a href={item.href} className="inline-block py-1 text-navy break-all hover:text-gold transition-colors">{item.value}</a>
                     ) : (
                       <p className="text-navy">{item.value}</p>
                     )}
@@ -52,7 +52,7 @@ export default async function ContactPage({params}: {params: Promise<{locale: st
             <p className="text-sm text-gray-300 leading-relaxed">{t('enrollDesc')}</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-xl p-5 sm:p-8 shadow-sm border border-gray-100">
           <h2 className="text-xl font-bold text-navy mb-6">{t('formTitle')}</h2>
           <ContactForm />
         </div>

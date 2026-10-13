@@ -58,7 +58,7 @@ export default function LoginPage() {
           <p className="text-gray-500 text-sm mt-1">{t('subtitle')}</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-8 space-y-5">
           <TextField
             type="email" label={t('emailLabel')} placeholder={t('emailPlaceholder')}
             error={errors.email?.message} {...register('email')}

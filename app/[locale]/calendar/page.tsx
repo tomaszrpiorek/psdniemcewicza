@@ -109,7 +109,7 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
                     <p className="text-3xl font-bold leading-none">{d.getDate()}</p>
                     <p className="text-gray-400 text-xs">{d.getFullYear()}</p>
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 min-w-0">
                     <h3 className="font-bold text-navy">{e.title}</h3>
                     {e.location && <p className="text-xs text-gray-500 mt-1">📍 {e.location}</p>}
                   </div>

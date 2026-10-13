@@ -21,10 +21,10 @@ export default function RadioPills<T extends FieldValues>({
         {label}
         {required && <span className="text-gold ml-1">*</span>}
       </p>
-      <div className="flex gap-4">
+      <div className="flex gap-6 sm:gap-4">
         {[{val: 'yes', text: yesLabel}, {val: 'no', text: noLabel}].map(({val, text}) => (
-          <label key={val} className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" value={val} className="accent-navy" {...register(name)} />
+          <label key={val} className="flex items-center gap-2 cursor-pointer py-1.5 sm:py-0">
+            <input type="radio" value={val} className="accent-navy w-5 h-5 sm:w-4 sm:h-4" {...register(name)} />
             <span className="text-sm text-navy">{text}</span>
           </label>
         ))}

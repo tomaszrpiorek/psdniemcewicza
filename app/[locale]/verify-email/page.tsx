@@ -49,7 +49,7 @@ export default function VerifyEmailPage() {
     <main className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md text-center">
         <Image src="/logo.png" alt="Logo" width={72} height={72} className="mx-auto mb-6 object-contain" />
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-8">
           <div className="text-5xl mb-4">✉️</div>
           <h1 className="text-2xl font-bold text-navy mb-2">Sprawdź swoją skrzynkę</h1>
           <p className="text-gray-500 text-sm mb-1">

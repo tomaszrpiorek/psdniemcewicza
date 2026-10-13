@@ -11,7 +11,7 @@ const Checkbox = forwardRef<HTMLInputElement, Props>(function Checkbox({label, e
   return (
     <div>
       <label className="flex items-start gap-3 cursor-pointer">
-        <input ref={ref} type="checkbox" className={`accent-navy mt-0.5 shrink-0 ${className ?? ''}`} {...rest} />
+        <input ref={ref} type="checkbox" className={`accent-navy w-5 h-5 sm:w-4 sm:h-4 sm:mt-0.5 shrink-0 ${className ?? ''}`} {...rest} />
         <span className="text-sm text-gray-600">{label}</span>
       </label>
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}

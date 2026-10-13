@@ -84,7 +84,7 @@ export default function HomeworkPage() {
             <Link
               key={g.slug}
               href={'/' + locale + '/homework/' + g.slug}
-              className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${
+              className={`px-3 py-2 rounded text-sm font-medium border transition-colors ${
                 g.level === levelNum ? 'bg-navy text-white border-navy' : 'border-gray-200 text-navy hover:border-gold hover:text-gold bg-white'
               }`}
             >
@@ -101,12 +101,12 @@ export default function HomeworkPage() {
         ) : (
           <div className="space-y-4">
             {homework.map((hw, i) => (
-              <div key={hw.id} className={`bg-white rounded-lg shadow-sm p-5 ${
+              <div key={hw.id} className={`bg-white rounded-lg shadow-sm p-4 sm:p-5 ${
                 i === 0 ? 'border-2 border-gold' : 'border border-gray-100'
               }`}>
                 <div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       {hw.weekOf && (
                         <p className="text-xs font-bold text-gold uppercase tracking-wider">
                           {t('dueDate')}: {new Date(hw.weekOf).toLocaleDateString(dateLocale, {day: 'numeric', month: 'long', year: 'numeric'})}
@@ -122,13 +122,13 @@ export default function HomeworkPage() {
                   </div>
                 </div>
                 {hw.description && (
-                  <p className="text-sm text-gray-600 mt-3 whitespace-pre-line">{hw.description}</p>
+                  <p className="text-sm text-gray-600 mt-3 whitespace-pre-line break-words">{hw.description}</p>
                 )}
                 {homeworkAttachments(hw).length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-4">
                     {homeworkAttachments(hw).map((a) => (
                       <a key={a.url} href={a.url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 bg-navy text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-navy-dark transition-colors max-w-full">
+                        className="inline-flex items-center gap-1.5 bg-navy text-white text-xs font-bold px-3 py-2.5 rounded hover:bg-navy-dark transition-colors max-w-full">
                         <IconPaperclip className="w-4 h-4 shrink-0" />
                         <span className="truncate">{a.name || t('attachment')}</span>
                       </a>

@@ -60,12 +60,12 @@ export default function MonthCalendar({
   const selectedEvents = selected ? eventsByDate.get(selected) : undefined
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-5">
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => { setCursor(new Date(year, month - 1, 1)); setSelected(null) }}
           aria-label={labels.prevMonth}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-cream text-navy text-lg"
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-cream text-navy text-xl"
         >
           ‹
         </button>
@@ -73,7 +73,7 @@ export default function MonthCalendar({
         <button
           onClick={() => { setCursor(new Date(year, month + 1, 1)); setSelected(null) }}
           aria-label={labels.nextMonth}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-cream text-navy text-lg"
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-cream text-navy text-xl"
         >
           ›
         </button>
@@ -99,7 +99,7 @@ export default function MonthCalendar({
             <button
               key={i}
               onClick={() => setSelected(isSelected ? null : key)}
-              className={`min-h-[4.5rem] sm:min-h-[5.5rem] p-1 flex flex-col items-start gap-0.5 rounded-lg text-left overflow-hidden transition-colors
+              className={`min-h-[3.25rem] sm:min-h-[5.5rem] p-1 flex flex-col items-center sm:items-start gap-1 sm:gap-0.5 rounded-lg text-left overflow-hidden transition-colors
                 ${isSelected ? 'bg-navy text-white' : isToday ? 'ring-2 ring-gold' : 'hover:bg-cream'}`}
             >
               <span className={`text-sm shrink-0 ${dayEvents ? 'font-bold' : ''} ${isSelected ? 'text-white' : 'text-navy'}`}>
@@ -108,14 +108,17 @@ export default function MonthCalendar({
               {dayEvents && dayEvents.map((title, ti) => (
                 <span
                   key={ti}
-                  className={`w-full text-left text-[10px] leading-tight px-1 py-0.5 rounded line-clamp-2
+                  className={`hidden sm:block w-full text-left text-[10px] leading-tight px-1 py-0.5 rounded line-clamp-2
                     ${isSelected ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-700'}`}
                 >
                   {title}
                 </span>
               ))}
+              {/* Phones: cells are too narrow for text, so show dots and let a tap list the details below */}
+              {dayEvents && <span className={`sm:hidden w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-blue-500'}`} />}
+              {isNoClass && <span className={`sm:hidden w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-red-500'}`} />}
               {isNoClass && (
-                <span className={`w-full text-left text-[10px] leading-tight px-1 py-0.5 rounded ${isSelected ? 'bg-white/20 text-white' : 'bg-red-50 text-red-600'}`}>
+                <span className={`hidden sm:block w-full text-left text-[10px] leading-tight px-1 py-0.5 rounded ${isSelected ? 'bg-white/20 text-white' : 'bg-red-50 text-red-600'}`}>
                   {labels.legendNoClass}
                 </span>
               )}
@@ -129,13 +132,16 @@ export default function MonthCalendar({
 
       {selected && (
         <div className="mt-4 pt-4 border-t border-gray-100 text-sm">
+          {selected && noClassSet.has(selected) && (
+            <p className="text-red-600 font-semibold mb-1">{labels.legendNoClass}</p>
+          )}
           {selectedEvents ? (
             <ul className="space-y-1">
               {selectedEvents.map((title, i) => (
                 <li key={i} className="text-navy font-semibold">• {title}</li>
               ))}
             </ul>
-          ) : (
+          ) : !noClassSet.has(selected) && (
             <p className="text-gray-400">{labels.noEventsForDay}</p>
           )}
         </div>

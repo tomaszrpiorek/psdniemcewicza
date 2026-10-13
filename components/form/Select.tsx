@@ -124,7 +124,7 @@ export default function Select({
                 aria-selected={opt.value === value}
                 onMouseEnter={() => setActiveIndex(i)}
                 onMouseDown={(e) => { e.preventDefault(); commit(i) }}
-                className={`px-3 py-2 text-sm cursor-pointer flex items-center justify-between ${
+                className={`px-3 py-3 sm:py-2 text-sm cursor-pointer flex items-center justify-between ${
                   i === activeIndex ? 'bg-cream' : ''
                 } ${opt.value === value ? 'font-semibold text-navy' : 'text-gray-600'}`}
               >

@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
           <p className="text-gray-500 text-sm mt-1">{t('subtitle')}</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-8">
           {sent ? (
             <div className="text-center">
               <IconCheckCircle className="w-12 h-12 mx-auto mb-3 text-green-600" />

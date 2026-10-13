@@ -114,13 +114,17 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
           {[
             {Icon: IconCalendar, label: t('schedule'), value: t('scheduleVal')},
             {Icon: IconMapPin, label: t('address'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
-            {Icon: IconMail, label: t('email'), value: 'psdniemcewicza@gmail.com'},
-            {Icon: IconPhone, label: t('phone'), value: '(732) 266-4310'},
-          ].map(({Icon, ...item}) => (
-            <div key={item.label}>
+            {Icon: IconMail, label: t('email'), value: 'psdniemcewicza@gmail.com', href: 'mailto:psdniemcewicza@gmail.com'},
+            {Icon: IconPhone, label: t('phone'), value: '(732) 266-4310', href: 'tel:+17322664310'},
+          ].map(({Icon, ...item}: {Icon: typeof IconMail; label: string; value: string; href?: string}) => (
+            <div key={item.label} className="min-w-0">
               <Icon className="w-6 h-6 mx-auto text-gold-tint" />
               <p className="text-gold-tint text-xs font-bold uppercase tracking-wider mt-1">{item.label}</p>
-              <p className="text-gray-300 text-xs mt-0.5">{item.value}</p>
+              {item.href ? (
+                <a href={item.href} className="block text-gray-300 text-xs mt-0.5 break-all hover:text-white transition-colors">{item.value}</a>
+              ) : (
+                <p className="text-gray-300 text-xs mt-0.5">{item.value}</p>
+              )}
             </div>
           ))}
         </div>
@@ -143,7 +147,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
                 <span className="italic">{t('missionAccent')}</span> {t('missionRest')}
               </h2>
               <p className="text-gray-600 leading-relaxed mb-6 max-w-md">{t('missionBody')}</p>
-              <Link href={'/' + locale + '/about'} className="text-sm font-bold text-navy hover:text-gold transition-colors">
+              <Link href={'/' + locale + '/about'} className="inline-block py-2 text-sm font-bold text-navy hover:text-gold transition-colors">
                 {t('missionCta')}
               </Link>
             </div>
@@ -184,20 +188,20 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-12 grid lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-8 min-w-0">
           <div>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('announcementsTitle')}</h2>
-              <Link href={'/' + locale + '/announcements'} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
+              <Link href={'/' + locale + '/announcements'} className="text-xs text-gold font-semibold hover:underline py-2 pl-3 shrink-0">{t('viewAll')}</Link>
             </div>
             {announcements.length === 0 ? (
               <p className="text-gray-400 text-sm">{t('noAnnouncements')}</p>
             ) : (
               <div className="space-y-4">
                 {announcements.map((a) => (
-                  <article key={a._id} className={'bg-white border-l-4 ' + (a.pinned ? 'border-gold' : 'border-navy-light') + ' rounded-r-lg shadow-sm p-5'}>
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div className="flex items-center gap-2">
+                  <article key={a._id} className={'bg-white border-l-4 ' + (a.pinned ? 'border-gold' : 'border-navy-light') + ' rounded-r-lg shadow-sm p-4 sm:p-5'}>
+                    <div className="flex flex-col-reverse sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3 mb-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         {a.pinned && <span className="text-xs bg-gold text-navy font-bold px-2 py-0.5 rounded">{t('pinned')}</span>}
                         <h3 className="font-bold text-navy text-base">{a.title}</h3>
                       </div>
@@ -205,7 +209,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
                         {new Date(a.publishedAt).toLocaleDateString(dateLocale, {day: 'numeric', month: 'long', year: 'numeric'})}
                       </time>
                     </div>
-                    {a.body && <div className="prose prose-sm max-w-none text-gray-700"><PortableText value={a.body} /></div>}
+                    {a.body && <div className="prose prose-sm max-w-none text-gray-700 break-words"><PortableText value={a.body} /></div>}
                   </article>
                 ))}
               </div>
@@ -216,7 +220,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
             <div>
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('galleryTitle')}</h2>
-                <Link href={'/' + locale + '/gallery'} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
+                <Link href={'/' + locale + '/gallery'} className="text-xs text-gold font-semibold hover:underline py-2 pl-3 shrink-0">{t('viewAll')}</Link>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {gallery.map((album) => {
@@ -237,11 +241,11 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
           )}
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-8 min-w-0">
           <div>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{t('calendarTitle')}</h2>
-              <Link href={'/' + locale + '/calendar'} className="text-xs text-gold font-semibold hover:underline">{t('viewAll')}</Link>
+              <Link href={'/' + locale + '/calendar'} className="text-xs text-gold font-semibold hover:underline py-2 pl-3 shrink-0">{t('viewAll')}</Link>
             </div>
             {upcomingEvents.length === 0 ? (
               <p className="text-gray-400 text-sm">{t('noEvents')}</p>
@@ -255,7 +259,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
                         <p className="text-gold text-[10px] font-bold uppercase">{d.toLocaleDateString(dateLocale, {month: 'short'})}</p>
                         <p className="text-xl font-bold leading-none">{d.getDate()}</p>
                       </div>
-                      <div className="p-3">
+                      <div className="p-3 min-w-0">
                         <h3 className="font-bold text-navy text-sm leading-snug">{e.title}</h3>
                         {e.location && <p className="text-xs text-gray-500 mt-0.5">📍 {e.location}</p>}
                       </div>

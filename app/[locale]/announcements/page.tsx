@@ -35,9 +35,9 @@ export default async function AnnouncementsPage({params}: {params: Promise<{loca
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-4">
         {announcements.length === 0 && <p className="text-gray-400 text-sm">{t('empty')}</p>}
         {announcements.map((a) => (
-          <article key={a._id} className={`bg-white border-l-4 ${a.pinned ? 'border-gold' : 'border-navy-light'} rounded-r-lg shadow-sm p-6`}>
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div className="flex items-center gap-2">
+          <article key={a._id} className={`bg-white border-l-4 ${a.pinned ? 'border-gold' : 'border-navy-light'} rounded-r-lg shadow-sm p-4 sm:p-6`}>
+            <div className="flex flex-col-reverse sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-4 mb-3">
+              <div className="flex flex-wrap items-center gap-2">
                 {a.pinned && <span className="text-xs bg-gold text-navy font-bold px-2 py-0.5 rounded">{t('pinned')}</span>}
                 <h2 className="text-lg font-bold text-navy">{a.title}</h2>
               </div>
@@ -45,13 +45,13 @@ export default async function AnnouncementsPage({params}: {params: Promise<{loca
                 {new Date(a.publishedAt).toLocaleDateString(dateLocale, {day: 'numeric', month: 'long', year: 'numeric'})}
               </time>
             </div>
-            {a.body && <div className="prose prose-sm max-w-none text-gray-700"><PortableText value={a.body} /></div>}
+            {a.body && <div className="prose prose-sm max-w-none text-gray-700 break-words"><PortableText value={a.body} /></div>}
             {a.attachmentUrl && (
               <a
                 href={a.attachmentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center gap-2 text-xs bg-gold text-navy font-bold px-3 py-2 rounded hover:bg-gold-light transition-colors"
+                className="mt-4 inline-flex items-center gap-2 text-xs bg-gold text-navy font-bold px-3 py-2.5 rounded hover:bg-gold-light transition-colors max-w-full break-all"
               >
                 📄 {t('viewAttachment')} {a.attachmentName ? `(${a.attachmentName})` : ''}
               </a>

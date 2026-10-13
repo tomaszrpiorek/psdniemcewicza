@@ -1,7 +1,7 @@
 'use client'
 
 import {useState, useEffect} from 'react'
-import {IconCheckCircle, IconPaperclip} from '@/components/icons'
+import {IconCheckCircle, IconMail, IconPaperclip, IconPhone} from '@/components/icons'
 import {useRouter} from 'next/navigation'
 import {useLocale} from 'next-intl'
 import {useForm, Controller} from 'react-hook-form'
@@ -232,9 +232,9 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-180px)]">
-      {/* Sidebar */}
-      <aside className="w-52 bg-navy-dark shrink-0 py-6 px-3 space-y-1">
+    <div className="lg:flex min-h-[calc(100vh-180px)]">
+      {/* Sidebar — desktop only; phones and tablets get the bar at the top of <main> */}
+      <aside className="hidden lg:block w-52 bg-navy-dark shrink-0 py-6 px-3 space-y-1">
         <button
           onClick={() => setMainTab('classes')}
           className={`w-full text-left px-3 py-2 rounded text-sm font-bold mb-1 transition-colors ${mainTab === 'classes' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
@@ -297,27 +297,76 @@ export default function AdminPage() {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div className="min-w-0">
             <h1 className="text-xl font-bold text-navy">
               {mainTab === 'enrollments' ? 'Zapisy 2026/2027' : mainTab === 'medical' ? 'Zgody medyczne 2026/2027' : activeGrade ? activeGrade.name : 'Panel nauczyciela'}
             </h1>
-            <p className="text-xs text-gray-400 mt-0.5">{user.email}</p>
+            <p className="text-xs text-gray-400 mt-0.5 truncate">{user.email}</p>
           </div>
           <button
             onClick={handleSignOut}
-            className="text-sm border border-gray-200 text-gray-500 px-4 py-1.5 rounded hover:border-red-300 hover:text-red-500 transition-colors"
+            className="shrink-0 text-sm border border-gray-200 text-gray-500 px-4 py-2 lg:py-1.5 rounded hover:border-red-300 hover:text-red-500 transition-colors"
           >
             Wyloguj
           </button>
         </div>
 
+        {/* Phone and tablet navigation: sections, class picker and the two main actions */}
+        <div className="lg:hidden mb-6 space-y-3">
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {([['classes', 'Klasy', 0], ['enrollments', 'Zapisy', pendingCount], ['medical', 'Zgody med.', medicalForms.length]] as const).map(([key, label, count]) => (
+              <button
+                key={key}
+                onClick={() => setMainTab(key)}
+                className={`shrink-0 px-4 py-2.5 rounded-full text-sm font-bold transition-colors ${
+                  mainTab === key ? 'bg-navy text-white' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {label}
+                {count > 0 && <span className="ml-2 bg-gold text-navy text-xs font-bold px-1.5 py-0.5 rounded-full">{count}</span>}
+              </button>
+            ))}
+          </div>
+          {mainTab === 'classes' && grades.length > 0 && (
+            <label className="block">
+              <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Klasa</span>
+              <select
+                value={activeGrade?.id ?? ''}
+                onChange={e => {
+                  const g = grades.find(x => x.id === e.target.value)
+                  if (g) { setActiveGrade(g); setTab('students') }
+                }}
+                className="w-full border border-gray-300 rounded-lg px-3 py-3 text-base font-bold text-navy bg-white"
+              >
+                {grades.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+              </select>
+            </label>
+          )}
+          <div className="flex gap-3">
+            {mainTab === 'classes' && activeGrade && (
+              <button
+                onClick={() => { setTab('homework'); setShowAddHomework(true) }}
+                className="flex-1 bg-gold text-navy text-sm font-bold px-3 py-3 rounded-lg hover:bg-gold-light transition-colors"
+              >
+                + Dodaj zadanie
+              </button>
+            )}
+            <button
+              onClick={() => setShowBroadcast(true)}
+              className="flex-1 flex items-center justify-center gap-2 bg-navy text-white text-sm font-bold px-3 py-3 rounded-lg hover:bg-navy-dark transition-colors"
+            >
+              <IconMail className="w-4 h-4" /> Wyślij wiadomość
+            </button>
+          </div>
+        </div>
+
         {mainTab === 'enrollments' ? (
           <>
             {/* Filter tabs */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-6">
               {(['all', 'pending', 'approved', 'rejected'] as const).map(f => {
                 const count = f === 'all' ? enrollments.length : enrollments.filter(e => e.status === f).length
                 const label = f === 'all' ? 'Wszystkie' : f === 'pending' ? 'Oczekujące' : f === 'approved' ? 'Zatwierdzone' : 'Odrzucone'
@@ -325,7 +374,7 @@ export default function AdminPage() {
                   <button
                     key={f}
                     onClick={() => setEnrollFilter(f)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                    className={`px-4 py-2 lg:py-1.5 rounded-full text-xs font-bold transition-colors ${
                       enrollFilter === f ? 'bg-navy text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                     }`}
                   >
@@ -344,7 +393,7 @@ export default function AdminPage() {
                 {filteredEnrollments.map(e => (
                   <div key={e.id} className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
                     <div
-                      className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50"
+                      className="flex items-center justify-between gap-3 px-4 lg:px-5 py-4 cursor-pointer hover:bg-gray-50"
                       onClick={() => setExpandedEnrollment(expandedEnrollment === e.id ? null : e.id)}
                     >
                       <div className="flex items-center gap-4 flex-wrap">
@@ -368,7 +417,7 @@ export default function AdminPage() {
                     </div>
 
                     {expandedEnrollment === e.id && (
-                      <div className="border-t border-gray-100 px-5 py-4 bg-gray-50">
+                      <div className="border-t border-gray-100 px-4 lg:px-5 py-4 bg-gray-50">
                         <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-sm mb-5">
                           <InfoRow label="Data urodzenia"       val={e.dateOfBirth} />
                           <InfoRow label="Miejsce urodzenia"    val={e.placeOfBirth} />
@@ -439,7 +488,7 @@ export default function AdminPage() {
                 {medicalForms.map(m => (
                   <div key={m.id} className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
                     <div
-                      className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50"
+                      className="flex items-center justify-between gap-3 px-4 lg:px-5 py-4 cursor-pointer hover:bg-gray-50"
                       onClick={() => setExpandedMedical(expandedMedical === m.id ? null : m.id)}
                     >
                       <div className="flex items-center gap-4 flex-wrap">
@@ -466,7 +515,7 @@ export default function AdminPage() {
                     </div>
 
                     {expandedMedical === m.id && (
-                      <div className="border-t border-gray-100 px-5 py-4 bg-gray-50">
+                      <div className="border-t border-gray-100 px-4 lg:px-5 py-4 bg-gray-50">
                         <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-sm mb-4">
                           <InfoRow label="Kontakt 1"       val={m.contact1Name ? `${m.contact1Name} — ${m.contact1Phone || ''}${m.contact1Relation ? ` (${m.contact1Relation})` : ''}` : undefined} />
                           <InfoRow label="Kontakt 2"       val={m.contact2Name ? `${m.contact2Name} — ${m.contact2Phone || ''}${m.contact2Relation ? ` (${m.contact2Relation})` : ''}` : undefined} />
@@ -494,16 +543,16 @@ export default function AdminPage() {
         ) : (
           <>
             {!activeGrade ? (
-              <p className="text-gray-400 text-sm">Wybierz klasę z panelu po lewej.</p>
+              <p className="text-gray-400 text-sm">Wybierz klasę.</p>
             ) : (
               <>
                 {/* Tabs */}
-                <div className="flex gap-1 mb-6 border-b border-gray-200">
+                <div className="flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
                   {(['students', 'parents', 'homework'] as const).map(t => (
                     <button
                       key={t}
                       onClick={() => setTab(t)}
-                      className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                      className={`px-4 py-3 lg:py-2 text-sm font-semibold whitespace-nowrap border-b-2 -mb-px transition-colors ${
                         tab === t ? 'border-gold text-navy' : 'border-transparent text-gray-400 hover:text-navy'
                       }`}
                     >
@@ -515,7 +564,7 @@ export default function AdminPage() {
                 {tab === 'students' && (
                   <>
                     {selected.size > 0 && (
-                      <div className="mb-4">
+                      <div className="hidden lg:block mb-4">
                         <span className="text-xs bg-gold/10 text-gold border border-gold/30 px-3 py-1.5 rounded font-semibold">
                           {selected.size} zaznaczone
                         </span>
@@ -528,7 +577,56 @@ export default function AdminPage() {
                         Uczniów dodają rodzice w zakładce „Moje konto”.
                       </div>
                     ) : (
-                      <div className="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
+                      <>
+                      <div className="lg:hidden space-y-3">
+                        {children.map(child => {
+                          const p = parents[child.parentId]
+                          const enroll  = childEnrollment(child)
+                          const medical = childMedicalForm(child)
+                          return (
+                            <div key={child.id} className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="font-bold text-navy">{child.firstName} {child.lastName}</p>
+                                  <p className="text-sm text-gray-500">{p ? p.firstName + ' ' + p.lastName : '—'}</p>
+                                </div>
+                                {superAdmin && (
+                                  <button onClick={() => handleDeleteChild(child.id)}
+                                    className="shrink-0 text-xs text-red-500 border border-red-200 rounded px-3 py-2 hover:bg-red-50 transition-colors">
+                                    Usuń
+                                  </button>
+                                )}
+                              </div>
+                              <ContactLinks phone={p?.phone} email={p?.email} className="mt-3" />
+                              {(enroll || medical) && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                  {enroll && (enroll.pdfUrl ? (
+                                    <a href={enroll.pdfUrl} target="_blank" rel="noopener noreferrer"
+                                      className="text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1.5 rounded">
+                                      Formularz · PDF
+                                    </a>
+                                  ) : (
+                                    <span className="text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1.5 rounded">
+                                      Formularz złożony
+                                    </span>
+                                  ))}
+                                  {medical && (medical.pdfUrl ? (
+                                    <a href={medical.pdfUrl} target="_blank" rel="noopener noreferrer"
+                                      className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1.5 rounded">
+                                      Zgoda med. · PDF
+                                    </a>
+                                  ) : (
+                                    <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1.5 rounded">
+                                      Zgoda med. złożona
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div className="hidden lg:block bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
                         <table className="w-full text-sm">
                           <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
@@ -603,29 +701,68 @@ export default function AdminPage() {
                           </tbody>
                         </table>
                       </div>
+                      </>
                     )}
                   </>
                 )}
 
                 {tab === 'parents' && chosenParents.length > 0 && (
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                     <span className="text-xs bg-gold/10 text-gold border border-gold/30 px-3 py-1.5 rounded font-semibold">
                       {chosenParents.length} zaznaczone
                     </span>
                     <button
                       onClick={() => setMessageParents(chosenParents)}
-                      className="bg-gold text-navy text-sm font-bold px-4 py-2 rounded hover:bg-gold-light transition-colors"
+                      className="w-full sm:w-auto bg-gold text-navy text-sm font-bold px-4 py-3 lg:py-2 rounded hover:bg-gold-light transition-colors"
                     >
                       Wyślij wiadomość do zaznaczonych
                     </button>
                   </div>
                 )}
 
-                {tab === 'parents' && (
-                  <div className="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
-                    {parentList.length === 0 ? (
-                      <p className="text-center text-gray-400 text-sm p-10">Brak rodziców powiązanych z tą klasą.</p>
-                    ) : (
+                {tab === 'parents' && parentList.length === 0 && (
+                  <div className="bg-white rounded-lg border border-gray-100 shadow-sm">
+                    <p className="text-center text-gray-400 text-sm p-10">Brak rodziców powiązanych z tą klasą.</p>
+                  </div>
+                )}
+
+                {tab === 'parents' && parentList.length > 0 && (
+                  <div className="lg:hidden">
+                    <label className="flex items-center gap-3 mb-3 text-sm font-semibold text-navy">
+                      <input type="checkbox" checked={chosenParents.length === parentList.length} onChange={toggleAllParents} className="accent-navy w-5 h-5" />
+                      Zaznacz wszystkich
+                    </label>
+                    <div className="space-y-3">
+                      {parentList.map(p => {
+                        const g = p.secondGuardian
+                        return (
+                          <div key={p.id} className={`rounded-lg border shadow-sm p-4 ${
+                            selectedParents.has(p.id) ? 'bg-gold/5 border-gold/40' : 'bg-white border-gray-100'
+                          }`}>
+                            <label className="flex items-start gap-3">
+                              <input type="checkbox" checked={selectedParents.has(p.id)} onChange={() => toggleParent(p.id)}
+                                className="accent-navy w-5 h-5 mt-0.5 shrink-0" />
+                              <span className="font-bold text-navy">{p.firstName} {p.lastName}</span>
+                            </label>
+                            <ContactLinks phone={p.phone} email={p.email} className="mt-2 pl-8" />
+                            {g && (
+                              <div className="mt-3 ml-8 pt-3 border-t border-gray-100">
+                                <p className="text-sm text-gray-600">
+                                  {g.firstName} {g.lastName}
+                                  <span className="text-gray-400"> · {RELATIONSHIP_PL[g.relationship] ?? g.relationship}</span>
+                                </p>
+                                <ContactLinks phone={g.phone} email={g.email} className="mt-2" />
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {tab === 'parents' && parentList.length > 0 && (
+                  <div className="hidden lg:block bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
                       <table className="w-full text-sm">
                         <thead className="bg-gray-50 border-b border-gray-100">
                           <tr>
@@ -671,13 +808,12 @@ export default function AdminPage() {
                           })}
                         </tbody>
                       </table>
-                    )}
                   </div>
                 )}
 
                 {tab === 'homework' && (
                   <>
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="hidden lg:flex items-center justify-between mb-4">
                       <div className="ml-auto">
                         <button
                           onClick={() => setShowAddHomework(true)}
@@ -695,12 +831,12 @@ export default function AdminPage() {
                     ) : (
                       <div className="space-y-3">
                         {homework.map((hw, i) => (
-                          <div key={hw.id} className={`bg-white rounded-lg shadow-sm p-5 ${
+                          <div key={hw.id} className={`bg-white rounded-lg shadow-sm p-4 lg:p-5 ${
                             i === 0 ? 'border-2 border-gold' : 'border border-gray-100'
                           }`}>
                             <div className="flex items-start justify-between gap-4 flex-wrap">
                               <div>
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className="flex flex-wrap items-center gap-2 mb-1">
                                   {hw.weekOf && (
                                     <p className="text-xs font-bold text-gold uppercase tracking-wider">
                                       Termin oddania: {new Date(hw.weekOf).toLocaleDateString('pl-PL', {day: 'numeric', month: 'long', year: 'numeric'})}
@@ -726,10 +862,10 @@ export default function AdminPage() {
                                 )}
                               </div>
                               <div className="flex items-center gap-3 shrink-0">
-                                <button onClick={() => setEditingHomework(hw)} className="text-xs text-gold font-semibold hover:underline">
+                                <button onClick={() => setEditingHomework(hw)} className="text-xs text-gold font-semibold border border-gold/40 rounded px-3 py-2 lg:border-0 lg:p-0 hover:underline">
                                   Edytuj
                                 </button>
-                                <button onClick={() => handleDeleteHomework(hw.id)} className="text-xs text-red-400 hover:text-red-600 transition-colors">
+                                <button onClick={() => handleDeleteHomework(hw.id)} className="text-xs text-red-400 border border-red-200 rounded px-3 py-2 lg:border-0 lg:p-0 hover:text-red-600 transition-colors">
                                   Usuń
                                 </button>
                               </div>
@@ -784,6 +920,25 @@ export default function AdminPage() {
         />
       )}
 
+    </div>
+  )
+}
+
+// Tap-to-call and tap-to-email links, used by the phone and tablet cards
+function ContactLinks({phone, email, className = ''}: {phone?: string; email?: string; className?: string}) {
+  if (!phone && !email) return null
+  return (
+    <div className={`space-y-1.5 text-sm ${className}`}>
+      {phone && (
+        <a href={`tel:${phone}`} className="flex items-center gap-2 text-navy">
+          <IconPhone className="w-4 h-4 text-gray-400 shrink-0" /> {phone}
+        </a>
+      )}
+      {email && (
+        <a href={`mailto:${email}`} className="flex items-center gap-2 text-navy break-all">
+          <IconMail className="w-4 h-4 text-gray-400 shrink-0" /> {email}
+        </a>
+      )}
     </div>
   )
 }
@@ -854,7 +1009,7 @@ function AddHomeworkModal({gradeId, gradeName, existing, onClose}: {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-bold text-navy">{existing ? 'Edytuj zadanie' : 'Dodaj zadanie'} — {gradeName}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
@@ -949,7 +1104,7 @@ function BroadcastModal({grades, teacherUid, defaultGradeId, recipients, onClose
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-bold text-navy">Wyślij wiadomość do rodziców</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>

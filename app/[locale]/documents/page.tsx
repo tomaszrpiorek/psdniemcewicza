@@ -34,21 +34,21 @@ export default async function DocumentsPage({params}: {params: Promise<{locale: 
             <h2 className="text-lg font-bold text-navy border-b-2 border-gold pb-1 mb-4">{section.category}</h2>
             <div className="space-y-2">
               {section.items.map((doc) => (
-                <div key={doc.label} className="flex items-center justify-between bg-white border border-gray-100 rounded px-5 py-3 shadow-sm hover:border-gold transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">📄</span>
+                <div key={doc.label} className="flex items-center justify-between gap-3 bg-white border border-gray-100 rounded px-4 sm:px-5 py-3 shadow-sm hover:border-gold transition-colors">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xl shrink-0">📄</span>
                     <span className="text-sm font-medium text-navy">{doc.label}</span>
                   </div>
                   {doc.href ? (
                     <a
                       href={doc.href}
                       download
-                      className="text-xs bg-gold text-navy font-bold px-3 py-1 rounded hover:bg-gold-light transition-colors"
+                      className="shrink-0 text-xs bg-gold text-navy font-bold px-3 py-2 rounded hover:bg-gold-light transition-colors"
                     >
                       {t('download')} {doc.ext}
                     </a>
                   ) : (
-                    <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded">{t('comingSoon')}</span>
+                    <span className="shrink-0 text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded">{t('comingSoon')}</span>
                   )}
                 </div>
               ))}

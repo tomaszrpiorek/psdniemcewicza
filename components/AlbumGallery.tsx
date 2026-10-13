@@ -11,6 +11,7 @@ type Photo = {
 
 export default function AlbumGallery({photos}: {photos: Photo[]}) {
   const [index, setIndex] = useState<number | null>(null)
+  const [touchX, setTouchX] = useState<number | null>(null)
 
   const close = () => setIndex(null)
   const prev = () => setIndex((i) => (i === null ? i : (i - 1 + photos.length) % photos.length))
@@ -50,10 +51,17 @@ export default function AlbumGallery({photos}: {photos: Photo[]}) {
         <div
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center px-4"
           onClick={close}
+          onTouchStart={(e) => setTouchX(e.touches[0].clientX)}
+          onTouchEnd={(e) => {
+            if (touchX === null) return
+            const dx = e.changedTouches[0].clientX - touchX
+            setTouchX(null)
+            if (Math.abs(dx) > 50) (dx > 0 ? prev : next)()
+          }}
         >
           <button
             onClick={close}
-            className="absolute top-4 right-4 text-white/80 hover:text-white text-3xl leading-none"
+            className="absolute top-2 right-2 z-10 w-12 h-12 flex items-center justify-center text-white/80 hover:text-white text-3xl leading-none"
             aria-label="Close"
           >
             ×
@@ -61,7 +69,7 @@ export default function AlbumGallery({photos}: {photos: Photo[]}) {
 
           <button
             onClick={(e) => { e.stopPropagation(); prev() }}
-            className="absolute left-2 sm:left-6 text-white/70 hover:text-white text-4xl px-2"
+            className="absolute left-0 sm:left-6 z-10 w-12 h-16 flex items-center justify-center text-white/70 hover:text-white text-4xl"
             aria-label="Previous"
           >
             ‹
@@ -86,7 +94,7 @@ export default function AlbumGallery({photos}: {photos: Photo[]}) {
 
           <button
             onClick={(e) => { e.stopPropagation(); next() }}
-            className="absolute right-2 sm:right-6 text-white/70 hover:text-white text-4xl px-2"
+            className="absolute right-0 sm:right-6 z-10 w-12 h-16 flex items-center justify-center text-white/70 hover:text-white text-4xl"
             aria-label="Next"
           >
             ›

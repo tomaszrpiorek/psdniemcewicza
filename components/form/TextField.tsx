@@ -23,7 +23,7 @@ const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
       <input
         ref={ref}
         aria-invalid={!!error}
-        className={`w-full border rounded px-3 py-2.5 text-sm focus:outline-none transition-colors ${
+        className={`w-full border rounded px-3 py-2.5 text-base sm:text-sm focus:outline-none transition-colors ${
           error ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-gold'
         } ${className ?? ''}`}
         {...rest}

@@ -52,25 +52,28 @@ export default function Navbar() {
   return (
     <header>
       <div className="bg-navy-dark text-gray-300 text-xs py-1.5 px-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <span className="flex items-center gap-1.5">
-            <IconMail className="w-3.5 h-3.5 text-gold-tint" /> psdniemcewicza@gmail.com
-            <span className="mx-1.5 text-gray-500">|</span>
-            <IconPhone className="w-3.5 h-3.5 text-gold-tint" /> (732) 266-4310
+        <div className="max-w-6xl mx-auto flex flex-wrap justify-center sm:justify-between items-center gap-x-4 gap-y-1">
+          <span className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1">
+            <a href="mailto:psdniemcewicza@gmail.com" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <IconMail className="w-3.5 h-3.5 text-gold-tint" /> psdniemcewicza@gmail.com
+            </a>
+            <a href="tel:+17322664310" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <IconPhone className="w-3.5 h-3.5 text-gold-tint" /> (732) 266-4310
+            </a>
           </span>
-          <span>{t('topbarHours')}</span>
+          <span className="text-center">{t('topbarHours')}</span>
         </div>
       </div>
 
-      <div className="bg-cream border-b border-gray-200 py-4 px-4">
-        <div className="max-w-6xl mx-auto flex items-center gap-5">
-          <Link href={`/${locale}`}>
-            <Image src="/logo.png" alt="PSD Niemcewicza Logo" width={90} height={90} className="object-contain" />
+      <div className="bg-cream border-b border-gray-200 py-3 sm:py-4 px-4">
+        <div className="max-w-6xl mx-auto flex items-center gap-3 sm:gap-5">
+          <Link href={`/${locale}`} className="shrink-0">
+            <Image src="/logo.png" alt="PSD Niemcewicza Logo" width={90} height={90} className="object-contain w-16 h-16 sm:w-[90px] sm:h-[90px]" />
           </Link>
           <div>
             <Link href={`/${locale}`}>
-              <h1 className="text-xl sm:text-2xl font-bold text-navy leading-tight">Polska Szkoła Dokształcająca</h1>
-              <p className="text-sm text-gray-500 mt-0.5">im. Juliana Ursyna Niemcewicza — Plainfield, NJ</p>
+              <h1 className="text-lg sm:text-2xl font-bold text-navy leading-tight">Polska Szkoła Dokształcająca</h1>
+              <p className="text-xs sm:text-sm text-gray-500 mt-0.5">im. Juliana Ursyna Niemcewicza — Plainfield, NJ</p>
             </Link>
           </div>
         </div>
@@ -78,7 +81,7 @@ export default function Navbar() {
 
       <nav className="bg-navy sticky top-0 z-50 shadow-md">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-          <div className="hidden md:flex items-center">
+          <div className="hidden lg:flex items-center">
             {navItems.map((item) =>
               item.children ? (
                 <DropdownItem key={item.label} label={item.label} children={item.children} />
@@ -90,7 +93,7 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="hidden md:flex items-center gap-2 my-1.5">
+          <div className="hidden lg:flex items-center gap-2 my-1.5">
             <button onClick={switchLocale} className="flex items-center gap-1.5 border border-white/30 text-white text-xs font-bold px-3 py-2 rounded hover:bg-white/10 transition-colors">
               {locale === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL'}
             </button>
@@ -122,7 +125,7 @@ export default function Navbar() {
             )}
           </div>
 
-          <button className="md:hidden text-white p-3" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="lg:hidden text-white p-3 -ml-3" aria-label="Menu" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {mobileOpen
                 ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -132,54 +135,56 @@ export default function Navbar() {
         </div>
 
         {mobileOpen && (
-          <div className="md:hidden bg-navy-dark border-t border-navy-light px-4 py-3 space-y-1">
+          <div className="lg:hidden bg-navy-dark border-t border-navy-light px-4 py-3 space-y-1 max-h-[calc(100dvh-3rem)] overflow-y-auto overscroll-contain">
             {navItems.map((item) =>
               item.children ? (
                 <div key={item.label}>
                   <p className="text-gold-tint text-xs font-bold uppercase tracking-wider pt-2 pb-1">{item.label}</p>
+                  <div className={item.children.length > 6 ? 'grid grid-cols-2 sm:grid-cols-3 gap-x-4' : ''}>
                   {item.children.map((child) => (
                     <Link
                       key={child.href} href={child.href} onClick={() => setMobileOpen(false)}
                       {...(child.external && {target: '_blank', rel: 'noopener noreferrer'})}
-                      className="block text-sm text-gray-300 hover:text-white py-1 pl-2"
+                      className="block text-sm text-gray-300 hover:text-white py-2.5 pl-2"
                     >
                       {child.label}{child.external && ' ↗'}
                     </Link>
                   ))}
+                  </div>
                 </div>
               ) : (
-                <Link key={item.href} href={item.href!} onClick={() => setMobileOpen(false)} className="block text-sm text-white font-semibold py-2">
+                <Link key={item.href} href={item.href!} onClick={() => setMobileOpen(false)} className="block text-sm text-white font-semibold py-3">
                   {item.label}
                 </Link>
               )
             )}
-            <div className="flex items-center gap-3 pt-2 border-t border-navy-light mt-2 flex-wrap">
-              <button onClick={() => { switchLocale(); setMobileOpen(false) }} className="text-xs border border-white/30 text-white px-3 py-1.5 rounded">
+            <div className="flex items-center gap-2 pt-3 pb-1 border-t border-navy-light mt-2 flex-wrap">
+              <button onClick={() => { switchLocale(); setMobileOpen(false) }} className="text-sm border border-white/30 text-white px-4 py-2.5 rounded">
                 {locale === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL'}
               </button>
               {user ? (
                 <>
                   {ENROLLMENT_OPEN && (
-                    <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-gold-tint font-bold text-sm">
+                    <Link href={'/' + locale + '/enroll'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 bg-gold text-navy font-bold text-sm px-4 py-2.5 rounded">
                       <IconPencil className="w-4 h-4" /> {t('enroll')}
                     </Link>
                   )}
                   {MEDICAL_FORM_OPEN && (
-                    <Link href={'/' + locale + '/medical'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-white font-bold text-sm">
+                    <Link href={'/' + locale + '/medical'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 border border-white/30 text-white font-bold text-sm px-4 py-2.5 rounded">
                       <IconMedical className="w-4 h-4" /> {t('medicalForm')}
                     </Link>
                   )}
                   {role === 'teacher' && (
-                    <Link href={'/' + locale + '/admin'} onClick={() => setMobileOpen(false)} className="text-white font-bold text-sm">
+                    <Link href={'/' + locale + '/admin'} onClick={() => setMobileOpen(false)} className="border border-white/30 text-white font-bold text-sm px-4 py-2.5 rounded">
                       {t('adminPanel')}
                     </Link>
                   )}
-                  <Link href={'/' + locale + '/dashboard'} onClick={() => setMobileOpen(false)} className="text-white font-bold text-sm">
+                  <Link href={'/' + locale + '/dashboard'} onClick={() => setMobileOpen(false)} className="border border-white/30 text-white font-bold text-sm px-4 py-2.5 rounded">
                     {t('myAccount')}
                   </Link>
                 </>
               ) : (
-                <Link href={'/' + locale + '/login'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 text-gold-tint font-bold text-sm">
+                <Link href={'/' + locale + '/login'} onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5 bg-gold text-navy font-bold text-sm px-4 py-2.5 rounded">
                   <IconLock className="w-4 h-4" /> {t('login')}
                 </Link>
               )}

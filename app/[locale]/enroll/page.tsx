@@ -312,7 +312,7 @@ export default function EnrollPage() {
           </div>
         ) : myChildren.length === 0 ? null : (
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 sm:p-8">
 
               <SectionHeader label={t('sectionStudent')} />
               <div className="grid sm:grid-cols-2 gap-4">

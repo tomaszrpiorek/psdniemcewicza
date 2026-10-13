@@ -88,8 +88,8 @@ export default function RegisterPage() {
           <p className="text-gray-500 text-sm mt-1">{t('subtitle')}</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-8 space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <TextField label={t('firstName') + ' *'} placeholder="Jan" error={errors.firstName?.message} {...register('firstName')} />
             <TextField label={t('lastName') + ' *'} placeholder="Kowalski" error={errors.lastName?.message} {...register('lastName')} />
           </div>
