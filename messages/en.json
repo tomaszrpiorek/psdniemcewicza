@@ -202,7 +202,8 @@
     "sendBtn": "Send Message",
     "sending": "Sending…",
     "sendSuccess": "Your message has been sent. We'll get back to you as soon as possible.",
-    "sendError": "We couldn't send your message. Please try again or email us directly."
+    "sendError": "We couldn't send your message. Please try again or email us directly.",
+    "sendLimited": "Too many messages have been sent. Please try again later or email us directly."
   },
   "Documents": {
     "tag": "School",
@@ -468,6 +469,7 @@
     "copyright": "Polish Supplementary School named after Julian Ursyn Niemcewicz in Plainfield, NJ. All rights reserved."
   },
   "Validation": {
+    "messageTooLong": "The message is too long (5000 characters maximum).",
     "required": "This field is required.",
     "tooShort": "This field is too short.",
     "invalidEmail": "Enter a valid email address.",

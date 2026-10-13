@@ -6,6 +6,7 @@ const {getFirestore} = require('firebase-admin/firestore')
 const {getAuth} = require('firebase-admin/auth')
 const {isValidSignature, SIGNATURE_HEADER_NAME} = require('@sanity/webhook')
 const nodemailer = require('nodemailer')
+const crypto = require('crypto')
 
 initializeApp()
 const db = getFirestore()
@@ -71,19 +72,73 @@ async function getParentEmails(parentIds) {
   return [...new Set(emails.flat().filter(Boolean))]
 }
 
+// Contact form limits. The form sends through the school's Gmail account, whose
+// daily sending quota is shared with homework and class emails, so the caps
+// below keep a flood of spam from blocking those.
+const CONTACT_MAX_PER_SENDER_PER_HOUR = 3
+const CONTACT_MAX_PER_DAY = 50
+const CONTACT_MIN_FILL_MS = 3000
+const CONTACT_EMAIL_REGEX = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/
+
+// Counts one use of `key` in the current window and reports whether it is
+// still within `max`. Documents live in `rateLimits`, which no client can read.
+async function withinRateLimit(key, max, windowMs) {
+  const ref = db.collection('rateLimits').doc(key)
+  const now = Date.now()
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref)
+    const data = snap.exists ? snap.data() : null
+    const fresh = !data || now - data.windowStart >= windowMs
+    const count = fresh ? 1 : data.count + 1
+    if (count > max) return false
+    const windowStart = fresh ? now : data.windowStart
+    tx.set(ref, {count, windowStart, expiresAt: new Date(windowStart + windowMs)})
+    return true
+  })
+}
+
+function rateLimitKey(prefix, value) {
+  return prefix + '_' + crypto.createHash('sha256').update(value).digest('hex').slice(0, 32)
+}
+
 exports.sendContactEmail = onCall({secrets: [gmailAppPassword], region: 'us-central1'}, async (request) => {
-  const name    = (request.data?.name || '').trim()
-  const email   = (request.data?.email || '').trim()
-  const message = (request.data?.message || '').trim()
+  const text = (value) => (typeof value === 'string' ? value.trim() : '')
+  // Line breaks are removed from the name because it goes into email headers.
+  const name    = text(request.data?.name).replace(/[\r\n]+/g, ' ')
+  const email   = text(request.data?.email)
+  const message = text(request.data?.message)
 
   if (!name || !email || !message) {
     throw new HttpsError('invalid-argument', 'Missing required fields.')
+  }
+  if (name.length > 100 || email.length > 200 || message.length > 5000 || !CONTACT_EMAIL_REGEX.test(email)) {
+    throw new HttpsError('invalid-argument', 'Invalid fields.')
+  }
+
+  // Bots fill the hidden "website" field and submit instantly. Answer as if
+  // the message was sent, so they get no hint about what to change.
+  const elapsedMs = request.data?.elapsedMs
+  if (text(request.data?.website) || (typeof elapsedMs === 'number' && elapsedMs < CONTACT_MIN_FILL_MS)) {
+    console.log('Contact form: dropped a submission that looks automated.')
+    return {ok: true}
+  }
+
+  const hour = 60 * 60 * 1000
+  const ip = request.rawRequest?.ip || 'unknown'
+  const day = new Date().toISOString().slice(0, 10)
+  const allowed =
+    (await withinRateLimit(rateLimitKey('contact_ip', ip), CONTACT_MAX_PER_SENDER_PER_HOUR, hour)) &&
+    (await withinRateLimit(rateLimitKey('contact_email', email.toLowerCase()), CONTACT_MAX_PER_SENDER_PER_HOUR, hour)) &&
+    (await withinRateLimit('contact_day_' + day, CONTACT_MAX_PER_DAY, 24 * hour))
+  if (!allowed) {
+    console.warn('Contact form: rate limit reached.')
+    throw new HttpsError('resource-exhausted', 'Too many messages.')
   }
 
   await gmailTransporter().sendMail({
     from: `Strona PSD Niemcewicza <${SCHOOL_EMAIL}>`,
     to: SCHOOL_EMAIL,
-    replyTo: `${name} <${email}>`,
+    replyTo: {name, address: email},
     subject: `Wiadomość ze strony od ${name}`,
     text: `Od: ${name} <${email}>\n\n${message}`,
   })

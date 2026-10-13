@@ -202,7 +202,8 @@
     "sendBtn": "Wyślij Wiadomość",
     "sending": "Wysyłanie…",
     "sendSuccess": "Wiadomość została wysłana. Odpowiemy najszybciej jak to możliwe.",
-    "sendError": "Nie udało się wysłać wiadomości. Spróbuj ponownie lub napisz bezpośrednio na nasz email."
+    "sendError": "Nie udało się wysłać wiadomości. Spróbuj ponownie lub napisz bezpośrednio na nasz email.",
+    "sendLimited": "Wysłano zbyt wiele wiadomości. Spróbuj ponownie później lub napisz bezpośrednio na nasz email."
   },
   "Documents": {
     "tag": "Szkoła",
@@ -468,6 +469,7 @@
     "copyright": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, NJ. Wszelkie prawa zastrzeżone."
   },
   "Validation": {
+    "messageTooLong": "Wiadomość jest za długa (maksymalnie 5000 znaków).",
     "required": "To pole jest wymagane.",
     "tooShort": "To pole jest za krótkie.",
     "invalidEmail": "Podaj prawidłowy adres email.",

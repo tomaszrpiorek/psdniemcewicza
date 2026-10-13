@@ -19,6 +19,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
 
   const {user, role} = useAuth()
   const otherLocale = locale === 'pl' ? 'en' : 'pl'
@@ -79,7 +80,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      <nav className="bg-navy sticky top-0 z-50 shadow-md">
+      <nav ref={navRef} className="bg-navy sticky top-0 z-50 shadow-md">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
           <div className="hidden lg:flex items-center">
             {navItems.map((item) =>
@@ -125,7 +126,11 @@ export default function Navbar() {
             )}
           </div>
 
-          <button className="lg:hidden text-white p-3 -ml-3" aria-label="Menu" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="lg:hidden text-white p-3 -ml-3" aria-label="Menu" aria-expanded={mobileOpen} onClick={() => {
+            // Bring the bar to the top of the screen first, so the whole menu fits below it
+            if (!mobileOpen) navRef.current?.scrollIntoView()
+            setMobileOpen(!mobileOpen)
+          }}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {mobileOpen
                 ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -135,30 +140,9 @@ export default function Navbar() {
         </div>
 
         {mobileOpen && (
-          <div className="lg:hidden bg-navy-dark border-t border-navy-light px-4 py-3 space-y-1 max-h-[calc(100dvh-3rem)] overflow-y-auto overscroll-contain">
-            {navItems.map((item) =>
-              item.children ? (
-                <div key={item.label}>
-                  <p className="text-gold-tint text-xs font-bold uppercase tracking-wider pt-2 pb-1">{item.label}</p>
-                  <div className={item.children.length > 6 ? 'grid grid-cols-2 sm:grid-cols-3 gap-x-4' : ''}>
-                  {item.children.map((child) => (
-                    <Link
-                      key={child.href} href={child.href} onClick={() => setMobileOpen(false)}
-                      {...(child.external && {target: '_blank', rel: 'noopener noreferrer'})}
-                      className="block text-sm text-gray-300 hover:text-white py-2.5 pl-2"
-                    >
-                      {child.label}{child.external && ' ↗'}
-                    </Link>
-                  ))}
-                  </div>
-                </div>
-              ) : (
-                <Link key={item.href} href={item.href!} onClick={() => setMobileOpen(false)} className="block text-sm text-white font-semibold py-3">
-                  {item.label}
-                </Link>
-              )
-            )}
-            <div className="flex items-center gap-2 pt-3 pb-1 border-t border-navy-light mt-2 flex-wrap">
+          <div className="lg:hidden bg-navy-dark border-t border-navy-light px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] space-y-1 max-h-[calc(100dvh-3rem)] overflow-y-auto">
+            {/* Language and account buttons first, so they are never below the fold */}
+            <div className="flex items-center gap-2 pt-1 pb-3 border-b border-navy-light mb-2 flex-wrap">
               <button onClick={() => { switchLocale(); setMobileOpen(false) }} className="text-sm border border-white/30 text-white px-4 py-2.5 rounded">
                 {locale === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL'}
               </button>
@@ -189,6 +173,28 @@ export default function Navbar() {
                 </Link>
               )}
             </div>
+            {navItems.map((item) =>
+              item.children ? (
+                <div key={item.label}>
+                  <p className="text-gold-tint text-xs font-bold uppercase tracking-wider pt-2 pb-1">{item.label}</p>
+                  <div className={item.children.length > 6 ? 'grid grid-cols-2 sm:grid-cols-3 gap-x-4' : ''}>
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.href} href={child.href} onClick={() => setMobileOpen(false)}
+                      {...(child.external && {target: '_blank', rel: 'noopener noreferrer'})}
+                      className="block text-sm text-gray-300 hover:text-white py-2.5 pl-2"
+                    >
+                      {child.label}{child.external && ' ↗'}
+                    </Link>
+                  ))}
+                  </div>
+                </div>
+              ) : (
+                <Link key={item.href} href={item.href!} onClick={() => setMobileOpen(false)} className="block text-sm text-white font-semibold py-3">
+                  {item.label}
+                </Link>
+              )
+            )}
           </div>
         )}
       </nav>

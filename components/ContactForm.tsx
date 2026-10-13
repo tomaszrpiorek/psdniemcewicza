@@ -5,6 +5,7 @@ import {IconCheckCircle} from '@/components/icons'
 import {useForm} from 'react-hook-form'
 import {z} from 'zod'
 import {httpsCallable} from 'firebase/functions'
+import {FirebaseError} from 'firebase/app'
 import {functions} from '@/lib/firebase'
 import {useTranslations} from 'next-intl'
 import {zodResolver} from '@/lib/zodResolver'
@@ -13,17 +14,19 @@ import TextField from '@/components/form/TextField'
 import TextAreaField from '@/components/form/TextAreaField'
 import FormError from '@/components/form/FormError'
 
-type Status = 'idle' | 'sending' | 'sent' | 'error'
+type Status = 'idle' | 'sending' | 'sent' | 'error' | 'limited'
 
 export default function ContactForm() {
   const t = useTranslations('Contact')
   const v = useTranslations('Validation')
   const [status, setStatus] = useState<Status>('idle')
+  // Spam check: a field people never see, which only bots fill in.
+  const [website, setWebsite] = useState('')
 
   const schema = z.object({
     name: requiredName(v('required'), v('invalidName')),
     email: requiredEmail(v('required'), v('invalidEmail')),
-    message: requiredString(v('required')),
+    message: requiredString(v('required')).max(5000, v('messageTooLong')),
   })
   type FormValues = z.infer<typeof schema>
 
@@ -32,15 +35,17 @@ export default function ContactForm() {
     formState: {errors, isSubmitting},
   } = useForm<FormValues>({resolver: zodResolver(schema), defaultValues: {name: '', email: '', message: ''}})
 
-  async function onSubmit(data: FormValues) {
+  async function onSubmit(data: FormValues, event?: React.BaseSyntheticEvent) {
     setStatus('sending')
     try {
       const sendContactEmail = httpsCallable(functions, 'sendContactEmail')
-      await sendContactEmail(data)
+      // timeStamp is the time since the page was opened; a submit within the first seconds is a bot.
+      await sendContactEmail({...data, website, elapsedMs: event?.timeStamp})
       setStatus('sent')
       reset()
-    } catch {
-      setStatus('error')
+    } catch (err) {
+      const limited = err instanceof FirebaseError && err.code === 'functions/resource-exhausted'
+      setStatus(limited ? 'limited' : 'error')
     }
   }
 
@@ -55,6 +60,15 @@ export default function ContactForm() {
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+        <label>
+          Website
+          <input
+            type="text" name="website" tabIndex={-1} autoComplete="off"
+            value={website} onChange={(e) => setWebsite(e.target.value)}
+          />
+        </label>
+      </div>
       <TextField
         label={t('nameLabel')} placeholder={t('namePlaceholder')}
         error={errors.name?.message} {...register('name')}
@@ -68,6 +82,7 @@ export default function ContactForm() {
         error={errors.message?.message} {...register('message')}
       />
       {status === 'error' && <FormError message={t('sendError')} />}
+      {status === 'limited' && <FormError message={t('sendLimited')} />}
       <button
         type="submit" disabled={isSubmitting || status === 'sending'}
         className="w-full bg-navy text-white font-bold py-3 rounded hover:bg-navy-dark transition-colors disabled:opacity-60"
