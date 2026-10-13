@@ -29,6 +29,25 @@ function gmailTransporter() {
   })
 }
 
+// Sends one email per address and logs what Gmail answered for each, so a
+// "the parent did not get it" report can be checked against the function log.
+// Addresses are masked in the log (jan.kowalski@gmail.com -> ja***@gmail.com).
+async function sendToEach(label, emails, buildMail) {
+  const transporter = gmailTransporter()
+  const mask = (email) => email.replace(/^(.{0,2}).*(@.*)$/, '$1***$2')
+  const results = await Promise.allSettled(emails.map((email) => transporter.sendMail({...buildMail(), to: email})))
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled' && result.value.accepted?.length) {
+      console.log(`${label}: Gmail accepted the message for ${mask(emails[i])}`)
+    } else {
+      const reason = result.status === 'rejected' ? result.reason?.message : result.value.response
+      console.error(`${label}: Gmail did NOT accept the message for ${mask(emails[i])}: ${reason}`)
+    }
+  })
+  const failed = results.filter((r) => r.status === 'rejected').length
+  if (failed === emails.length && emails.length > 0) throw new Error(`${label}: every email failed to send.`)
+}
+
 // Returns the email addresses of parents with a registered account, either
 // for one grade (gradeId) or for the whole school (gradeId === 'all').
 // A teacher counts as a parent when they have a child registered.
@@ -164,7 +183,6 @@ exports.notifyParentsOfHomework = onDocumentCreated(
       ? new Date(hw.weekOf).toLocaleDateString('pl-PL', {day: 'numeric', month: 'long', year: 'numeric'})
       : null
 
-    const transporter = gmailTransporter()
     const lines = [
       `Nauczyciel dodał nowe zadanie domowe dla klasy: ${gradeName}`,
       '',
@@ -195,13 +213,12 @@ exports.notifyParentsOfHomework = onDocumentCreated(
       }
     }
 
-    await Promise.all(emails.map((email) => transporter.sendMail({
+    await sendToEach('Homework email', emails, () => ({
       from: `PSD Niemcewicza <${SCHOOL_EMAIL}>`,
-      to: email,
       subject: `Nowe zadanie domowe — ${gradeName}`,
       text: lines.join('\n'),
       attachments,
-    })))
+    }))
   }
 )
 
@@ -224,13 +241,11 @@ exports.notifyParentsOfClassMessage = onDocumentCreated(
       : await getRegisteredParentEmails(msg.gradeId)
     if (emails.length === 0) return
 
-    const transporter = gmailTransporter()
-    await Promise.all(emails.map((email) => transporter.sendMail({
+    await sendToEach('Class message', emails, () => ({
       from: `PSD Niemcewicza <${SCHOOL_EMAIL}>`,
-      to: email,
       subject: msg.subject,
       text: msg.message,
-    })))
+    }))
   }
 )
 
@@ -261,13 +276,11 @@ exports.notifyParentsOfAnnouncement = onRequest(
 
     const emails = await getRegisteredParentEmails('all')
     if (emails.length > 0) {
-      const transporter = gmailTransporter()
-      await Promise.all(emails.map((email) => transporter.sendMail({
+      await sendToEach('Announcement email', emails, () => ({
         from: `PSD Niemcewicza <${SCHOOL_EMAIL}>`,
-        to: email,
         subject: `Nowe ważne ogłoszenie: ${doc.title}`,
         text: `Szkoła opublikowała nowe ważne ogłoszenie: ${doc.title}\n\nSzczegóły: ${SITE_URL}/pl/announcements`,
-      })))
+      }))
     }
 
     res.status(200).send('OK')
