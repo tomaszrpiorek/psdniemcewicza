@@ -101,7 +101,9 @@ function rateLimitKey(prefix, value) {
   return prefix + '_' + crypto.createHash('sha256').update(value).digest('hex').slice(0, 32)
 }
 
-exports.sendContactEmail = onCall({secrets: [gmailAppPassword], region: 'us-central1'}, async (request) => {
+// enforceAppCheck rejects any call without a valid App Check token, which only
+// the real website in a real browser can obtain (invisible reCAPTCHA).
+exports.sendContactEmail = onCall({secrets: [gmailAppPassword], region: 'us-central1', enforceAppCheck: true}, async (request) => {
   const text = (value) => (typeof value === 'string' ? value.trim() : '')
   // Line breaks are removed from the name because it goes into email headers.
   const name    = text(request.data?.name).replace(/[\r\n]+/g, ' ')
