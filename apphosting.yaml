@@ -27,6 +27,11 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+    value: 6Lc5y-0tAAAAANQojA9wNikTUBchLNYLeIsh4BIi
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: 1:765775919255:web:28cce3d5913ee25ef6d1d2
     availability:

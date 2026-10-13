@@ -1,12 +1,13 @@
 'use client'
 
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {IconCheckCircle} from '@/components/icons'
 import {useForm} from 'react-hook-form'
 import {z} from 'zod'
 import {httpsCallable} from 'firebase/functions'
 import {FirebaseError} from 'firebase/app'
 import {functions} from '@/lib/firebase'
+import {ensureAppCheck} from '@/lib/appCheck'
 import {useTranslations} from 'next-intl'
 import {zodResolver} from '@/lib/zodResolver'
 import {requiredEmail, requiredName, requiredString} from '@/lib/validation'
@@ -23,6 +24,8 @@ export default function ContactForm() {
   // Spam check: a field people never see, which only bots fill in.
   const [website, setWebsite] = useState('')
 
+  useEffect(() => { ensureAppCheck().catch(() => {}) }, [])
+
   const schema = z.object({
     name: requiredName(v('required'), v('invalidName')),
     email: requiredEmail(v('required'), v('invalidEmail')),
@@ -38,6 +41,7 @@ export default function ContactForm() {
   async function onSubmit(data: FormValues, event?: React.BaseSyntheticEvent) {
     setStatus('sending')
     try {
+      await ensureAppCheck()
       const sendContactEmail = httpsCallable(functions, 'sendContactEmail')
       // timeStamp is the time since the page was opened; a submit within the first seconds is a bot.
       await sendContactEmail({...data, website, elapsedMs: event?.timeStamp})
