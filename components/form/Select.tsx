@@ -2,6 +2,11 @@
 
 import {useEffect, useId, useRef, useState} from 'react'
 
+type ListPos = {left: number; width: number; top?: number; bottom?: number; maxHeight: number}
+
+const LIST_MAX = 240 // px, same as max-h-60
+const GAP = 4
+
 export type SelectOption = {value: string; label: string}
 
 type Props = {
@@ -23,7 +28,10 @@ export default function Select({
 }: Props) {
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [pos, setPos] = useState<ListPos | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
   const listId = useId()
 
   const selected = options.find((o) => o.value === value)
@@ -40,8 +48,44 @@ export default function Select({
     return () => document.removeEventListener('mousedown', onClickAway)
   }, [open, onBlur])
 
+  // The list is position: fixed so a scrolling parent (e.g. a modal with
+  // overflow-y-auto) can't clip it. It opens upwards when there's more room
+  // above, and closes if anything other than the list itself scrolls.
+  function place() {
+    const r = buttonRef.current?.getBoundingClientRect()
+    if (!r) return
+    const below = window.innerHeight - r.bottom - GAP * 2
+    const above = r.top - GAP * 2
+    if (below >= Math.min(LIST_MAX, 160) || below >= above) {
+      setPos({left: r.left, width: r.width, top: r.bottom + GAP, maxHeight: Math.min(LIST_MAX, below)})
+    } else {
+      setPos({left: r.left, width: r.width, bottom: window.innerHeight - r.top + GAP, maxHeight: Math.min(LIST_MAX, above)})
+    }
+  }
+
+  useEffect(() => {
+    if (!open) return
+    function onScroll(e: Event) {
+      if (listRef.current && listRef.current.contains(e.target as Node)) return
+      setOpen(false)
+    }
+    window.addEventListener('resize', place)
+    window.addEventListener('scroll', onScroll, true)
+    return () => {
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', onScroll, true)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open || activeIndex < 0) return
+    const el = listRef.current?.children[activeIndex] as HTMLElement | undefined
+    el?.scrollIntoView({block: 'nearest'})
+  }, [open, activeIndex, pos])
+
   function openList() {
     if (disabled) return
+    place()
     setOpen(true)
     setActiveIndex(Math.max(0, options.findIndex((o) => o.value === value)))
   }
@@ -87,6 +131,7 @@ export default function Select({
       )}
       <div className="relative">
         <button
+          ref={buttonRef}
           type="button"
           role="combobox"
           disabled={disabled}
@@ -111,11 +156,13 @@ export default function Select({
           </svg>
         </button>
 
-        {open && (
+        {open && pos && (
           <ul
+            ref={listRef}
             id={listId}
             role="listbox"
-            className="absolute z-30 mt-1 w-full max-h-60 overflow-auto bg-white border border-gray-100 rounded-lg shadow-lg py-1"
+            style={{left: pos.left, width: pos.width, top: pos.top, bottom: pos.bottom, maxHeight: pos.maxHeight}}
+            className="fixed z-[60] overflow-auto overscroll-contain bg-white border border-gray-100 rounded-lg shadow-lg py-1"
           >
             {options.map((opt, i) => (
               <li
