@@ -58,8 +58,8 @@ export default function Navbar() {
             <a href="mailto:psdniemcewicza@gmail.com" className="flex items-center gap-1.5 hover:text-white transition-colors">
               <IconMail className="w-3.5 h-3.5 text-gold-tint" /> psdniemcewicza@gmail.com
             </a>
-            <a href="tel:+17322664310" className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <IconPhone className="w-3.5 h-3.5 text-gold-tint" /> (732) 266-4310
+            <a href="tel:+17322614276" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <IconPhone className="w-3.5 h-3.5 text-gold-tint" /> (732) 261-4276
             </a>
           </span>
           <span className="text-center">{t('topbarHours')}</span>

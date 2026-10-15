@@ -26,7 +26,7 @@ export default async function ContactPage({params}: {params: Promise<{locale: st
             <ul className="space-y-5">
               {[
                 {Icon: IconMail, label: t('emailLabel'), value: 'psdniemcewicza@gmail.com', href: 'mailto:psdniemcewicza@gmail.com'},
-                {Icon: IconPhone, label: t('phoneLabel'), value: '(732) 266-4310', href: 'tel:+17322664310'},
+                {Icon: IconPhone, label: t('phoneLabel'), value: '(732) 261-4276', href: 'tel:+17322614276'},
                 {Icon: IconMapPin, label: t('addressLabel'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
                 {Icon: IconMailbox, label: t('addressMailLabel'), value: '1232 George Street, Plainfield, NJ 07062'},
                 {Icon: IconClock, label: t('hoursLabel'), value: t('hoursVal')},

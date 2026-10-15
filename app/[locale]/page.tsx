@@ -115,7 +115,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
             {Icon: IconCalendar, label: t('schedule'), value: t('scheduleVal')},
             {Icon: IconMapPin, label: t('address'), value: '365 Emerson Avenue, Plainfield, NJ 07062'},
             {Icon: IconMail, label: t('email'), value: 'psdniemcewicza@gmail.com', href: 'mailto:psdniemcewicza@gmail.com'},
-            {Icon: IconPhone, label: t('phone'), value: '(732) 266-4310', href: 'tel:+17322664310'},
+            {Icon: IconPhone, label: t('phone'), value: '(732) 261-4276', href: 'tel:+17322614276'},
           ].map(({Icon, ...item}: {Icon: typeof IconMail; label: string; value: string; href?: string}) => (
             <div key={item.label} className="min-w-0">
               <Icon className="w-6 h-6 mx-auto text-gold-tint" />
