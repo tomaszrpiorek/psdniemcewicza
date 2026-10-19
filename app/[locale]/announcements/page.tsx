@@ -2,6 +2,8 @@ import {client} from '@/lib/sanity'
 import {PortableText} from 'next-sanity'
 import type {PortableTextBlock} from '@portabletext/types'
 import {getTranslations} from 'next-intl/server'
+import type {Metadata} from 'next'
+import {pageMetadata} from '@/lib/seo'
 
 export const revalidate = 30
 
@@ -16,6 +18,13 @@ async function getAnnouncements(): Promise<Announcement[]> {
     "attachmentUrl": attachment.asset->url,
     "attachmentName": attachment.asset->originalFilename
   }`)
+}
+
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params
+  const t = await getTranslations({locale, namespace: 'Announcements'})
+  const m = await getTranslations({locale, namespace: 'Metadata'})
+  return pageMetadata(locale, '/announcements', t('title'), m('announcementsDescription'))
 }
 
 export default async function AnnouncementsPage({params}: {params: Promise<{locale: string}>}) {

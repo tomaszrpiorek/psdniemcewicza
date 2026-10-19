@@ -6,6 +6,8 @@ import {display, sans, script} from '@/lib/fonts'
 import Reveal from '@/components/Reveal'
 import AlbumGallery from '@/components/AlbumGallery'
 import {SHOW_HISTORY} from '@/lib/features'
+import type {Metadata} from 'next'
+import {pageMetadata} from '@/lib/seo'
 
 export const revalidate = 30
 
@@ -39,6 +41,13 @@ async function getTeachPhotos() {
   )
   const url = (p?: RawPhoto | null) => (p?.asset ? urlFor(p).width(900).height(675).fit('crop').url() : null)
   return [url(chosen?.jezykPolski), url(chosen?.historia), url(chosen?.tradycje)]
+}
+
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params
+  const t = await getTranslations({locale, namespace: 'About'})
+  const m = await getTranslations({locale, namespace: 'Metadata'})
+  return pageMetadata(locale, '/about', t('title'), m('aboutDescription'))
 }
 
 export default async function AboutPage({params}: {params: Promise<{locale: string}>}) {

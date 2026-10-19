@@ -9,6 +9,8 @@ import {display, script} from '@/lib/fonts'
 import Reveal from '@/components/Reveal'
 import HeroCarousel from '@/components/HeroCarousel'
 import {IconCalendar, IconMapPin, IconMail, IconPhone, IconBook, IconDocument, IconUsers, IconCamera} from '@/components/icons'
+import type {Metadata} from 'next'
+import {SITE_URL, localeAlternates} from '@/lib/seo'
 
 export const revalidate = 30
 
@@ -59,6 +61,42 @@ async function getHomePhotos() {
   }
 }
 
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params
+  const m = await getTranslations({locale, namespace: 'Metadata'})
+  const title = m('homeTitle')
+  const description = m('homeDescription')
+  return {
+    title: {absolute: title},
+    description,
+    alternates: localeAlternates(locale, ''),
+    openGraph: {title, description, url: `/${locale}`},
+  }
+}
+
+// School details for search engines (shown in Google's knowledge panel / maps results)
+const schoolJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'School',
+  name: 'Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza',
+  alternateName: ['PSD im. J. U. Niemcewicza', 'PSD Niemcewicza', 'Polish Supplementary School in Plainfield, NJ'],
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
+  image: `${SITE_URL}/logo-25-lat.png`,
+  email: 'psdniemcewicza@gmail.com',
+  telephone: '+1-732-261-4276',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '365 Emerson Avenue',
+    addressLocality: 'Plainfield',
+    addressRegion: 'NJ',
+    postalCode: '07062',
+    addressCountry: 'US',
+  },
+  areaServed: 'New Jersey',
+  knowsLanguage: ['pl', 'en'],
+}
+
 export default async function Home({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params
   const t = await getTranslations({locale, namespace: 'Home'})
@@ -76,6 +114,10 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{__html: JSON.stringify(schoolJsonLd).replace(/</g, '\\u003c')}}
+      />
       {/* Motto of the year — shown first, above the hero */}
       <div className="py-6 px-4 text-center">
         <p className="text-navy/60 text-xs font-bold uppercase tracking-[0.2em] mb-1">{t('mottoLabel')}</p>

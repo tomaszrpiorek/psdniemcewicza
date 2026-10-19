@@ -2,6 +2,8 @@ import {client, urlFor} from '@/lib/sanity'
 import Link from 'next/link'
 import {getTranslations} from 'next-intl/server'
 import AlbumGallery from '@/components/AlbumGallery'
+import type {Metadata} from 'next'
+import {pageMetadata} from '@/lib/seo'
 
 export const revalidate = 30
 
@@ -10,6 +12,17 @@ async function getAlbum(slug: string) {
     `*[_type == "galleryAlbum" && slug.current == $slug][0] { _id, title, date, category, photos }`,
     {slug}
   )
+}
+
+export async function generateMetadata({params}: {params: Promise<{locale: string; slug: string}>}): Promise<Metadata> {
+  const {locale, slug} = await params
+  const [album, t, m] = await Promise.all([
+    getAlbum(slug),
+    getTranslations({locale, namespace: 'Gallery'}),
+    getTranslations({locale, namespace: 'Metadata'}),
+  ])
+  if (!album) return {title: t('notFound'), robots: {index: false}}
+  return pageMetadata(locale, `/gallery/${slug}`, `${album.title} – ${t('title')}`, m('galleryDescription'))
 }
 
 export default async function AlbumPage({params}: {params: Promise<{locale: string; slug: string}>}) {

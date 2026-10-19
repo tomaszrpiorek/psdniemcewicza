@@ -1,7 +1,19 @@
 {
   "Metadata": {
     "title": "PSD im. Juliana Ursyna Niemcewicza — Plainfield, NJ",
-    "description": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, New Jersey."
+    "description": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, New Jersey.",
+    "titleTemplate": "%s | PSD im. J. U. Niemcewicza – Plainfield, NJ",
+    "homeTitle": "Polska Szkoła w Plainfield, NJ – PSD im. Juliana Ursyna Niemcewicza",
+    "homeDescription": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, New Jersey. Nauka języka polskiego, historii i kultury dla dzieci od 3 lat – przedszkole, klasy 0–8 i liceum. Zajęcia w poniedziałki 17:30–20:00.",
+    "aboutDescription": "Poznaj polską szkołę w Plainfield, NJ: czego uczymy, struktura klas od przedszkola po liceum, nasz patron Julian Ursyn Niemcewicz i 25 lat historii szkoły.",
+    "staffDescription": "Dyrekcja, zarząd i nauczyciele Polskiej Szkoły Dokształcającej im. J. U. Niemcewicza w Plainfield, New Jersey.",
+    "announcementsDescription": "Aktualne ogłoszenia Polskiej Szkoły w Plainfield, NJ – wydarzenia, zbiórki, zapisy i informacje dla rodziców.",
+    "calendarDescription": "Kalendarz roku szkolnego 2026–2027 Polskiej Szkoły w Plainfield, NJ: dni zajęć, dni wolne, uroczystości i dyżury rodziców.",
+    "galleryDescription": "Zdjęcia z życia Polskiej Szkoły w Plainfield, NJ – uroczystości, akademie, zajęcia i wydarzenia szkolne.",
+    "documentsDescription": "Dokumenty i formularze Polskiej Szkoły Dokształcającej im. J. U. Niemcewicza w Plainfield, NJ.",
+    "contactDescription": "Kontakt z Polską Szkołą w Plainfield, NJ: 365 Emerson Avenue, tel. (732) 261-4276, psdniemcewicza@gmail.com. Zajęcia w poniedziałki 17:30–20:00.",
+    "homeworkTitle": "Zadania domowe – {grade}",
+    "homeworkDescription": "Zadania domowe dla grupy {grade} w Polskiej Szkole im. J. U. Niemcewicza w Plainfield, NJ."
   },
   "Nav": {
     "school": "Nasza Szkoła",

@@ -2,6 +2,8 @@ import {client} from '@/lib/sanity'
 import {getTranslations} from 'next-intl/server'
 import MonthCalendar from '@/components/MonthCalendar'
 import {script} from '@/lib/fonts'
+import type {Metadata} from 'next'
+import {pageMetadata} from '@/lib/seo'
 
 export const revalidate = 30
 
@@ -19,6 +21,13 @@ const SCHOOL_YEAR_END = '2027-05-24'
 
 async function getEvents() {
   return client.fetch(`*[_type == "event"] | order(date asc) { _id, title, date, location }`)
+}
+
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params
+  const t = await getTranslations({locale, namespace: 'Calendar'})
+  const m = await getTranslations({locale, namespace: 'Metadata'})
+  return pageMetadata(locale, '/calendar', t('title'), m('calendarDescription'))
 }
 
 export default async function CalendarPage({params}: {params: Promise<{locale: string}>}) {

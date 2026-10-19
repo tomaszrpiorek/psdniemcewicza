@@ -3,6 +3,15 @@ import Image from 'next/image'
 import ContactForm from '@/components/ContactForm'
 import {getFeaturedPhoto} from '@/lib/sanity'
 import {IconMail, IconPhone, IconMapPin, IconMailbox, IconClock} from '@/components/icons'
+import type {Metadata} from 'next'
+import {pageMetadata} from '@/lib/seo'
+
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params
+  const t = await getTranslations({locale, namespace: 'Contact'})
+  const m = await getTranslations({locale, namespace: 'Metadata'})
+  return pageMetadata(locale, '/contact', t('title'), m('contactDescription'))
+}
 
 export default async function ContactPage({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params

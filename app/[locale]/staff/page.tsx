@@ -1,11 +1,20 @@
 import {client, getFeaturedPhoto} from '@/lib/sanity'
 import Image from 'next/image'
 import {getTranslations} from 'next-intl/server'
+import type {Metadata} from 'next'
+import {pageMetadata} from '@/lib/seo'
 
 export const revalidate = 30
 
 async function getStaff() {
   return client.fetch(`*[_type == "staffMember"] | order(order asc) { _id, name, role }`)
+}
+
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params
+  const t = await getTranslations({locale, namespace: 'Staff'})
+  const m = await getTranslations({locale, namespace: 'Metadata'})
+  return pageMetadata(locale, '/staff', t('title'), m('staffDescription'))
 }
 
 export default async function StaffPage({params}: {params: Promise<{locale: string}>}) {

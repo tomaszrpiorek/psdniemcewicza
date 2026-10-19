@@ -1,7 +1,19 @@
 {
   "Metadata": {
     "title": "Polish Supplementary School — Plainfield, NJ",
-    "description": "Polish Supplementary School named after Julian Ursyn Niemcewicz in Plainfield, New Jersey."
+    "description": "Polish Supplementary School named after Julian Ursyn Niemcewicz in Plainfield, New Jersey.",
+    "titleTemplate": "%s | Polish School in Plainfield, NJ",
+    "homeTitle": "Polish School in Plainfield, NJ – PSD Julian Ursyn Niemcewicz",
+    "homeDescription": "Polish Supplementary School (Polska Szkoła Dokształcająca) named after Julian Ursyn Niemcewicz in Plainfield, New Jersey. Polish language, history and culture for children from age 3 – preschool, grades 0–8 and high school. Classes on Mondays, 5:30–8:00 PM.",
+    "aboutDescription": "About the Polish school in Plainfield, NJ: what we teach, classes from preschool to high school, our patron Julian Ursyn Niemcewicz and 25 years of history.",
+    "staffDescription": "Principal, board and teachers of the Polish Supplementary School named after J. U. Niemcewicz in Plainfield, New Jersey.",
+    "announcementsDescription": "Latest announcements from the Polish School in Plainfield, NJ – events, fundraisers, registration and news for parents.",
+    "calendarDescription": "2026–2027 school calendar of the Polish School in Plainfield, NJ: class days, days off, celebrations and parent duty.",
+    "galleryDescription": "Photos from the Polish School in Plainfield, NJ – celebrations, performances, classes and school events.",
+    "documentsDescription": "Documents and forms of the Polish Supplementary School named after J. U. Niemcewicz in Plainfield, NJ.",
+    "contactDescription": "Contact the Polish School in Plainfield, NJ: 365 Emerson Avenue, phone (732) 261-4276, psdniemcewicza@gmail.com. Classes on Mondays, 5:30–8:00 PM.",
+    "homeworkTitle": "Homework – {grade}",
+    "homeworkDescription": "Homework for {grade} at the Polish School named after J. U. Niemcewicz in Plainfield, NJ."
   },
   "Nav": {
     "school": "Our School",

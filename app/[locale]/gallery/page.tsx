@@ -2,6 +2,8 @@ import {client, urlFor, getFeaturedPhoto} from '@/lib/sanity'
 import Image from 'next/image'
 import Link from 'next/link'
 import {getTranslations} from 'next-intl/server'
+import type {Metadata} from 'next'
+import {pageMetadata} from '@/lib/seo'
 
 export const revalidate = 30
 
@@ -9,6 +11,13 @@ async function getAlbums() {
   return client.fetch(`*[_type == "galleryAlbum"] | order(coalesce(date, "1970-01-01") desc) {
     _id, title, "slug": slug.current, date, category, coverImage, "firstPhoto": photos[defined(asset)][0]
   }`)
+}
+
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params
+  const t = await getTranslations({locale, namespace: 'Gallery'})
+  const m = await getTranslations({locale, namespace: 'Metadata'})
+  return pageMetadata(locale, '/gallery', t('title'), m('galleryDescription'))
 }
 
 export default async function GalleryPage({params}: {params: Promise<{locale: string}>}) {
