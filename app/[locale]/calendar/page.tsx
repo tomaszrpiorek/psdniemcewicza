@@ -126,9 +126,12 @@ export default async function CalendarPage({params}: {params: Promise<{locale: s
               {past.map((e: any) => {
                 const d = new Date(e.date)
                 return (
-                  <div key={e._id} className="flex items-center gap-4 bg-white rounded border border-gray-100 px-4 py-3">
+                  <div key={e._id} className="flex items-start gap-4 bg-white rounded border border-gray-100 px-4 py-3">
                     <p className="text-sm text-gray-400 shrink-0 w-24">{d.toLocaleDateString(dateLocale, {day: 'numeric', month: 'short'})}</p>
-                    <p className="text-sm font-medium text-gray-600">{e.title}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-600">{e.title}</p>
+                      {e.location && <p className="text-xs text-gray-500 mt-0.5 break-words">📍 {e.location}</p>}
+                    </div>
                   </div>
                 )
               })}
