@@ -5,6 +5,14 @@ import Image from 'next/image'
 import {useLocale, useTranslations} from 'next-intl'
 import {IconMail, IconPhone, IconMapPin, IconClock} from '@/components/icons'
 
+const USEFUL_LINKS = [
+  {href: 'https://www.centralapolskichszkol.org/',                         key: 'linkCentrala'},
+  {href: 'https://www.gov.pl/web/edukacja',                                key: 'linkMen'},
+  {href: 'https://www.gov.pl/web/usa/konsulat-generalny-rp-w-nowym-jorku', key: 'linkConsulate'},
+  {href: 'https://www.gov.pl/web/usa',                                     key: 'linkEmbassy'},
+  {href: 'https://www.psfcu.com/',                                         key: 'linkPsfcu'},
+] as const
+
 export default function Footer() {
   const locale = useLocale()
   const t = useTranslations('Footer')
@@ -12,7 +20,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-navy text-gray-300 mt-auto">
-      <div className="max-w-6xl mx-auto px-4 py-12 grid gap-x-6 gap-y-10 grid-cols-2 lg:grid-cols-4">
+      <div className="max-w-6xl mx-auto px-4 py-12 grid gap-x-6 gap-y-10 grid-cols-2 lg:grid-cols-5">
         <div className="col-span-2 lg:col-span-1">
           <Image src="/logo.png" alt="Logo" width={70} height={70} className="object-contain mb-3 opacity-90" />
           <p className="text-sm text-gray-400 leading-relaxed">{t('desc')}</p>
@@ -42,6 +50,19 @@ export default function Footer() {
               {href: `/${locale}/contact`,          label: tNav('contact')},
             ].map((l) => (
               <li key={l.href}><Link href={l.href} className="inline-block py-1 hover:text-gold-tint transition-colors">{l.label}</Link></li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="col-span-2 lg:col-span-1 min-w-0">
+          <h3 className="text-gold-tint font-bold mb-3 text-xs uppercase tracking-widest">{t('links')}</h3>
+          <ul className="space-y-1 text-sm">
+            {USEFUL_LINKS.map((l) => (
+              <li key={l.key}>
+                <a href={l.href} target="_blank" rel="noopener noreferrer" className="inline-block py-1 leading-snug hover:text-gold-tint transition-colors">
+                  {t(l.key)}
+                </a>
+              </li>
             ))}
           </ul>
         </div>

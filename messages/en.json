@@ -466,7 +466,13 @@
     "info": "Information",
     "contact": "Contact",
     "hours": "Mon. 5:30 – 8:00 PM",
-    "copyright": "Polish Supplementary School named after Julian Ursyn Niemcewicz in Plainfield, NJ. All rights reserved."
+    "copyright": "Polish Supplementary School named after Julian Ursyn Niemcewicz in Plainfield, NJ. All rights reserved.",
+    "links": "Useful links",
+    "linkCentrala": "Polish Supplementary School Council of America",
+    "linkMen": "Polish Ministry of National Education",
+    "linkConsulate": "Consulate General of Poland in New York",
+    "linkEmbassy": "Embassy of Poland in Washington",
+    "linkPsfcu": "Polish & Slavic Federal Credit Union"
   },
   "Validation": {
     "messageTooLong": "The message is too long (5000 characters maximum).",

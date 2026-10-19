@@ -466,7 +466,13 @@
     "info": "Informacje",
     "contact": "Kontakt",
     "hours": "Pon. 17:30 – 20:00",
-    "copyright": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, NJ. Wszelkie prawa zastrzeżone."
+    "copyright": "Polska Szkoła Dokształcająca im. Juliana Ursyna Niemcewicza w Plainfield, NJ. Wszelkie prawa zastrzeżone.",
+    "links": "Przydatne linki",
+    "linkCentrala": "Centrala Polskich Szkół Dokształcających w Ameryce",
+    "linkMen": "Ministerstwo Edukacji Narodowej",
+    "linkConsulate": "Konsulat Generalny RP w Nowym Jorku",
+    "linkEmbassy": "Ambasada RP w Waszyngtonie",
+    "linkPsfcu": "Polish & Slavic Federal Credit Union"
   },
   "Validation": {
     "messageTooLong": "Wiadomość jest za długa (maksymalnie 5000 znaków).",
