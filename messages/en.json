@@ -12,6 +12,7 @@
     "galleryDescription": "Photos from the Polish School in Plainfield, NJ – celebrations, performances, classes and school events.",
     "documentsDescription": "Documents and forms of the Polish Supplementary School named after J. U. Niemcewicz in Plainfield, NJ.",
     "contactDescription": "Contact the Polish School in Plainfield, NJ: 365 Emerson Avenue, phone (732) 261-4276, psdniemcewicza@gmail.com. Classes on Mondays, 5:30–8:00 PM.",
+    "sponsorsDescription": "Sponsors of the Polish School in Plainfield, NJ: the Institute for the Development of the Polish Language, Polish & Slavic Federal Credit Union and the Polish Supplementary Schools Council of America.",
     "homeworkTitle": "Homework – {grade}",
     "homeworkDescription": "Homework for {grade} at the Polish School named after J. U. Niemcewicz in Plainfield, NJ."
   },
@@ -39,6 +40,7 @@
     "liceum3": "High School III",
     "calendar": "Calendar",
     "contact": "Contact",
+    "sponsors": "Sponsors",
     "login": "Login",
     "enroll": "Enroll",
     "medicalForm": "Medical Form",
@@ -192,6 +194,22 @@
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
     "noEventsForDay": "No events on this day."
+  },
+  "Sponsors": {
+    "tag": "They support us",
+    "title": "Our Sponsors",
+    "intro": "We thank the institutions and organizations that support our school. Their help lets us teach Polish language, history and culture to new generations of Polish-American children in New Jersey.",
+    "visit": "Visit website",
+    "irjpName": "Instytut Rozwoju Języka Polskiego im. św. Maksymiliana Marii Kolbego",
+    "irjpDesc": "A Polish state institution that supports teaching and promoting the Polish language outside Poland. Its support helps us develop classes and teaching materials for our students.",
+    "psfcuName": "Polish & Slavic Federal Credit Union",
+    "psfcuDesc": "A Polish-American credit union that has long supported the Polish community in the United States – its organizations, culture and education. Thank you for helping our school.",
+    "centralaName": "Centrala Polskich Szkół Dokształcających w Ameryce",
+    "centralaDesc": "The association of Polish supplementary schools in America, of which our school is a member. The Centrala supports our teaching and organizes competitions for students and training for teachers.",
+    "ctaTitle": "Would you like to support our school?",
+    "ctaDesc": "Our school is run by the community and our teachers are volunteers. Every bit of support – from a business, an organization or an individual – helps us run classes, celebrations and events for children.",
+    "ctaBtn": "Contact us",
+    "homeTitle": "Our sponsors"
   },
   "Contact": {
     "tag": "Contact",

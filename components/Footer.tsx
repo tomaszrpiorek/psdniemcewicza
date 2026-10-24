@@ -48,6 +48,7 @@ export default function Footer() {
               {href: `/${locale}/calendar`,         label: tNav('calendar')},
               {href: `/${locale}/homework/klasa-1`, label: tNav('homework')},
               {href: `/${locale}/contact`,          label: tNav('contact')},
+              {href: `/${locale}/sponsors`,         label: tNav('sponsors')},
             ].map((l) => (
               <li key={l.href}><Link href={l.href} className="inline-block py-1 hover:text-gold-tint transition-colors">{l.label}</Link></li>
             ))}

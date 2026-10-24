@@ -12,6 +12,7 @@
     "galleryDescription": "Zdjęcia z życia Polskiej Szkoły w Plainfield, NJ – uroczystości, akademie, zajęcia i wydarzenia szkolne.",
     "documentsDescription": "Dokumenty i formularze Polskiej Szkoły Dokształcającej im. J. U. Niemcewicza w Plainfield, NJ.",
     "contactDescription": "Kontakt z Polską Szkołą w Plainfield, NJ: 365 Emerson Avenue, tel. (732) 261-4276, psdniemcewicza@gmail.com. Zajęcia w poniedziałki 17:30–20:00.",
+    "sponsorsDescription": "Sponsorzy Polskiej Szkoły w Plainfield, NJ: Instytut Rozwoju Języka Polskiego, Polish & Slavic Federal Credit Union i Centrala Polskich Szkół Dokształcających w Ameryce.",
     "homeworkTitle": "Zadania domowe – {grade}",
     "homeworkDescription": "Zadania domowe dla grupy {grade} w Polskiej Szkole im. J. U. Niemcewicza w Plainfield, NJ."
   },
@@ -39,6 +40,7 @@
     "liceum3": "III Liceum",
     "calendar": "Kalendarz",
     "contact": "Kontakt",
+    "sponsors": "Sponsorzy",
     "login": "Logowanie",
     "enroll": "Zapisz dziecko",
     "medicalForm": "Zgoda medyczna",
@@ -192,6 +194,22 @@
     "prevMonth": "Poprzedni miesiąc",
     "nextMonth": "Następny miesiąc",
     "noEventsForDay": "Brak wydarzeń tego dnia."
+  },
+  "Sponsors": {
+    "tag": "Wspierają nas",
+    "title": "Nasi Sponsorzy",
+    "intro": "Dziękujemy instytucjom i organizacjom, które wspierają naszą szkołę. Dzięki ich pomocy możemy uczyć kolejne pokolenia dzieci i młodzieży polonijnej w New Jersey języka polskiego, historii i kultury Polski.",
+    "visit": "Odwiedź stronę",
+    "irjpName": "Instytut Rozwoju Języka Polskiego im. św. Maksymiliana Marii Kolbego",
+    "irjpDesc": "Państwowa instytucja, która wspiera naukę i promocję języka polskiego poza granicami Polski. Dzięki jej wsparciu możemy rozwijać zajęcia i materiały dydaktyczne dla naszych uczniów.",
+    "psfcuName": "Polish & Slavic Federal Credit Union",
+    "psfcuDesc": "Polonijna kasa kredytowa, która od lat wspiera polską społeczność w Stanach Zjednoczonych – jej organizacje, kulturę i edukację. Dziękujemy za pomoc w życiu naszej szkoły.",
+    "centralaName": "Centrala Polskich Szkół Dokształcających w Ameryce",
+    "centralaDesc": "Organizacja zrzeszająca polskie szkoły dokształcające w Ameryce, której członkiem jest nasza szkoła. Centrala wspiera nas w pracy dydaktycznej, organizuje konkursy dla uczniów i szkolenia dla nauczycieli.",
+    "ctaTitle": "Chcesz wesprzeć naszą szkołę?",
+    "ctaDesc": "Nasza szkoła działa społecznie, a nauczyciele pracują wolontaryjnie. Każde wsparcie – firmy, organizacji czy osoby prywatnej – pomaga nam organizować zajęcia, uroczystości i wydarzenia dla dzieci.",
+    "ctaBtn": "Skontaktuj się z nami",
+    "homeTitle": "Nasi sponsorzy"
   },
   "Contact": {
     "tag": "Kontakt",

@@ -6,7 +6,7 @@ import {SITE_URL} from '@/lib/seo'
 
 export const revalidate = 3600
 
-const PAGES = ['', '/about', '/staff', '/announcements', '/calendar', '/gallery', '/documents', '/contact']
+const PAGES = ['', '/about', '/staff', '/announcements', '/calendar', '/gallery', '/documents', '/contact', '/sponsors']
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const albums: string[] = await client

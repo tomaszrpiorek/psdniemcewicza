@@ -11,6 +11,7 @@ import HeroCarousel from '@/components/HeroCarousel'
 import {IconCalendar, IconMapPin, IconMail, IconPhone, IconBook, IconDocument, IconUsers, IconCamera} from '@/components/icons'
 import type {Metadata} from 'next'
 import {SITE_URL, localeAlternates} from '@/lib/seo'
+import {SPONSORS} from '@/lib/sponsors'
 
 export const revalidate = 30
 
@@ -101,6 +102,7 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
   const {locale} = await params
   const t = await getTranslations({locale, namespace: 'Home'})
   const tAbout = await getTranslations({locale, namespace: 'About'})
+  const tSponsors = await getTranslations({locale, namespace: 'Sponsors'})
   const [announcements, gallery, photos, upcomingEvents] = await Promise.all([
     getAnnouncements(), getGalleryPreview(), getHomePhotos(), getUpcomingEvents(),
   ])
@@ -328,6 +330,27 @@ export default async function Home({params}: {params: Promise<{locale: string}>}
                 </Link>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sponsors strip */}
+      <div className="bg-white border-t border-gray-100 py-10 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-navy border-b-2 border-gold pb-1">{tSponsors('homeTitle')}</h2>
+            <Link href={'/' + locale + '/sponsors'} className="text-xs text-gold font-semibold hover:underline py-2 pl-3 shrink-0">{t('viewAll')}</Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+            {SPONSORS.map((s) => (
+              <Link
+                key={s.key}
+                href={'/' + locale + '/sponsors'}
+                className="flex items-center justify-center h-24 px-4 rounded-lg border border-gray-100 hover:border-gold hover:shadow-sm transition-all"
+              >
+                <Image src={s.logo} alt={tSponsors(`${s.key}Name`)} width={s.width} height={s.height} className="max-h-16 w-auto max-w-full object-contain" />
+              </Link>
+            ))}
           </div>
         </div>
       </div>

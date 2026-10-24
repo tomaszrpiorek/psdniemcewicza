@@ -48,6 +48,7 @@ export default function Navbar() {
     },
     {label: t('calendar'), href: `/${locale}/calendar`},
     {label: t('contact'),  href: `/${locale}/contact`},
+    {label: t('sponsors'), href: `/${locale}/sponsors`},
   ]
 
   return (
