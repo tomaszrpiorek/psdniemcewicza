@@ -156,7 +156,9 @@
   "Staff": {
     "tag": "School",
     "title": "Teaching Staff",
-    "empty": "No staff profiles yet."
+    "empty": "No staff profiles yet.",
+    "colName": "Name",
+    "colRole": "Role"
   },
   "Gallery": {
     "tag": "School Life",

@@ -156,7 +156,9 @@
   "Staff": {
     "tag": "Szkoła",
     "title": "Kadra Pedagogiczna",
-    "empty": "Brak danych o kadrze."
+    "empty": "Brak danych o kadrze.",
+    "colName": "Imię i nazwisko",
+    "colRole": "Funkcja"
   },
   "Gallery": {
     "tag": "Szkoła w Obiektywie",

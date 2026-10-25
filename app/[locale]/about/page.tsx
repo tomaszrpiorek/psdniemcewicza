@@ -127,9 +127,11 @@ export default async function AboutPage({params}: {params: Promise<{locale: stri
               <p>{t('missionP7')}</p>
             </div>
 
-            <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-200 border-y border-gray-200 py-6">
+            {/* Dividers sit between columns only: on phones (2×2) the 3rd fact starts a new row,
+                so it drops its divider and padding to line up under the 1st */}
+            <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-y-5 border-y border-gray-200 py-6">
               {facts.map((f) => (
-                <div key={f.label} className="px-4 sm:px-6 first:pl-0">
+                <div key={f.label} className="px-4 sm:px-6 border-l border-gray-200 odd:pl-0 odd:border-l-0 sm:[&:nth-child(3)]:pl-6 sm:[&:nth-child(3)]:border-l">
                   <p className="text-gold text-[11px] font-bold uppercase tracking-widest mb-1.5">{f.label}</p>
                   <p className="font-bold text-navy leading-snug">{f.value}</p>
                 </div>

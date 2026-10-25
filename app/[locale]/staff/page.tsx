@@ -34,14 +34,26 @@ export default async function StaffPage({params}: {params: Promise<{locale: stri
       </div>
       <div className="max-w-5xl mx-auto px-4 py-10">
         {staff.length === 0 && <p className="text-gray-400 text-sm">{t('empty')}</p>}
-        <ul className="max-w-2xl divide-y divide-gray-100">
-          {staff.map((member: any) => (
-            <li key={member._id} className="py-3">
-              <span className="font-bold text-navy">{member.name}</span>
-              {member.role && <span className="text-gray-600"> — {member.role}</span>}
-            </li>
-          ))}
-        </ul>
+        {staff.length > 0 && (
+          <div className="max-w-3xl overflow-hidden rounded-xl border border-gray-100 shadow-sm bg-white">
+            <table className="w-full text-sm">
+              <thead className="bg-navy text-white text-left">
+                <tr>
+                  <th scope="col" className="px-4 py-3 font-semibold">{t('colName')}</th>
+                  <th scope="col" className="px-4 py-3 font-semibold">{t('colRole')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {staff.map((member: any) => (
+                  <tr key={member._id} className="even:bg-cream/50">
+                    <td className="px-4 py-3 font-bold text-navy align-top">{member.name}</td>
+                    <td className="px-4 py-3 text-gray-600 align-top">{member.role}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </main>
   )
